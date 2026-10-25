@@ -41,7 +41,15 @@ interface Row {
   previous_domain: string | null;
   selection: Choice;
   suggest_light: boolean;
-  conflict_with: { domain: string; name: string | null; file: string | null; line: number | null; adoptable: boolean } | null;
+  conflict_with: {
+    domain: string;
+    name: string | null;
+    file: string | null;
+    line: number | null;
+    adoptable: boolean;
+    kind: "unique_id" | "address" | "app";
+    address: string | null;
+  } | null;
   adopt: boolean;
   own_config: boolean;
   project_addresses: Record<string, string>;
@@ -68,6 +76,11 @@ const WRITTEN = new Set(["new", "changed", "unchanged", "kept"]);
 const BLOCKED = new Set(["excluded", "duplicate", "invalid", "conflict", "removed", "existing"]);
 const FILTERS = ["all", "active", "pending", "off", "existing", "issues", "gone", "unmapped"] as const;
 type Filter = (typeof FILTERS)[number];
+
+/** Not selectable; a GA that is only shared with another entity can still be created on request. */
+const isBlocked = (row: Row): boolean =>
+  BLOCKED.has(row.status) &&
+  !((row.status === "conflict" || row.status === "duplicate") && row.conflict_with && row.conflict_with.kind !== "unique_id");
 
 const inFilter = (row: Row, filter: Filter): boolean => {
   switch (filter) {
@@ -266,14 +279,14 @@ class KnxProjectSyncPanel extends LitElement {
 
   private _checked(row: Row): boolean {
     const enabled = this._draft[row.key]?.enabled;
-    if (enabled === true || enabled === false) return enabled && !BLOCKED.has(row.status);
+    if (enabled === true || enabled === false) return enabled && !isBlocked(row);
     return WRITTEN.has(row.status);
   }
 
   private _toggleMany(rows: Row[], on: boolean): void {
     const draft = { ...this._draft };
     for (const row of rows) {
-      if (BLOCKED.has(row.status)) continue;
+      if (isBlocked(row)) continue;
       draft[row.key] = { ...(draft[row.key] ?? {}), enabled: on };
     }
     this._draft = draft;
@@ -371,9 +384,16 @@ class KnxProjectSyncPanel extends LitElement {
   private _renderStaged(): TemplateResult | typeof nothing {
     const t = this.t;
     if (!this._data) return nothing;
-    const adoptable = this._data.entities.filter(
-      (r) => r.status === "conflict" && r.conflict_with?.adoptable && !this._draft[r.key]?.adopt
-    );
+    // one row per own YAML entry: a climate may cover several detected sensors
+    const seen = new Set<string>();
+    const adoptable = this._data.entities.filter((r) => {
+      const c = r.conflict_with;
+      if (r.status !== "conflict" || !c?.adoptable || this._draft[r.key]?.adopt) return false;
+      const where = `${c.file}:${c.line}`;
+      if (seen.has(where)) return false;
+      seen.add(where);
+      return true;
+    });
     const adoptCard = adoptable.length
       ? html`<section class="staged notice">
           <div class="staged-icon">${icon(ICONS.file, 20)}</div>
@@ -501,7 +521,7 @@ class KnxProjectSyncPanel extends LitElement {
       a === t.noRoom ? 1 : b === t.noRoom ? -1 : a.localeCompare(b, this.hass.language)
     );
     return html`${sorted.map(([name, items]) => {
-      const choosable = items.filter((r) => !BLOCKED.has(r.status));
+      const choosable = items.filter((r) => !isBlocked(r));
       const on = items.filter((r) => this._checked(r)).length;
       const all = choosable.length > 0 && choosable.every((r) => this._checked(r));
       const progress = items.length ? Math.round((on / items.length) * 100) : 0;
@@ -524,7 +544,7 @@ class KnxProjectSyncPanel extends LitElement {
   private _renderRow(row: Row): TemplateResult {
     const t = this.t;
     const choice = this._draft[row.key] ?? {};
-    const blocked = BLOCKED.has(row.status);
+    const blocked = isBlocked(row);
     const checked = this._checked(row);
     const domain = choice.domain || row.detected_domain;
     const tone = row.adopt ? "adopt" : row.status;
@@ -704,11 +724,19 @@ class KnxProjectSyncPanel extends LitElement {
     const where = c.file ? `${c.file}${c.line ? `:${c.line}` : ""}` : t.ownYaml;
     return html`<div class="drawer conflict-box">
       <span class="grow">
-        ${row.adopt ? t.adoptInfo(where) : t.conflictInfo(t.domains[c.domain] ?? c.domain, c.name ?? "", where)}
+        ${row.adopt
+          ? t.adoptInfo(where)
+          : c.kind === "app"
+            ? t.gaInApp(c.address ?? "", t.domains[c.domain] ?? c.domain, c.name ?? "")
+            : c.kind === "address"
+              ? t.gaInYaml(c.address ?? "", t.domains[c.domain] ?? c.domain, c.name ?? "", where)
+              : t.conflictInfo(t.domains[c.domain] ?? c.domain, c.name ?? "", where)}
       </span>
       ${choice.adopt
         ? html`<button class="text" @click=${() => this._choose(row.key, { adopt: null })}>${t.undo}</button>`
-        : c.adoptable
+        : c.kind === "app"
+          ? nothing
+          : c.adoptable
           ? html`<button class="secondary small" @click=${() => this._choose(row.key, { adopt: true })}>${t.adopt}</button>`
           : html`<span class="sub">${t.notAdoptable}</span>`}
     </div>`;
@@ -735,6 +763,7 @@ class KnxProjectSyncPanel extends LitElement {
   private _statusLabel(row: Row): string {
     const t = this.t;
     if (row.adopt) return t.status.adopt;
+    if (row.reason === "ga_in_use") return t.status.ga_in_use;
     if (row.own_config && row.status === "unchanged") return t.status.own_config;
     if (row.status === "deselected" && row.entity_id) return t.status.deselected_removed;
     if (row.status === "changed" && row.previous_domain && row.previous_domain !== row.domain) return t.status.retyped;
@@ -743,6 +772,7 @@ class KnxProjectSyncPanel extends LitElement {
 
   private _reasonLabel(row: Row): string {
     const t = this.t;
+    if (row.reason === "ga_in_use") return t.reasons.ga_in_use;
     if (row.status === "conflict") return t.reasons.own_yaml;
     if (row.status === "duplicate") return row.reason === "light" ? t.reasons.light : t.reasons.unique_id;
     return row.reason ?? "";

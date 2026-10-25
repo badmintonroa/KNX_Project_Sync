@@ -166,6 +166,12 @@ def build_plan(
     selection = selection or {}
     foreign_entities = foreign_entities or {}
     foreign_unique_ids = set(foreign_unique_ids) | set(foreign_entities)
+    # every GA the own YAML uses, in any field
+    foreign_addresses: dict[str, tuple[str, str]] = {}
+    for fk, info in foreign_entities.items():
+        for address in _addresses(info.get("config") or {}):
+            foreign_addresses.setdefault(address, fk)
+    adopted: set[tuple[str, str]] = set()
     plan = ImportPlan(
         project=manifest.get("project", {}).get("name"),
         unmapped=list(manifest.get("unmapped", [])),
@@ -190,6 +196,10 @@ def build_plan(
             detected_domain=e["domain"],
         )
         clash = _own_yaml_clash(domain, entry.unique_id, foreign_unique_ids)
+        kind = "unique_id"
+        if not clash and (hit := _shared_address(config, foreign_addresses)):
+            # one of its GAs is used by another own entity (e.g. the temperature of a climate)
+            clash, kind = hit
         if clash:
             info = foreign_entities.get(clash, {})
             entry.conflict_with = {
@@ -198,12 +208,19 @@ def build_plan(
                 "name": (info.get("config") or {}).get("name"),
                 "file": info.get("file"),
                 "line": info.get("line"),
+                "kind": "unique_id" if kind == "unique_id" else "address",
+                "address": None if kind == "unique_id" else kind,
             }
-            if choice.get("adopt") and info.get("file") and info.get("line"):
+            adoptable = info.get("file") and info.get("line") and clash not in adopted
+            if choice.get("adopt") and adoptable:
                 # take the user's own definition over as it is
+                adopted.add(clash)
                 entry.domain, entry.config, entry.adopt = clash[0], dict(info["config"]), True
                 entry.name = entry.config.get("name")
                 domain, config, clash = entry.domain, entry.config, None
+                entry.unique_id = unique_id_for(domain, config)
+            elif kind != "unique_id" and choice.get("enabled") is True:
+                clash = None  # only a shared GA: created anyway on request
         if domain not in domains:
             entry.status = EXCLUDED
         elif choice.get("enabled") is False:
@@ -222,10 +239,34 @@ def build_plan(
         elif validate and (error := validate(domain, config)):
             entry.status, entry.reason = INVALID, error
         elif clash:
-            entry.status, entry.reason = CONFLICT, "own_yaml"
+            entry.status, entry.reason = CONFLICT, "own_yaml" if kind == "unique_id" else "ga_in_use"
         if entry.status == NEW:
             used.add((entry.domain, entry.unique_id))
         candidates.append(entry)
+
+    # entities with a taken-over definition own their GAs: no detected duplicate next to them
+    custom = {}
+    for entry in candidates:
+        if entry.status == NEW and (entry.adopt or selection.get(entry.key, {}).get("config")):
+            for address in _addresses(entry.config):
+                custom.setdefault(address, entry)
+    for entry in candidates:
+        owns = any(entry is other for other in custom.values())
+        if entry.status != NEW or owns or selection.get(entry.key, {}).get("enabled") is True:
+            continue
+        owner = next((custom[a] for a in _addresses(entry.config) if a in custom), None)
+        if owner is not None:
+            entry.status, entry.reason = DUPLICATE, "ga_in_use"
+            entry.conflict_with = {
+                "domain": owner.domain,
+                "unique_id": owner.unique_id,
+                "name": owner.name,
+                "file": None,
+                "line": None,
+                "kind": "app",
+                "address": next(a for a in _addresses(entry.config) if a in custom),
+            }
+            used.discard((entry.domain, entry.unique_id))
 
     # match with the previous import: by key, then by unique_id (GA recreated in ETS)
     unmatched = dict(previous)
@@ -283,6 +324,28 @@ def domain_choices(domain: str, config: dict[str, Any]) -> list[str]:
     if domain == "light" and "address" in config and set(config) <= SIMPLE_ON_OFF_FIELDS:
         return ["light", "switch"]
     return [domain]
+
+
+def _addresses(config: dict[str, Any]) -> list[str]:
+    """All group addresses of a config (raw YAML may hold lists)."""
+    out: list[str] = []
+    for key, value in config.items():
+        if not is_address_field(key):
+            continue
+        for item in value if isinstance(value, list) else [value]:
+            if isinstance(item, str) and item:
+                out.append(item)
+    return out
+
+
+def _shared_address(
+    config: dict[str, Any], foreign_addresses: dict[str, tuple[str, str]]
+) -> tuple[tuple[str, str], str] | None:
+    """(own entity, address) of the first GA of `config` the own YAML already uses."""
+    for address in _addresses(config):
+        if address in foreign_addresses:
+            return foreign_addresses[address], address
+    return None
 
 
 def _own_yaml_clash(domain: str, uid: str, foreign: set[tuple[str, str]]) -> tuple[str, str] | None:

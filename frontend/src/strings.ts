@@ -45,6 +45,8 @@ export interface Strings {
   undo: string;
   ownYaml: string;
   conflictInfo: (domain: string, name: string, where: string) => string;
+  gaInYaml: (address: string, domain: string, name: string, where: string) => string;
+  gaInApp: (address: string, domain: string, name: string) => string;
   adoptInfo: (where: string) => string;
   notAdoptable: string;
   markExisting: string;
@@ -215,6 +217,10 @@ const de: Strings = {
   undo: "Rückgängig",
   ownYaml: "deiner eigenen KNX-YAML",
   conflictInfo: (domain, name, where) => `Schon in deiner YAML: ${domain} „${name}“ (${where}). Wird nicht doppelt angelegt.`,
+  gaInYaml: (a, domain, name, where) =>
+    `Die Gruppenadresse ${a} verwendet schon dein ${domain} „${name}“ (${where}). Nicht angelegt: übernimm es in die App, oder schalte die Entity ein, um sie trotzdem anzulegen.`,
+  gaInApp: (a, domain, name) =>
+    `Die Gruppenadresse ${a} gehört schon zu ${domain} „${name}“ in der App. Einschalten, um sie trotzdem anzulegen.`,
   adoptInfo: (where) =>
     `Wird mit deiner Konfiguration in die App übernommen und aus ${where} entfernt. Vorher wird eine Sicherung angelegt.`,
   notAdoptable: "Nicht automatisch übernehmbar, bitte in der YAML entfernen.",
@@ -294,12 +300,14 @@ const de: Strings = {
     duplicate: "Doppelt",
     invalid: "Ungültig",
     conflict: "Eigene YAML",
+    ga_in_use: "GA schon belegt",
     existing: "Schon vorhanden",
     adopt: "Wird übernommen",
     own_config: "Aktiv · eigene Konfiguration",
   },
   reasons: {
     own_yaml: "Schon in deiner eigenen KNX-YAML definiert",
+    ga_in_use: "Gruppenadresse schon verwendet",
     light: "GA schon von einem Licht belegt",
     unique_id: "Gleiche Gruppenadresse wie eine andere Entity",
   },
@@ -370,6 +378,9 @@ const en: Strings = {
   undo: "Undo",
   ownYaml: "your own KNX YAML",
   conflictInfo: (domain, name, where) => `Already in your YAML: ${domain} “${name}” (${where}). Not created twice.`,
+  gaInYaml: (a, domain, name, where) =>
+    `Group address ${a} is already used by your ${domain} “${name}” (${where}). Not created: take it over into the app, or switch the entity on to create it anyway.`,
+  gaInApp: (a, domain, name) => `Group address ${a} already belongs to ${domain} “${name}” in the app. Switch it on to create it anyway.`,
   adoptInfo: (where) => `Taken over into the app with your configuration and removed from ${where}. A backup is made first.`,
   notAdoptable: "Cannot be taken over automatically, please remove it from the YAML.",
   markExisting: "Already exists",
@@ -447,12 +458,14 @@ const en: Strings = {
     duplicate: "Duplicate",
     invalid: "Invalid",
     conflict: "Own YAML",
+    ga_in_use: "GA in use",
     existing: "Already exists",
     adopt: "Will be taken over",
     own_config: "Active · own configuration",
   },
   reasons: {
     own_yaml: "Already defined in your own KNX YAML",
+    ga_in_use: "Group address already in use",
     light: "GA already used by a light",
     unique_id: "Same group address as another entity",
   },

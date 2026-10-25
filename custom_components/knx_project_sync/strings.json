@@ -34,7 +34,7 @@
       "single_instance_allowed": "Already configured. Import new project files via “Configure”."
     },
     "create_entry": {
-      "default": "Project **{project}** was read: {entities} entities detected. **Nothing was created yet.**\n\nOpen **KNX Project Sync** in the sidebar to choose the entities and apply them."
+      "default": "**[➜ Open KNX Project Sync now]({panel})**\n\nProject **{project}** was read: {entities} entities detected. **Nothing was created yet.** Choose the entities in the panel and apply them. You also find it in the sidebar under **KNX Project Sync**."
     }
   },
   "options": {
@@ -83,7 +83,7 @@
       "no_knx_project": "No project is uploaded in the KNX panel."
     },
     "create_entry": {
-      "default": "Project **{project}** was read ({entities} entities). Nothing was changed yet: review and apply the new version in the **KNX Project Sync** panel."
+      "default": "**[➜ Open KNX Project Sync now]({panel})**\n\nProject **{project}** was read ({entities} entities). Nothing was changed yet: review and apply the new version in the panel."
     }
   },
   "selector": {

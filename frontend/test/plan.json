@@ -279,7 +279,9 @@
     "name": "Fenster Bad",
     "file": "configuration.yaml",
     "line": 12,
-    "adoptable": true
+    "adoptable": true,
+    "kind": "unique_id",
+    "address": null
    },
    "adopt": false,
    "own_config": false,

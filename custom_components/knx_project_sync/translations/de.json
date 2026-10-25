@@ -34,7 +34,7 @@
       "single_instance_allowed": "Bereits eingerichtet. Neue Projektdateien über „Konfigurieren“ importieren."
     },
     "create_entry": {
-      "default": "Projekt **{project}** eingelesen: {entities} Entities erkannt. **Es wurde noch nichts angelegt.**\n\nÖffne in der Seitenleiste **KNX Project Sync**, wähle die Entities aus und übernimm sie."
+      "default": "**[➜ Jetzt KNX Project Sync öffnen]({panel})**\n\nProjekt **{project}** eingelesen: {entities} Entities erkannt. **Es wurde noch nichts angelegt.** Wähle im Panel die Entities aus und übernimm sie. Du findest es auch in der Seitenleiste unter **KNX Project Sync**."
     }
   },
   "options": {
@@ -83,7 +83,7 @@
       "no_knx_project": "Im KNX-Panel ist kein Projekt hochgeladen."
     },
     "create_entry": {
-      "default": "Projekt **{project}** eingelesen ({entities} Entities). Noch wurde nichts geändert: Prüfe und übernimm die neue Version im Panel **KNX Project Sync**."
+      "default": "**[➜ Jetzt KNX Project Sync öffnen]({panel})**\n\nProjekt **{project}** eingelesen ({entities} Entities). Noch wurde nichts geändert: Prüfe und übernimm die neue Version im Panel."
     }
   },
   "selector": {

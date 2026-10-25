@@ -127,6 +127,8 @@ async def test_adopt_own_yaml(hass: HomeAssistant, config_dir, knx_reloads, uplo
         "file": "configuration.yaml",
         "line": 5,
         "adoptable": True,
+        "kind": "unique_id",
+        "address": None,
     }
 
     await client.send_json_auto_id({"type": f"{DOMAIN}/apply", "selection": {"switch:GA-1": {"adopt": True}}})
@@ -213,3 +215,37 @@ async def test_panel_after_setup(hass: HomeAssistant, config_dir, knx_reloads, u
     await client.send_json_auto_id({"type": f"{DOMAIN}/apply", "selection": {"sensor:GA-13": {"enabled": False}}})
     assert (await client.receive_json())["result"]["new"] == 5
     assert [s["state_address"] for s in _package(config_dir)["sensor"]] == ["3/0/1"]
+
+
+async def test_own_climate_on_a_detected_sensor(
+    hass: HomeAssistant, config_dir, knx_reloads, upload, hass_ws_client
+) -> None:
+    """Own YAML climate uses the GA the project detects as a temperature sensor."""
+    from test_import_flow import _setup
+
+    configuration = config_dir / "configuration.yaml"
+    configuration.write_text(
+        configuration.read_text(encoding="utf-8")
+        + '  climate:\n    - name: "Wohnzimmer"\n      temperature_address: "3/0/1"\n'
+        + '      target_temperature_state_address: "3/0/9"\n',
+        encoding="utf-8",
+    )
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/plan"})
+    row = _rows((await client.receive_json())["result"])["sensor:GA-12"]
+    assert (row["status"], row["reason"]) == ("conflict", "ga_in_use")
+    assert row["conflict_with"]["kind"] == "address"
+    assert row["conflict_with"]["address"] == "3/0/1"
+    assert row["conflict_with"]["domain"] == "climate"
+
+    await client.send_json_auto_id({"type": f"{DOMAIN}/apply", "selection": {"sensor:GA-12": {"adopt": True}}})
+    response = await client.receive_json()
+    assert response["success"], response
+    assert response["result"]["adopted"] == 1
+    assert "Wohnzimmer" not in configuration.read_text(encoding="utf-8").split("climate:")[1]
+    knx = _package(config_dir)
+    assert knx["climate"] == [
+        {"name": "Wohnzimmer", "temperature_address": "3/0/1", "target_temperature_state_address": "3/0/9"}
+    ]
+    assert [s["state_address"] for s in knx["sensor"]] == ["3/0/2"]

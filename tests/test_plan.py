@@ -205,6 +205,8 @@ def test_own_light_on_a_detected_switch_is_a_conflict():
         "name": "Mein Licht",
         "file": "/c/configuration.yaml",
         "line": 7,
+        "kind": "unique_id",
+        "address": None,
     }
 
     adopted = build_plan(
@@ -281,3 +283,56 @@ def test_addresses_corrected_by_hand():
         {"domain": "light", "addresses": {"state_address": "1/0/2", "bogus": "9/9/9"}},
     )
     assert (domain, config) == ("light", {"name": "a", "address": "1/0/1", "state_address": "1/0/2"})
+
+
+def test_ga_used_by_an_own_climate():
+    """The own YAML has a climate on the temperature GA the project detects as a sensor."""
+    climate = {
+        "name": "Wohnzimmer",
+        "temperature_address": "3/0/1",
+        "target_temperature_state_address": "3/0/9",
+        "humidity_address": "3/0/2",
+    }
+    own = {("climate", "3/0/1_3/0/9_None_None"): {"config": climate, "file": "/c/configuration.yaml", "line": 20}}
+    plan = build_plan(_manifest("musterhaus_v1"), {}, domains=DOMAINS, keep_removed=False, foreign_entities=own)
+    entries = {e.key: e for e in plan.entries}
+    temperature = entries["sensor:GA-12"]
+    assert (temperature.status, temperature.reason) == ("conflict", "ga_in_use")
+    assert temperature.conflict_with["domain"] == "climate"
+    assert temperature.conflict_with["address"] == "3/0/1"
+    assert entries["sensor:GA-13"].status == "conflict"
+
+    # created anyway on request
+    forced = build_plan(
+        _manifest("musterhaus_v1"),
+        {},
+        domains=DOMAINS,
+        keep_removed=False,
+        foreign_entities=own,
+        selection={"sensor:GA-12": {"enabled": True}},
+    )
+    assert next(e for e in forced.entries if e.key == "sensor:GA-12").status == "new"
+
+    # take the climate over: only once, the other sensor on its GAs stays out
+    selection = {"sensor:GA-12": {"adopt": True}, "sensor:GA-13": {"adopt": True}}
+    adopted = build_plan(
+        _manifest("musterhaus_v1"), {}, domains=DOMAINS, keep_removed=False, foreign_entities=own, selection=selection
+    )
+    entries = {e.key: e for e in adopted.entries}
+    assert (entries["sensor:GA-12"].status, entries["sensor:GA-12"].domain) == ("new", "climate")
+    assert entries["sensor:GA-12"].unique_id == "3/0/1_3/0/9_None_None"
+    assert entries["sensor:GA-13"].status == "conflict"
+    assert [e.key for e in adopted.adoptions] == ["sensor:GA-12"]
+
+    # afterwards the climate is the app's own: the humidity sensor is a duplicate of it
+    later = build_plan(
+        _manifest("musterhaus_v1"),
+        adopted.state(),
+        domains=DOMAINS,
+        keep_removed=False,
+        selection={"sensor:GA-12": {"domain": "climate", "config": climate}},
+    )
+    entries = {e.key: e for e in later.entries}
+    assert entries["sensor:GA-12"].status == "unchanged"
+    assert (entries["sensor:GA-13"].status, entries["sensor:GA-13"].reason) == ("duplicate", "ga_in_use")
+    assert entries["sensor:GA-13"].conflict_with["kind"] == "app"

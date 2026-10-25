@@ -38,7 +38,7 @@
 | `unchanged` | wie beim letzten Import | ✔ |
 | `kept` | nicht mehr im Projekt, Einstellung „Behalten“ | ✔ |
 | `removed` | nicht mehr im Projekt (oder Typ abgewählt), Einstellung „Löschen“ → Entity wird gelöscht | – |
-| `conflict` | gleiche Gruppenadresse existiert schon in deiner **eigenen KNX-YAML**, gleicher Typ oder Schalter ↔ Licht. Deine Definition gewinnt, nichts wird doppelt angelegt. Im Panel per *In App übernehmen* übernehmbar | – |
+| `conflict` | gleiche Gruppenadresse existiert schon in deiner **eigenen KNX-YAML**, gleicher Typ oder Schalter ↔ Licht, **oder eine ihrer Gruppenadressen wird dort schon verwendet** (z. B. die Temperatur-GA eines eigenen `climate`). Bei einer nur geteilten GA kann die Entity trotzdem eingeschaltet werden. Deine Definition gewinnt, nichts wird doppelt angelegt. Im Panel per *In App übernehmen* übernehmbar | – |
 | `existing` | im Panel als *Schon vorhanden* markiert (z. B. anders definiert, als die Erkennung meint). Wird nicht angelegt | – |
 | `invalid` | vom KNX-YAML-Schema der installierten HA-Version abgelehnt (z. B. Szene ohne Nummer) | – |
 | `duplicate` | GA schon von einer anderen Entity belegt (knx2home erzeugt z. B. Licht *und* Schalter auf derselben GA, dann gewinnt das Licht) | – |
