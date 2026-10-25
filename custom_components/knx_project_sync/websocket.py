@@ -174,6 +174,9 @@ def _conflict(hass: HomeAssistant, info: dict[str, Any] | None) -> dict[str, Any
         "file": file,
         "line": info.get("line"),
         "adoptable": bool(info.get("file") and info.get("line")),
+        # unique_id: same entity; address: one GA is used by it; app: GA of a taken-over entity
+        "kind": info.get("kind", "unique_id"),
+        "address": info.get("address"),
     }
 
 
