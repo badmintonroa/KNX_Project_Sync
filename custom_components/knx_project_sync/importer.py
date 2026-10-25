@@ -43,6 +43,7 @@ _LOGGER = logging.getLogger(__name__)
 
 STORAGE_VERSION = 1
 NOTIFICATION_NEW = f"{DOMAIN}_new_entities"
+NOTIFICATION_LOADED = f"{DOMAIN}_project_loaded"
 PANEL_URL = "/knx-project-sync"
 GENERATOR = {"name": DOMAIN, "version": VERSION}
 
@@ -241,6 +242,38 @@ class Importer:
             include_new="last_import" not in self.data,
         )
 
+    @property
+    def source(self) -> str | None:
+        """Where the current project came from (last import, or setup before any import)."""
+        return self.data.get("last_import", {}).get("source") or self.data.get("source")
+
+    async def async_save_initial(self, prepared: Prepared, source: str) -> None:
+        """Setup: keep the project for the panel, nothing is created yet."""
+        await self.async_load()
+        self.data = {
+            **self.data,
+            "manifest": prepared.manifest,
+            "rooms": prepared.rooms,
+            "source": source,
+        }
+        await self._store.async_save(self.data)
+        self.async_notify_loaded(prepared)
+
+    def async_notify_loaded(self, prepared: Prepared) -> None:
+        """Point to the panel after a project was read in a dialog."""
+        project = prepared.manifest.get("project", {}).get("name") or "KNX"
+        count = len(prepared.manifest["entities"])
+        if self.hass.config.language.startswith("de"):
+            title = f"KNX Project Sync: {project} eingelesen"
+            message = (
+                f"{count} Entities erkannt. Es wurde noch nichts angelegt.\n\n"
+                f"[Im Panel auswählen und übernehmen]({PANEL_URL})"
+            )
+        else:
+            title = f"KNX Project Sync: {project} loaded"
+            message = f"{count} entities detected. Nothing was created yet.\n\n[Choose and apply them in the panel]({PANEL_URL})"
+        persistent_notification.async_create(self.hass, message, title=title, notification_id=NOTIFICATION_LOADED)
+
     def stored_prepared(self) -> Prepared | None:
         if not self.manifest:
             return None
@@ -322,6 +355,7 @@ class Importer:
         }
         await self._store.async_save(self.data)
         self.staged = None
+        persistent_notification.async_dismiss(hass, NOTIFICATION_LOADED)
         self._notify_new(plan, known if notify else None)
         async_dispatcher_send(hass, SIGNAL_IMPORTED)
         hass.bus.async_fire(EVENT_IMPORTED, {"project": plan.project, **summary})

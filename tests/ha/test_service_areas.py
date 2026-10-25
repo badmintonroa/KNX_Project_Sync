@@ -10,6 +10,7 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import area_registry as ar, entity_registry as er
 import pytest
 from pytest_homeassistant_custom_component.components.diagnostics import get_diagnostics_for_config_entry
+from test_import_flow import _apply
 from xknxproject import XKNXProj
 import yaml
 
@@ -34,12 +35,12 @@ async def _setup_via_knx_project(hass: HomeAssistant, hass_storage, assign_areas
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     assert result["type"] == "menu"
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"next_step_id": "knx_project"})
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"assign_areas": assign_areas})
-    # entity the KNX integration creates when the package is loaded
-    light = er.async_get(hass).async_get_or_create("light", "knx", "1/1/1")
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
     assert result["type"] == "create_entry"
     await hass.async_block_till_done()
+    assert hass.config_entries.async_entries(DOMAIN)[0].runtime_data.source == "knx_project"
+    # entity the KNX integration creates when the package is loaded
+    light = er.async_get(hass).async_get_or_create("light", "knx", "1/1/1")
+    await _apply(hass, assign_areas=assign_areas)
     return light
 
 

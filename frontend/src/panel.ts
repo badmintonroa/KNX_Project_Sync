@@ -370,7 +370,33 @@ class KnxProjectSyncPanel extends LitElement {
 
   private _renderStaged(): TemplateResult | typeof nothing {
     const t = this.t;
-    if (!this._data?.staged) return nothing;
+    if (!this._data) return nothing;
+    const adoptable = this._data.entities.filter(
+      (r) => r.status === "conflict" && r.conflict_with?.adoptable && !this._draft[r.key]?.adopt
+    );
+    const adoptCard = adoptable.length
+      ? html`<section class="staged notice">
+          <div class="staged-icon">${icon(ICONS.file, 20)}</div>
+          <div class="grow">
+            <div class="staged-title">${t.ownYamlTitle(adoptable.length)}</div>
+            <div>${t.ownYamlDetail}</div>
+          </div>
+          <button class="secondary" ?disabled=${!!this._busy} @click=${() => this._adoptAll(adoptable)}>
+            ${t.adoptAll(adoptable.length)}
+          </button>
+        </section>`
+      : nothing;
+    if (!this._data.last_import && !this._data.staged) {
+      return html`<section class="staged notice">
+          <div class="staged-icon">${icon(ICONS.light, 20)}</div>
+          <div class="grow">
+            <div class="staged-title">${t.firstTitle}</div>
+            <div>${t.firstDetail}</div>
+          </div>
+        </section>
+        ${adoptCard}`;
+    }
+    if (!this._data.staged) return adoptCard;
     const rows = this._data.entities;
     const pending = rows.filter((r) => r.status === "pending").length;
     const changed = rows.filter((r) => r.status === "changed").length;
@@ -382,7 +408,15 @@ class KnxProjectSyncPanel extends LitElement {
         <div>${t.stagedDetail(pending, changed, gone)}</div>
       </div>
       <button class="text" ?disabled=${!!this._busy} @click=${this._discard}>${t.discardVersion}</button>
-    </section>`;
+    </section>
+    ${adoptCard}`;
+  }
+
+  private _adoptAll(rows: Row[]): void {
+    const draft = { ...this._draft };
+    for (const row of rows) draft[row.key] = { ...(draft[row.key] ?? {}), adopt: true };
+    this._draft = draft;
+    this._scheduleRefresh();
   }
 
   private _count(f: Filter): number {
@@ -400,7 +434,7 @@ class KnxProjectSyncPanel extends LitElement {
     const more = (["existing", "issues", "gone"] as const).filter((f) => this._count(f) > 0 || this._filter === f);
     return html`<section class="stats">
         ${tiles.map((f) => {
-          const [label, hint] = t.stats[f];
+          const [label, hint] = f === "active" && !this._data?.last_import ? t.statsSelected : t.stats[f];
           const n = this._count(f);
           return html`<button
             class="stat ${this._filter === f ? "active" : ""} ${f === "pending" && n ? "accent" : ""}"
@@ -1038,7 +1072,17 @@ class KnxProjectSyncPanel extends LitElement {
       background: color-mix(in srgb, var(--kps-warning) 12%, var(--kps-surface));
       border: 1px solid color-mix(in srgb, var(--kps-warning) 40%, transparent);
       font-size: 14px;
-      flex-wrap: wrap;
+    }
+    .staged > .grow {
+      flex: 1 1 0;
+    }
+    .staged.notice {
+      background: color-mix(in srgb, var(--kps-accent) 8%, var(--kps-surface));
+      border-color: color-mix(in srgb, var(--kps-accent) 35%, transparent);
+    }
+    .staged.notice .staged-icon {
+      background: color-mix(in srgb, var(--kps-accent) 18%, transparent);
+      color: var(--kps-accent);
     }
     .staged-icon {
       width: 36px;
@@ -1564,6 +1608,12 @@ class KnxProjectSyncPanel extends LitElement {
       }
       .project h2 {
         font-size: 22px;
+      }
+      .staged {
+        flex-wrap: wrap;
+      }
+      .staged > .grow {
+        flex-basis: calc(100% - 60px);
       }
       .stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));

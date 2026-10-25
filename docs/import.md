@@ -7,9 +7,9 @@
   └─ xknxproject ──> mapping/ (Port von knx2home) ──> Manifest (Entities mit stabilen Schlüsseln)
                                                         │
        letzter Import (.storage/knx_project_sync) ─────┤
-       eigene knx:-YAML (configuration.yaml) ───────────┼─> Plan (plan.py) ──> Vorschau im Dialog
+       eigene knx:-YAML (configuration.yaml) ───────────┼─> Plan (plan.py) ──> Panel (Auswahl, Vorschau)
        Einstellungen + KNX-Schema von HA ───────────────┘          │
-                                                                   ▼  Absenden
+                                                                   ▼  Übernehmen
   1. Entity-Registry: unique_ids umziehen (GA umadressiert → gleiche entity_id)
   2. packages/knx_project_sync.yaml schreiben (atomar) + knx.reload
   3. entfernte Entities aus der Registry löschen (oder behalten)
@@ -98,7 +98,9 @@ Alle Änderungen sind ein Entwurf. Erst *Übernehmen* schreibt die Paket-Datei u
 | Bereiche aus ETS-Räumen | aus |
 | Paket-Datei | `packages/knx_project_sync.yaml` |
 
-Änderbar unter *Einstellungen → Geräte & Dienste → KNX Project Sync → Konfigurieren → Nur Einstellungen ändern*. Dabei wird der zuletzt importierte Projektstand neu angewendet, ohne die Datei erneut hochzuladen.
+Änderbar unter *Einstellungen → Geräte & Dienste → KNX Project Sync → Konfigurieren → Einstellungen*. Gespeichert wird sofort, angewendet erst im Panel mit *Übernehmen*. Das Panel zeigt vorher, was die neuen Einstellungen ändern.
+
+Einrichten und *Konfigurieren* lesen ein Projekt nur ein, eine neue Datei oder das Projekt aus dem KNX-Panel, und legen nichts an. Eine Benachrichtigung verlinkt ins Panel. Nur der Service `import_project` wendet direkt an, für Automationen.
 
 ## Service
 

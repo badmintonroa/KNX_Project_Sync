@@ -109,7 +109,7 @@ def _entry(hass: HomeAssistant) -> ConfigEntry | None:
 def _current(importer: Importer) -> tuple[Prepared | None, str | None]:
     if importer.staged:
         return importer.staged
-    return importer.stored_prepared(), importer.data.get("last_import", {}).get("source")
+    return importer.stored_prepared(), importer.source
 
 
 def _serialize(hass: HomeAssistant, prepared: Prepared, plan: ImportPlan, selection: dict) -> list[dict[str, Any]]:
