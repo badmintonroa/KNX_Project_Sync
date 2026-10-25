@@ -1,0 +1,13 @@
+{
+  "name": "knx2home-reference",
+  "private": true,
+  "description": "Runs the knx2home TypeScript pipeline on the test fixtures and writes the golden manifests",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "generate": "node build.mjs && node dist/generate.cjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}

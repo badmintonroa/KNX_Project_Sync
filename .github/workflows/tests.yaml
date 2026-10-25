@@ -1,0 +1,55 @@
+---
+name: Testing
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+jobs:
+  pytest:
+    name: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v6.1.0
+      - name: 🏗 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: 🏗 Install dependencies
+        run: pip install -r requirements_test.txt
+      - name: 🚀 Run tests
+        run: pytest -v
+
+  reference:
+    # Regenerates the golden files with the current knx2home main branch and
+    # fails if they changed, i.e. knx2home changed behavior the port must follow.
+    name: knx2home golden files
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v6.1.0
+      - name: ⤵️ Check out knx2home
+        uses: actions/checkout@v6.1.0
+        with:
+          repository: badmintonroa/knx2home
+          path: knx2home
+      - name: 🏗 Set up Node.js
+        uses: actions/setup-node@v6.5.0
+        with:
+          node-version: 22
+      - name: 🏗 Install dependencies
+        run: |
+          npm ci --prefix knx2home
+          npm ci --prefix tools/reference
+      - name: 🚀 Regenerate golden files
+        run: npm run generate --prefix tools/reference
+        env:
+          KNX2HOME_DIR: ${{ github.workspace }}/knx2home
+      - name: 🔍 Golden files unchanged
+        # the knx2home commit in the manifest header is expected to change
+        run: git diff --exit-code -I '"commit":' -- tests/fixtures
