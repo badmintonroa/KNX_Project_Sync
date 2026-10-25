@@ -231,7 +231,8 @@ def build_plan(
     unmatched = dict(previous)
     by_uid = {(p["domain"], p["unique_id"]): k for k, p in previous.items()}
     for entry in candidates:
-        if entry.status not in (NEW, DESELECTED, EXISTING):
+        # invalid ones too: a typo must not delete the entity from the registry
+        if entry.status not in (NEW, DESELECTED, EXISTING, INVALID):
             continue
         prev_key = entry.key if entry.key in unmatched else None
         if prev_key is None:
@@ -292,21 +293,93 @@ def _own_yaml_clash(domain: str, uid: str, foreign: set[tuple[str, str]]) -> tup
     return None
 
 
+# group address fields the panel offers per entity type (HA KNX YAML)
+ADDRESS_FIELDS: dict[str, tuple[str, ...]] = {
+    "switch": ("address", "state_address"),
+    "light": (
+        "address",
+        "state_address",
+        "brightness_address",
+        "brightness_state_address",
+        "color_temperature_address",
+        "color_temperature_state_address",
+        "color_address",
+        "color_state_address",
+    ),
+    "binary_sensor": ("state_address",),
+    "sensor": ("state_address",),
+    "time": ("address", "state_address"),
+    "date": ("address", "state_address"),
+    "datetime": ("address", "state_address"),
+    "cover": (
+        "move_long_address",
+        "move_short_address",
+        "stop_address",
+        "position_address",
+        "position_state_address",
+        "angle_address",
+        "angle_state_address",
+    ),
+    "scene": ("address",),
+    "climate": (
+        "temperature_address",
+        "target_temperature_address",
+        "target_temperature_state_address",
+        "setpoint_shift_address",
+        "setpoint_shift_state_address",
+        "operation_mode_address",
+        "operation_mode_state_address",
+        "on_off_address",
+        "on_off_state_address",
+    ),
+    "weather": (
+        "address_temperature",
+        "address_brightness_south",
+        "address_brightness_east",
+        "address_brightness_west",
+        "address_brightness_north",
+        "address_wind_speed",
+        "address_rain_alarm",
+        "address_frost_alarm",
+        "address_wind_alarm",
+        "address_day_night",
+        "address_air_pressure",
+        "address_humidity",
+    ),
+}
+
+
+def is_address_field(field: str) -> bool:
+    return field == "address" or field.endswith("_address") or field.startswith("address_")
+
+
+def address_fields(domain: str, config: dict[str, Any]) -> list[str]:
+    """Address fields of an entity: the ones it has, then the others its type supports."""
+    present = [k for k in config if is_address_field(k)]
+    return present + [f for f in ADDRESS_FIELDS.get(domain, ()) if f not in present]
+
+
 def apply_choice(domain: str, config: dict[str, Any], choice: dict[str, Any]) -> tuple[str, str | None, dict[str, Any]]:
-    """Domain, name and YAML config of an entity after the type change and rename of the panel."""
+    """Domain, name and YAML config of an entity after type change, rename and address edits of the panel."""
     if choice.get("config"):
         # definition taken over from the own YAML: used as it is
         config = dict(choice["config"])
         domain = choice.get("domain") or domain
-        if name := (choice.get("name") or "").strip():
-            config["name"] = name
-        return domain, config.get("name"), config
-    config = dict(config)
-    target = choice.get("domain") or domain
-    if target != domain and target in domain_choices(domain, config):
-        # switch-only options (invert, respond_to_read, ...) do not exist for lights
-        config = {k: v for k, v in config.items() if k in SIMPLE_ON_OFF_FIELDS}
-        domain = target
+    else:
+        config = dict(config)
+        target = choice.get("domain") or domain
+        if target != domain and target in domain_choices(domain, config):
+            # switch-only options (invert, respond_to_read, ...) do not exist for lights
+            config = {k: v for k, v in config.items() if k in SIMPLE_ON_OFF_FIELDS}
+            domain = target
+    allowed = set(address_fields(domain, config))
+    for key, address in (choice.get("addresses") or {}).items():
+        if key not in allowed:
+            continue
+        if address := (address or "").strip():
+            config[key] = address  # corrected by hand
+        else:
+            config.pop(key, None)  # wrong address removed
     if name := (choice.get("name") or "").strip():
         config["name"] = name
     return domain, config.get("name"), config

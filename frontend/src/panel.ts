@@ -21,6 +21,7 @@ interface Choice {
   existing?: boolean | null;
   adopt?: boolean | null;
   config?: Record<string, unknown> | null;
+  addresses?: Record<string, string | null> | null;
 }
 type Selection = Record<string, Choice>;
 
@@ -43,6 +44,8 @@ interface Row {
   conflict_with: { domain: string; name: string | null; file: string | null; line: number | null; adoptable: boolean } | null;
   adopt: boolean;
   own_config: boolean;
+  project_addresses: Record<string, string>;
+  address_fields: string[];
 }
 
 interface PlanResult {
@@ -59,6 +62,8 @@ interface PlanResult {
   removed_unique_ids?: number;
 }
 
+// three level (1/2/3), two level (1/234) or free (1234) group address
+const GA_PATTERN = /^(\d{1,2}\/\d{1,2}\/\d{1,3}|\d{1,2}\/\d{1,4}|\d{1,5})$/;
 const WRITTEN = new Set(["new", "changed", "unchanged", "kept"]);
 const BLOCKED = new Set(["excluded", "duplicate", "invalid", "conflict", "removed", "existing"]);
 const FILTERS = ["all", "active", "pending", "off", "existing", "issues", "gone", "unmapped"] as const;
@@ -95,6 +100,7 @@ const clean = (selection: Selection): Selection => {
     if (choice.existing) item.existing = true;
     if (choice.adopt) item.adopt = true;
     if (choice.config) item.config = choice.config;
+    if (choice.addresses && Object.keys(choice.addresses).length) item.addresses = choice.addresses;
     if (Object.keys(item).length) out[key] = item;
   }
   return out;
@@ -117,6 +123,7 @@ class KnxProjectSyncPanel extends LitElement {
     _message: { state: true },
     _passwordFor: { state: true },
     _showChanges: { state: true },
+    _editing: { state: true },
   };
 
   hass!: Hass;
@@ -134,6 +141,7 @@ class KnxProjectSyncPanel extends LitElement {
   private _loaded = false;
   private _timer?: number;
   private _request = 0;
+  private _editing = new Set<string>();
 
   private get t(): Strings {
     const lang = (this.hass?.locale?.language || this.hass?.language || "en").slice(0, 2);
@@ -481,7 +489,21 @@ class KnxProjectSyncPanel extends LitElement {
           @change=${(ev: Event) => this._choose(row.key, { name: (ev.target as HTMLInputElement).value })}
         />
         <div class="meta">
-          ${row.addresses.map((a) => html`<code title=${a.field}>${a.address}</code>`)}
+          ${row.addresses.map(
+            (a) =>
+              html`<code class=${row.project_addresses?.[a.field] === a.address ? "" : "edited"} title=${t.fieldLabel(a.field)}
+                >${a.address}</code
+              >`
+          )}
+          ${row.in_project && row.address_fields?.length
+            ? html`<button
+                class="link edit ${this._editing.has(row.key) ? "" : "mark"}"
+                aria-expanded=${this._editing.has(row.key)}
+                @click=${() => this._toggleEditing(row.key)}
+              >
+                ${this._editing.has(row.key) ? t.doneAddresses : t.editAddresses}
+              </button>`
+            : nothing}
           ${this._group === "domain" && row.room ? html`<span>${row.room}</span>` : nothing}
           ${row.entity_id
             ? html`<a href="#" @click=${(ev: Event) => this._moreInfo(ev, row.entity_id!)}>${row.entity_id}</a>`
@@ -513,7 +535,97 @@ class KnxProjectSyncPanel extends LitElement {
         ${this._renderActions(row, choice)}
       </div>
       ${row.conflict_with ? this._renderConflict(row, choice) : nothing}
+      ${this._editing.has(row.key) ? this._renderAddresses(row, choice) : nothing}
     </div>`;
+  }
+
+  private _toggleEditing(key: string): void {
+    const next = new Set(this._editing);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    this._editing = next;
+  }
+
+  /** Current value of an address field in the draft (null = removed). */
+  private _address(row: Row, choice: Choice, field: string): string | null {
+    const draft = choice.addresses ?? {};
+    if (field in draft) return draft[field] ?? null;
+    return row.addresses.find((a) => a.field === field)?.address ?? null;
+  }
+
+  private _setAddress(row: Row, field: string, value: string | null | undefined): void {
+    const addresses = { ...(this._draft[row.key]?.addresses ?? {}) };
+    if (value === undefined) delete addresses[field];
+    else addresses[field] = value;
+    this._choose(row.key, { addresses: Object.keys(addresses).length ? addresses : null });
+  }
+
+  /** Correct, add or remove the group addresses of one entity. */
+  private _renderAddresses(row: Row, choice: Choice): TemplateResult {
+    const t = this.t;
+    const draft = choice.addresses ?? {};
+    const shown = row.address_fields.filter((f) => this._address(row, choice, f) !== null || f in draft);
+    const more = row.address_fields.filter((f) => !shown.includes(f));
+    return html`<div class="addr-box">
+      ${shown.map((field) => {
+        const value = this._address(row, choice, field) ?? "";
+        const project = row.project_addresses[field];
+        const valid = value === "" || GA_PATTERN.test(value);
+        const id = `ga-${row.key}-${field}`;
+        return html`<div class="addr">
+          <label for=${id}>${t.fieldLabel(field)}</label>
+          <input
+            id=${id}
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            spellcheck="false"
+            class=${valid ? "" : "invalid"}
+            aria-invalid=${!valid}
+            .value=${value}
+            placeholder=${project ?? "1/2/3"}
+            @change=${(ev: Event) => this._setAddress(row, field, (ev.target as HTMLInputElement).value.trim())}
+          />
+          <span class="addr-note">
+            ${!valid
+              ? html`<span class="error-text">${t.invalidAddress}</span>`
+              : project === undefined
+                ? t.addedByHand
+                : value === project
+                  ? t.fromEts
+                  : html`${t.etsValue(project)}
+                      <button class="link" @click=${() => this._setAddress(row, field, undefined)}>${t.reset}</button>`}
+          </span>
+          <button
+            class="link remove"
+            aria-label=${t.removeAddress(t.fieldLabel(field))}
+            title=${t.removeAddress(t.fieldLabel(field))}
+            @click=${() => this._setAddress(row, field, project === undefined ? undefined : null)}
+          >
+            ✕
+          </button>
+        </div>`;
+      })}
+      ${more.length
+        ? html`<select
+            aria-label=${t.addAddress}
+            @change=${(ev: Event) => {
+              const select = ev.target as HTMLSelectElement;
+              if (select.value) this._setAddress(row, select.value, "");
+              select.value = "";
+            }}
+          >
+            <option value="">${t.addAddress}</option>
+            ${more.map((f) => html`<option value=${f}>${t.fieldLabel(f)}</option>`)}
+          </select>`
+        : nothing}
+    </div>`;
+  }
+
+  private get _invalidAddresses(): boolean {
+    return Object.values(this._draft).some((c) =>
+      Object.values(c.addresses ?? {}).some((v) => v !== null && v !== "" && !GA_PATTERN.test(v))
+    );
   }
 
   /** Own YAML entity on the same GA: where it is and whether it can be taken over. */
@@ -628,7 +740,8 @@ class KnxProjectSyncPanel extends LitElement {
         </div>
         <div class="bar-actions">
           <button class="text" ?disabled=${!!this._busy} @click=${this._discard}>${t.discard}</button>
-          <button class="primary" ?disabled=${!!this._busy} @click=${this._apply}>
+          ${this._invalidAddresses ? html`<span class="error-text">${t.fixAddresses}</span>` : nothing}
+          <button class="primary" ?disabled=${!!this._busy || this._invalidAddresses} @click=${this._apply}>
             ${this._busy === "apply" ? t.applying : t.apply}
           </button>
         </div>
@@ -982,6 +1095,50 @@ class KnxProjectSyncPanel extends LitElement {
         opacity: 1;
       }
     }
+    code.edited {
+      outline: 1px solid var(--warning-color, #ffa600);
+    }
+    .addr-box {
+      grid-column: 2 / -1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: var(--secondary-background-color, rgba(0, 0, 0, 0.04));
+    }
+    .addr {
+      display: grid;
+      grid-template-columns: 180px 130px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px 12px;
+      font-size: 13px;
+    }
+    .addr input {
+      font-family: var(--ha-font-family-code, ui-monospace, monospace);
+    }
+    .addr input.invalid {
+      border-color: var(--error-color, #db4437);
+    }
+    .addr-note {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .error-text {
+      color: var(--error-color, #db4437);
+      font-size: 12px;
+    }
+    .addr-box select {
+      align-self: flex-start;
+    }
+    button.link.edit {
+      margin-top: 0;
+    }
+    button.link.remove {
+      font-size: 14px;
+      padding: 2px 6px;
+      margin: 0;
+    }
     .conflict-box {
       grid-column: 2 / -1;
       display: flex;
@@ -1077,7 +1234,14 @@ class KnxProjectSyncPanel extends LitElement {
       .status {
         grid-area: status;
       }
-      .conflict-box {
+      .conflict-box,
+      .addr-box {
+        grid-column: 1 / -1;
+      }
+      .addr {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+      .addr label {
         grid-column: 1 / -1;
       }
     }

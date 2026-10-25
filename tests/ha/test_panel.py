@@ -167,3 +167,29 @@ async def test_adopt_refused_for_flow_style(
     assert response["error"]["code"] == "adopt_failed"
     assert configuration.read_text(encoding="utf-8").endswith(flow)
     assert (config_dir / PACKAGE).read_text(encoding="utf-8") == package
+
+
+async def test_correct_addresses(hass: HomeAssistant, config_dir, knx_reloads, upload, hass_ws_client) -> None:
+    from homeassistant.helpers import entity_registry as er
+
+    await _first_import(hass)
+    temperature = er.async_get(hass).async_get_or_create("sensor", "knx", "3/0/1", suggested_object_id="temp")
+    client = await hass_ws_client(hass)
+    selection = {"sensor:GA-12": {"addresses": {"state_address": "3/0/9"}}}
+    await client.send_json_auto_id({"type": f"{DOMAIN}/plan", "selection": selection})
+    row = _rows((await client.receive_json())["result"])["sensor:GA-12"]
+    assert row["status"] == "changed"
+    assert row["addresses"] == [{"field": "state_address", "address": "3/0/9"}]
+    assert row["project_addresses"] == {"state_address": "3/0/1"}
+    assert row["address_fields"] == ["state_address"]
+
+    # a typo is rejected by the KNX schema and not written
+    await client.send_json_auto_id(
+        {"type": f"{DOMAIN}/plan", "selection": {"sensor:GA-12": {"addresses": {"state_address": "3/0/x"}}}}
+    )
+    assert _rows((await client.receive_json())["result"])["sensor:GA-12"]["status"] == "invalid"
+
+    await client.send_json_auto_id({"type": f"{DOMAIN}/apply", "selection": selection})
+    assert (await client.receive_json())["success"]
+    assert [s["state_address"] for s in _package(config_dir)["sensor"]] == ["3/0/9", "3/0/2"]
+    assert er.async_get(hass).async_get(temperature.entity_id).unique_id == "3/0/9"

@@ -56,6 +56,7 @@ Das Panel *KNX Project Sync* in der Seitenleiste zeigt alle erkannten Entities m
 |---|---|
 | anlegen ja/nein | `deselected` bzw. wieder angelegt. Neue Entities ohne Entscheidung sind `pending`. |
 | Name | Standardname in der YAML. Ein in HA vergebener Name hat weiter Vorrang. |
+| Gruppenadressen | Einzelne Adressen korrigieren, ergänzen (z. B. fehlender Status) oder entfernen. Die Adresse aus der ETS wird daneben angezeigt und lässt sich zurücksetzen. Die Korrektur gilt auch bei späteren Importen, bis du sie zurücksetzt. Ein Tippfehler wird vom KNX-Schema abgelehnt (`invalid`) und löscht nichts. Ändert sich die Haupt-GA, zieht die Entity mit (gleiche entity_id). |
 | Typ Schalter ↔ Licht | Nur für reine Ein/Aus-Entities (`address`, `state_address`). Schalter-Optionen wie `respond_to_read` entfallen. Die Entity bekommt eine neue entity_id (`switch.…` → `light.…`), die alte wird gelöscht. |
 
 ### Eigene YAML in die App übernehmen

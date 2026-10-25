@@ -28,7 +28,7 @@ from .importer import (
     async_prepare_upload,
     default_options,
 )
-from .plan import WRITTEN, ImportPlan, domain_choices
+from .plan import WRITTEN, ImportPlan, address_fields, domain_choices, is_address_field
 
 STATIC_URL: Final = f"/{DOMAIN}_static"
 FRONTEND_DIR: Final = Path(__file__).parent / "frontend"
@@ -49,6 +49,7 @@ SELECTION_SCHEMA = vol.Schema(
                 vol.Optional("existing"): vol.Any(bool, None),
                 vol.Optional("adopt"): vol.Any(bool, None),
                 vol.Optional("config"): vol.Any(dict, None),
+                vol.Optional("addresses"): vol.Any({str: vol.Any(str, None)}, None),
             }
         )
     }
@@ -138,8 +139,13 @@ def _serialize(hass: HomeAssistant, prepared: Prepared, plan: ImportPlan, select
                 "addresses": [
                     {"field": k, "address": v}
                     for k, v in entry.config.items()
-                    if isinstance(v, str) and (k == "address" or k.endswith("_address") or k.startswith("address_"))
+                    if isinstance(v, str) and is_address_field(k)
                 ],
+                # what the ETS project says, to compare with and reset hand made corrections
+                "project_addresses": {
+                    k: v for k, v in (base_config or {}).items() if isinstance(v, str) and is_address_field(k)
+                },
+                "address_fields": address_fields(entry.domain, entry.config),
                 "room": prepared.rooms.get(entry.key),
                 "in_project": source is not None,
                 "entity_id": entity_id,
@@ -290,7 +296,11 @@ def _clean(selection: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for key, choice in selection.items():
         # enabled=False is a choice, existing/adopt=False only the absence of one
-        item = {k: v for k, v in choice.items() if v is not None and v != "" and (v is not False or k == "enabled")}
+        item = {
+            k: v
+            for k, v in choice.items()
+            if v is not None and v != "" and v != {} and (v is not False or k == "enabled")
+        }
         if item:
             out[key] = item
     return out

@@ -255,3 +255,29 @@ def test_marked_as_existing():
         selection={"light:GA-3": {"existing": True}},
     )
     assert own.removed_unique_ids == []
+
+
+def test_addresses_corrected_by_hand():
+    previous = _v1_state()
+    selection = {
+        # wrong status GA, missing brightness status
+        "switch:GA-1": {"addresses": {"state_address": "1/0/3"}},
+        "light:GA-3": {"addresses": {"address": "1/1/9", "brightness_state_address": None}},
+    }
+    plan = build_plan(_manifest("musterhaus_v1"), previous, domains=DOMAINS, keep_removed=False, selection=selection)
+    entries = {e.key: e for e in plan.entries}
+    assert entries["switch:GA-1"].config["state_address"] == "1/0/3"
+    light = entries["light:GA-3"]
+    assert light.status == "changed"
+    assert light.config["address"] == "1/1/9"
+    assert "brightness_state_address" not in light.config
+    # new primary GA -> new unique_id, the registry entry moves with it
+    assert ("light", "1/1/1", "1/1/9") in plan.migrations
+
+    # unknown fields are ignored, type change keeps the edits
+    domain, _, config = apply_choice(
+        "switch",
+        {"name": "a", "address": "1/0/1"},
+        {"domain": "light", "addresses": {"state_address": "1/0/2", "bogus": "9/9/9"}},
+    )
+    assert (domain, config) == ("light", {"name": "a", "address": "1/0/1", "state_address": "1/0/2"})

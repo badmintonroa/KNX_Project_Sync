@@ -61,7 +61,15 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "1/1/10",
+    "state_address": "1/5/10"
+   },
+   "address_fields": [
+    "address",
+    "state_address"
+   ]
   },
   {
    "key": "switch:GA-6",
@@ -89,7 +97,14 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "1/1/20"
+   },
+   "address_fields": [
+    "address",
+    "state_address"
+   ]
   },
   {
    "key": "switch:GA-9",
@@ -117,7 +132,14 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "7/0/1"
+   },
+   "address_fields": [
+    "address",
+    "state_address"
+   ]
   },
   {
    "key": "switch:GA-18",
@@ -145,7 +167,14 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "9/0/1"
+   },
+   "address_fields": [
+    "address",
+    "state_address"
+   ]
   },
   {
    "key": "switch:GA-26",
@@ -173,7 +202,14 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "9/1/1"
+   },
+   "address_fields": [
+    "address",
+    "state_address"
+   ]
   },
   {
    "key": "switch:GA-43",
@@ -205,7 +241,15 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "12/0/1",
+    "state_address": "12/0/2"
+   },
+   "address_fields": [
+    "address",
+    "state_address"
+   ]
   },
   {
    "key": "binary_sensor:GA-19",
@@ -238,7 +282,13 @@
     "adoptable": true
    },
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "9/0/2"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "binary_sensor:GA-36",
@@ -267,7 +317,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "10/0/8"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "binary_sensor:GA-41",
@@ -294,7 +350,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "11/0/5"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "light:GA-1",
@@ -335,7 +397,19 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "1/1/10",
+    "state_address": "1/5/10",
+    "brightness_address": "1/3/10",
+    "brightness_state_address": "1/4/10"
+   },
+   "address_fields": [
+    "address",
+    "state_address",
+    "brightness_address",
+    "brightness_state_address"
+   ]
   },
   {
    "key": "light:GA-6",
@@ -366,7 +440,15 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "1/1/20",
+    "brightness_address": "1/3/20"
+   },
+   "address_fields": [
+    "address",
+    "brightness_address"
+   ]
   },
   {
    "key": "light:GA-9",
@@ -401,7 +483,17 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "7/0/1",
+    "state_address": "7/0/4",
+    "brightness_address": "7/0/3"
+   },
+   "address_fields": [
+    "address",
+    "state_address",
+    "brightness_address"
+   ]
   },
   {
    "key": "sensor:GA-22",
@@ -428,7 +520,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "9/0/5"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "sensor:GA-23",
@@ -455,7 +553,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "9/0/6"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "sensor:GA-28",
@@ -482,7 +586,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "9/1/3"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "sensor:GA-29",
@@ -509,7 +619,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "10/0/1"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "sensor:GA-37",
@@ -536,7 +652,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "11/0/1"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "sensor:GA-38",
@@ -563,7 +685,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "11/0/2"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "sensor:GA-39",
@@ -590,7 +718,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "11/0/3"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "sensor:GA-40",
@@ -617,7 +751,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "state_address": "11/0/4"
+   },
+   "address_fields": [
+    "state_address"
+   ]
   },
   {
    "key": "datetime:GA-20",
@@ -648,7 +788,15 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "9/0/3",
+    "state_address": "9/0/3"
+   },
+   "address_fields": [
+    "address",
+    "state_address"
+   ]
   },
   {
    "key": "cover:GA-13",
@@ -687,7 +835,19 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "move_long_address": "8/0/1",
+    "stop_address": "8/0/2",
+    "position_address": "8/0/3",
+    "position_state_address": "8/0/4"
+   },
+   "address_fields": [
+    "move_long_address",
+    "stop_address",
+    "position_address",
+    "position_state_address"
+   ]
   },
   {
    "key": "cover:GA-17",
@@ -714,7 +874,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "move_long_address": "8/1/1"
+   },
+   "address_fields": [
+    "move_long_address"
+   ]
   },
   {
    "key": "cover:GA-45",
@@ -745,7 +911,15 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "move_long_address": "13/0/1",
+    "position_address": "13/0/2"
+   },
+   "address_fields": [
+    "move_long_address",
+    "position_address"
+   ]
   },
   {
    "key": "scene:GA-25",
@@ -772,7 +946,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "0/1/3"
+   },
+   "address_fields": [
+    "address"
+   ]
   },
   {
    "key": "scene:GA-24",
@@ -799,7 +979,13 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address": "9/0/7"
+   },
+   "address_fields": [
+    "address"
+   ]
   },
   {
    "key": "climate:GA-29",
@@ -854,7 +1040,27 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "temperature_address": "10/0/1",
+    "target_temperature_state_address": "10/0/2",
+    "setpoint_shift_address": "10/0/3",
+    "setpoint_shift_state_address": "10/0/4",
+    "operation_mode_address": "10/0/5",
+    "operation_mode_state_address": "10/0/6",
+    "command_value_state_address": "10/0/7",
+    "heat_cool_state_address": "10/0/8"
+   },
+   "address_fields": [
+    "temperature_address",
+    "target_temperature_state_address",
+    "setpoint_shift_address",
+    "setpoint_shift_state_address",
+    "operation_mode_address",
+    "operation_mode_state_address",
+    "command_value_state_address",
+    "heat_cool_state_address"
+   ]
   },
   {
    "key": "weather:GA-37",
@@ -901,7 +1107,23 @@
    "suggest_light": false,
    "conflict_with": null,
    "adopt": false,
-   "own_config": false
+   "own_config": false,
+   "project_addresses": {
+    "address_temperature": "11/0/1",
+    "address_brightness_south": "11/0/3",
+    "address_brightness_east": "11/0/4",
+    "address_wind_speed": "11/0/2",
+    "address_rain_alarm": "11/0/5",
+    "address_day_night": "11/0/6"
+   },
+   "address_fields": [
+    "address_temperature",
+    "address_brightness_south",
+    "address_brightness_east",
+    "address_wind_speed",
+    "address_rain_alarm",
+    "address_day_night"
+   ]
   }
  ],
  "unmapped": [

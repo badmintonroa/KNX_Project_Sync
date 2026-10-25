@@ -80,6 +80,17 @@ try {
       const marked = await tab.evaluate(() => window.calls.at(-1).selection);
       check(Object.values(marked).some((c) => c.adopt === true), "adopt own YAML");
       check(Object.values(marked).some((c) => c.existing === true), "mark as existing");
+      // correct a group address by hand
+      await tab.locator("knx-project-sync-panel >> button.edit").first().click();
+      const ga = tab.locator("knx-project-sync-panel >> .addr input").first();
+      await ga.fill("9/x");
+      await ga.press("Enter");
+      check(await tab.locator("knx-project-sync-panel >> .bar button.primary").isDisabled(), "invalid GA blocks apply");
+      await ga.fill("9/9/9");
+      await ga.press("Enter");
+      await tab.waitForTimeout(400);
+      const edited = await tab.evaluate(() => window.calls.at(-1).selection);
+      check(Object.values(edited).some((c) => c.addresses && Object.values(c.addresses).includes("9/9/9")), "address edit");
       await tab.click("knx-project-sync-panel >> .bar >> button.primary");
       await tab.waitForTimeout(100);
       const apply = await tab.evaluate(() => window.calls.find((c) => c.type === "knx_project_sync/apply"));

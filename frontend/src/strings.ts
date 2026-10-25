@@ -53,12 +53,100 @@ export interface Strings {
   ownConfigTitle: string;
   adoptFailed: (reason: string) => string;
   adoptReasons: Record<string, string>;
+  editAddresses: string;
+  doneAddresses: string;
+  addAddress: string;
+  removeAddress: (field: string) => string;
+  fromEts: string;
+  etsValue: (address: string) => string;
+  addedByHand: string;
+  reset: string;
+  invalidAddress: string;
+  fixAddresses: string;
+  fieldLabel: (field: string) => string;
   filters: Record<Filter, string>;
   status: Record<string, string>;
   reasons: Record<string, string>;
   domains: Record<string, string>;
   errors: Record<string, string>;
 }
+
+const FIELDS_DE: Record<string, string> = {
+  "address": "Schalten / Senden",
+  "state_address": "Status",
+  "brightness_address": "Helligkeit",
+  "brightness_state_address": "Helligkeit Status",
+  "color_temperature_address": "Farbtemperatur",
+  "color_temperature_state_address": "Farbtemperatur Status",
+  "color_address": "Farbe",
+  "color_state_address": "Farbe Status",
+  "move_long_address": "Auf/Ab",
+  "move_short_address": "Schritt/Stopp",
+  "stop_address": "Stopp",
+  "position_address": "Position",
+  "position_state_address": "Position Status",
+  "angle_address": "Lamelle",
+  "angle_state_address": "Lamelle Status",
+  "temperature_address": "Ist-Temperatur",
+  "target_temperature_address": "Soll-Temperatur",
+  "target_temperature_state_address": "Soll-Temperatur Status",
+  "setpoint_shift_address": "Sollwertverschiebung",
+  "setpoint_shift_state_address": "Sollwertverschiebung Status",
+  "operation_mode_address": "Betriebsart",
+  "operation_mode_state_address": "Betriebsart Status",
+  "on_off_address": "Ein/Aus",
+  "on_off_state_address": "Ein/Aus Status",
+  "address_temperature": "Temperatur",
+  "address_brightness_south": "Helligkeit Süd",
+  "address_brightness_east": "Helligkeit Ost",
+  "address_brightness_west": "Helligkeit West",
+  "address_brightness_north": "Helligkeit Nord",
+  "address_wind_speed": "Windgeschwindigkeit",
+  "address_rain_alarm": "Regenalarm",
+  "address_frost_alarm": "Frostalarm",
+  "address_wind_alarm": "Windalarm",
+  "address_day_night": "Tag/Nacht",
+  "address_air_pressure": "Luftdruck",
+  "address_humidity": "Luftfeuchte"
+};
+const FIELDS_EN: Record<string, string> = {
+  "address": "Switch / send",
+  "state_address": "State",
+  "brightness_address": "Brightness",
+  "brightness_state_address": "Brightness state",
+  "color_temperature_address": "Color temperature",
+  "color_temperature_state_address": "Color temperature state",
+  "color_address": "Color",
+  "color_state_address": "Color state",
+  "move_long_address": "Up/down",
+  "move_short_address": "Step/stop",
+  "stop_address": "Stop",
+  "position_address": "Position",
+  "position_state_address": "Position state",
+  "angle_address": "Slat angle",
+  "angle_state_address": "Slat angle state",
+  "temperature_address": "Current temperature",
+  "target_temperature_address": "Target temperature",
+  "target_temperature_state_address": "Target temperature state",
+  "setpoint_shift_address": "Setpoint shift",
+  "setpoint_shift_state_address": "Setpoint shift state",
+  "operation_mode_address": "Operation mode",
+  "operation_mode_state_address": "Operation mode state",
+  "on_off_address": "On/off",
+  "on_off_state_address": "On/off state",
+  "address_temperature": "Temperature",
+  "address_brightness_south": "Brightness south",
+  "address_brightness_east": "Brightness east",
+  "address_brightness_west": "Brightness west",
+  "address_brightness_north": "Brightness north",
+  "address_wind_speed": "Wind speed",
+  "address_rain_alarm": "Rain alarm",
+  "address_frost_alarm": "Frost alarm",
+  "address_wind_alarm": "Wind alarm",
+  "address_day_night": "Day/night",
+  "address_air_pressure": "Air pressure",
+  "address_humidity": "Humidity"
+};
 
 const de: Strings = {
   menu: "Menü",
@@ -121,6 +209,17 @@ const de: Strings = {
     line_not_found: "die Datei hat sich geändert, bitte neu laden",
     verification: "nach dem Entfernen hätte sich mehr als dieser Eintrag geändert",
   },
+  editAddresses: "Adressen bearbeiten",
+  doneAddresses: "Fertig",
+  addAddress: "Adresse hinzufügen …",
+  removeAddress: (field) => `${field} entfernen`,
+  fromEts: "aus der ETS",
+  etsValue: (a) => `ETS: ${a ? a : "keine"} · `,
+  addedByHand: "von Hand hinzugefügt",
+  reset: "zurücksetzen",
+  invalidAddress: "Keine gültige Gruppenadresse (z. B. 1/2/3)",
+  fixAddresses: "Ungültige Gruppenadresse korrigieren",
+  fieldLabel: (f) => FIELDS_DE[f] ?? f,
   filters: {
     all: "Alle",
     active: "Angelegt",
@@ -235,6 +334,17 @@ const en: Strings = {
     line_not_found: "the file has changed, please reload",
     verification: "removing it would have changed more than this entry",
   },
+  editAddresses: "Edit addresses",
+  doneAddresses: "Done",
+  addAddress: "Add address …",
+  removeAddress: (field) => `Remove ${field}`,
+  fromEts: "from ETS",
+  etsValue: (a) => `ETS: ${a ? a : "none"} · `,
+  addedByHand: "added by hand",
+  reset: "reset",
+  invalidAddress: "Not a valid group address (e.g. 1/2/3)",
+  fixAddresses: "Fix the invalid group address",
+  fieldLabel: (f) => FIELDS_EN[f] ?? f,
   filters: {
     all: "All",
     active: "Created",
