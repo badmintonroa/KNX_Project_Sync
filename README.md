@@ -11,14 +11,9 @@ Die Integration ist in der **Beta** (`0.1.0-beta.x`). Jede Version steht mit ihr
 ## Installation
 
 1. HACS → *Integrationen* → ⋮ → *Benutzerdefinierte Repositories* → `https://github.com/badmintonroa/Knx-has-auto-importer`, Typ *Integration*. Danach „KNX Project Sync“ installieren und HA neu starten.
-2. In der `configuration.yaml` Pakete aktivieren (falls noch nicht geschehen) und HA neu starten:
+2. *Einstellungen → Geräte & Dienste → Integration hinzufügen → KNX Project Sync*. Voraussetzung ist eine eingerichtete KNX-Integration.
 
-   ```yaml
-   homeassistant:
-     packages: !include_dir_named packages
-   ```
-
-3. *Einstellungen → Geräte & Dienste → Integration hinzufügen → KNX Project Sync*. Voraussetzung ist eine eingerichtete KNX-Integration.
+Die erzeugten Entities stehen in einer eigenen Datei, die Home Assistant über `homeassistant: packages:` lädt. Fehlt das in der `configuration.yaml`, trägt das Panel (oder die Reparatur) es mit einem Klick ein, mit Sicherung und ohne Neustart.
 
 ## Benutzung
 

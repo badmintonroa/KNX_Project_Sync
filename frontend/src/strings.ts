@@ -67,6 +67,11 @@ export interface Strings {
   fixAddresses: string;
   fieldLabel: (field: string) => string;
   eyebrow: string;
+  packagesTitle: string;
+  packagesText: Record<"add" | "move" | "include", string>;
+  packagesFix: Record<"add" | "move" | "include", string>;
+  packagesManual: (detail: string) => string;
+  packagesDone: string;
   firstTitle: string;
   firstDetail: string;
   ownYamlTitle: (n: number) => string;
@@ -248,6 +253,16 @@ const de: Strings = {
   fixAddresses: "Ungültige Gruppenadresse korrigieren",
   fieldLabel: (f) => FIELDS_DE[f] ?? f,
   eyebrow: "ETS-Projekt",
+  packagesTitle: "Home Assistant lädt die Entities noch nicht",
+  packagesText: {
+    add: "Die Entities stehen in einer eigenen Datei. Damit Home Assistant sie liest, fehlt in der configuration.yaml eine Zeile (homeassistant: packages). Sie wird automatisch eingetragen, vorher wird eine Sicherung angelegt. Ein Neustart ist nicht nötig.",
+    move: "Du nutzt schon Pakete aus einem anderen Ordner. Die Datei wird dorthin verschoben, an der configuration.yaml ändert sich nichts.",
+    include: "Deine Pakete sind einzeln eingebunden. Die Datei wird dort ergänzt, vorher wird eine Sicherung der configuration.yaml angelegt.",
+  },
+  packagesFix: { add: "Automatisch eintragen", move: "Datei verschieben", include: "Automatisch ergänzen" },
+  packagesManual: (d) =>
+    `Das geht hier nicht automatisch (${d}). Ergänze in der configuration.yaml: homeassistant: packages: !include_dir_named packages`,
+  packagesDone: "Erledigt: Home Assistant lädt die Entities jetzt. KNX wurde neu geladen.",
   firstTitle: "Projekt eingelesen, noch nichts angelegt",
   firstDetail:
     "Alle erkannten Entities sind vorausgewählt. Schalte ab, was du nicht brauchst, korrigiere Namen, Typen und Adressen und klicke dann auf „Übernehmen“.",
@@ -408,6 +423,16 @@ const en: Strings = {
   fixAddresses: "Fix the invalid group address",
   fieldLabel: (f) => FIELDS_EN[f] ?? f,
   eyebrow: "ETS project",
+  packagesTitle: "Home Assistant does not load the entities yet",
+  packagesText: {
+    add: "The entities live in their own file. For Home Assistant to read it, configuration.yaml needs one line (homeassistant: packages). It is added automatically after a backup. No restart needed.",
+    move: "You already use packages from another folder. The file is moved there, configuration.yaml stays as it is.",
+    include: "Your packages are listed one by one. The file is added there after a backup of configuration.yaml.",
+  },
+  packagesFix: { add: "Add automatically", move: "Move the file", include: "Add automatically" },
+  packagesManual: (d) =>
+    `This cannot be done automatically here (${d}). Add to configuration.yaml: homeassistant: packages: !include_dir_named packages`,
+  packagesDone: "Done: Home Assistant loads the entities now. KNX was reloaded.",
   firstTitle: "Project loaded, nothing created yet",
   firstDetail:
     "All detected entities are preselected. Switch off what you do not need, fix names, types and addresses, then click “Apply”.",

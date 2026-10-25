@@ -8,6 +8,16 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 
+## 0.1.0-beta.2
+
+### Neu
+
+- Fehlt in der `configuration.yaml` die Paket-Zeile (`homeassistant: packages:`), trägt das Panel oder die Reparatur sie mit einem Klick ein. Vorher wird eine Sicherung angelegt, danach wird geprüft und KNX neu geladen, ohne Neustart. Wer schon einen anderen Paket-Ordner nutzt, bekommt die Datei dorthin verschoben.
+
+### Entfernt
+
+- Übernahme von Test-Installationen unter dem früheren Namen „KNX2HOME Importer“.
+
 ## 0.1.0-beta.1
 
 Erste Beta.

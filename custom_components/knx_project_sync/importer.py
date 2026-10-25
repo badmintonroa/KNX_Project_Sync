@@ -17,7 +17,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
-from . import writer, yamledit
+from . import packages, writer, yamledit
 from .const import (
     CONF_ASSIGN_AREAS,
     CONF_DOMAINS,
@@ -433,6 +433,83 @@ class Importer:
             return
         ir.async_delete_issue(hass, DOMAIN, ISSUE_RELOAD_FAILED)
 
+    # ------------------------------------------------------------ packages
+
+    async def async_package_setup(self, options: dict[str, Any]) -> packages.Setup:
+        """Is the package file loaded by configuration.yaml, and what would fix it."""
+        from homeassistant.config import YAML_CONFIG_FILE
+
+        config_file = Path(self.hass.config.path(YAML_CONFIG_FILE))
+        package = options.get(CONF_PACKAGE_PATH) or DEFAULT_PACKAGE_PATH
+
+        def _work() -> packages.Setup:
+            try:
+                text = config_file.read_text(encoding="utf-8")
+            except OSError as err:
+                return packages.Setup(packages.MANUAL, package, str(err))
+            return packages.analyze(text, package)
+
+        return await self.hass.async_add_executor_job(_work)
+
+    async def async_fix_packages(self, entry: Any) -> packages.Setup:
+        """Make Home Assistant load the package file, then reload KNX.
+
+        configuration.yaml is backed up and the result checked with Home Assistant's
+        loader; on any problem the backup is restored.
+        """
+        from homeassistant.config import YAML_CONFIG_FILE, async_hass_config_yaml
+
+        hass = self.hass
+        options = {**default_options(), **entry.options}
+        setup = await self.async_package_setup(options)
+        if setup.status == packages.OK:
+            return setup
+        if setup.status == packages.MANUAL:
+            raise KnxImportError("packages_manual", error=setup.detail or "")
+
+        if setup.status != packages.MOVE:
+            config_file = Path(hass.config.path(YAML_CONFIG_FILE))
+
+            def _edit() -> Path:
+                text = config_file.read_text(encoding="utf-8")
+                new_text = packages.apply(text, setup)
+                if packages.analyze(new_text, setup.package_path).status != packages.OK:
+                    raise ValueError("not_loaded_after_edit")
+                backup = yamledit.backup_path(config_file)
+                backup.write_text(text, encoding="utf-8")
+                config_file.write_text(new_text, encoding="utf-8")
+                return backup
+
+            try:
+                backup = await hass.async_add_executor_job(_edit)
+            except (ValueError, OSError) as err:
+                raise KnxImportError("packages_manual", error=str(err)) from err
+            try:
+                await async_hass_config_yaml(hass)
+            except HomeAssistantError as err:
+                await hass.async_add_executor_job(yamledit.restore, {config_file: backup})
+                raise KnxImportError("packages_manual", error=str(err)) from err
+        if setup.package_path != options.get(CONF_PACKAGE_PATH):
+            # the package file has to sit in the folder packages are loaded from
+            old, new = self.package_path(options), Path(hass.config.path(setup.package_path))
+
+            def _move() -> None:
+                if old.exists() and not new.exists():
+                    new.parent.mkdir(parents=True, exist_ok=True)
+                    old.replace(new)
+
+            await hass.async_add_executor_job(_move)
+            hass.config_entries.async_update_entry(
+                entry, options={**entry.options, CONF_PACKAGE_PATH: setup.package_path}
+            )
+
+        options = {**default_options(), **entry.options}
+        package = self.package_path(options)
+        if await hass.async_add_executor_job(package.exists):
+            await self._async_reload_knx()
+        ir.async_delete_issue(hass, DOMAIN, ISSUE_PACKAGE_NOT_LOADED)
+        return await self.async_package_setup(options)
+
     async def _async_check_package_loaded(self, plan: ImportPlan, package: Path) -> None:
         """Repair issue if Home Assistant does not load the package file."""
         from homeassistant.config import async_hass_config_yaml
@@ -453,7 +530,7 @@ class Importer:
             self.hass,
             DOMAIN,
             ISSUE_PACKAGE_NOT_LOADED,
-            is_fixable=False,
+            is_fixable=True,
             severity=ir.IssueSeverity.WARNING,
             translation_key=ISSUE_PACKAGE_NOT_LOADED,
             translation_placeholders={"path": str(package)},

@@ -122,7 +122,18 @@
   "issues": {
     "package_not_loaded": {
       "title": "KNX package is not loaded",
-      "description": "The generated entities are in `{path}`, but Home Assistant does not load this file. Add to `configuration.yaml`:\n\n```yaml\nhomeassistant:\n  packages: !include_dir_named packages\n```\n\nand restart Home Assistant."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Load the package file",
+            "description": "KNX Project Sync makes Home Assistant load `{path}`:\n\n- `configuration.yaml` is backed up next to it,\n- the line `homeassistant: packages: !include_dir_named packages` is added (or the file is moved into the packages folder you already use),\n- the result is checked, and KNX is reloaded."
+          }
+        },
+        "abort": {
+          "packages_manual": "This cannot be done automatically: {error}\n\nAdd to `configuration.yaml`:\n\n```yaml\nhomeassistant:\n  packages: !include_dir_named packages\n```",
+          "not_set_up": "KNX Project Sync is not set up."
+        }
+      }
     },
     "knx_reload_failed": {
       "title": "KNX could not be reloaded",
@@ -150,6 +161,9 @@
     },
     "adopt_failed": {
       "message": "Could not take the entity over from your own YAML: {error}"
+    },
+    "packages_manual": {
+      "message": "Could not set up packages automatically: {error}"
     }
   },
   "services": {
