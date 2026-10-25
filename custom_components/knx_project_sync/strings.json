@@ -2,9 +2,9 @@
   "config": {
     "step": {
       "user": {
-        "title": "Source",
+        "title": "Where does the ETS project come from?",
         "menu_options": {
-          "upload": "Upload project file",
+          "upload": "Upload a new project file",
           "knx_project": "Use the project from the KNX panel"
         }
       },
@@ -19,25 +19,6 @@
           "password": "Only needed for password protected projects."
         }
       },
-      "options": {
-        "title": "Import settings",
-        "data": {
-          "domains": "Entity types",
-          "removed": "Entities missing from the project",
-          "assign_areas": "Assign areas from ETS rooms",
-          "package_path": "Package file"
-        },
-        "data_description": {
-          "domains": "Only these types are created.",
-          "removed": "What happens to entities that are no longer in a new project file.",
-          "assign_areas": "Only entities without an area get the ETS room of their device; missing areas are created.",
-          "package_path": "Relative to the configuration folder. The file is overwritten on every import and must be loaded via `homeassistant: packages:`."
-        }
-      },
-      "confirm": {
-        "title": "Preview: {project}",
-        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\n🆕 **{pending}** newly available (add them in the *KNX Project Sync* panel) · 🚫 {deselected} deselected in the panel\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
-      },
       "legacy": {
         "title": "Take over previous installation",
         "description": "An installation under the former name “KNX2HOME Importer” was found. Its imported entities, settings and import state are taken over unchanged, and the package file is renamed to `packages/knx_project_sync.yaml`. Afterwards delete the old “KNX2HOME Importer” entry and remove it in HACS."
@@ -51,16 +32,19 @@
       "knx_not_configured": "Set up the KNX integration first.",
       "no_knx_project": "No project is uploaded in the KNX panel.",
       "single_instance_allowed": "Already configured. Import new project files via “Configure”."
+    },
+    "create_entry": {
+      "default": "Project **{project}** was read: {entities} entities detected. **Nothing was created yet.**\n\nOpen **KNX Project Sync** in the sidebar to choose the entities and apply them."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Import again",
+        "title": "New project version or settings",
         "menu_options": {
-          "upload": "Upload project file",
+          "upload": "Upload a new project file",
           "knx_project": "Use the project from the KNX panel",
-          "settings": "Only change settings"
+          "settings": "Settings"
         }
       },
       "upload": {
@@ -74,8 +58,8 @@
           "password": "Only needed for password protected projects."
         }
       },
-      "options": {
-        "title": "Import settings",
+      "settings": {
+        "title": "Settings",
         "data": {
           "domains": "Entity types",
           "removed": "Entities missing from the project",
@@ -87,11 +71,8 @@
           "removed": "What happens to entities that are no longer in a new project file.",
           "assign_areas": "Only entities without an area get the ETS room of their device; missing areas are created.",
           "package_path": "Relative to the configuration folder. The file is overwritten on every import and must be loaded via `homeassistant: packages:`."
-        }
-      },
-      "confirm": {
-        "title": "Preview: {project}",
-        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\n🆕 **{pending}** newly available (add them in the *KNX Project Sync* panel) · 🚫 {deselected} deselected in the panel\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
+        },
+        "description": "Changes are applied in the **KNX Project Sync** panel, which shows what they change."
       }
     },
     "error": {
@@ -100,6 +81,9 @@
     },
     "abort": {
       "no_knx_project": "No project is uploaded in the KNX panel."
+    },
+    "create_entry": {
+      "default": "Project **{project}** was read ({entities} entities). Nothing was changed yet: review and apply the new version in the **KNX Project Sync** panel."
     }
   },
   "selector": {

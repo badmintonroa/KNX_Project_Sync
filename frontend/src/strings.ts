@@ -65,12 +65,18 @@ export interface Strings {
   fixAddresses: string;
   fieldLabel: (field: string) => string;
   eyebrow: string;
+  firstTitle: string;
+  firstDetail: string;
+  ownYamlTitle: (n: number) => string;
+  ownYamlDetail: string;
+  adoptAll: (n: number) => string;
   sources: Record<string, string>;
   lastImportLine: (time: string, source: string) => string;
   stagedTitle: string;
   stagedDetail: (pending: number, changed: number, removed: number) => string;
   discardVersion: string;
   stats: Record<"active" | "pending" | "off" | "unmapped", [string, string]>;
+  statsSelected: [string, string];
   moreFilters: string;
   roomCount: (on: number, total: number) => string;
   allOn: string;
@@ -236,6 +242,13 @@ const de: Strings = {
   fixAddresses: "Ungültige Gruppenadresse korrigieren",
   fieldLabel: (f) => FIELDS_DE[f] ?? f,
   eyebrow: "ETS-Projekt",
+  firstTitle: "Projekt eingelesen, noch nichts angelegt",
+  firstDetail:
+    "Alle erkannten Entities sind vorausgewählt. Schalte ab, was du nicht brauchst, korrigiere Namen, Typen und Adressen und klicke dann auf „Übernehmen“.",
+  ownYamlTitle: (n) => `${n} ${n === 1 ? "Entity steht" : "Entities stehen"} schon in deiner eigenen KNX-YAML`,
+  ownYamlDetail:
+    "Sie werden nicht doppelt angelegt. Du kannst sie mit deiner Konfiguration in die App übernehmen; deine Datei wird vorher gesichert.",
+  adoptAll: (n) => `Alle ${n} in die App übernehmen`,
   sources: { upload: "Datei-Upload", knx_project: "KNX-Panel", file: "Datei" },
   lastImportLine: (time, source) => `Letzter Import ${time} · Quelle: ${source}`,
   stagedTitle: "Neue Projektversion geladen",
@@ -248,8 +261,9 @@ const de: Strings = {
     off: ["Abgewählt", "nicht angelegt"],
     unmapped: ["Ohne Typ", "Gruppenadressen"],
   },
+  statsSelected: ["Ausgewählt", "werden angelegt"],
   moreFilters: "Weitere",
-  roomCount: (on, total) => `${on} von ${total} angelegt`,
+  roomCount: (on, total) => `${on} von ${total} ausgewählt`,
   allOn: "Alle anlegen",
   allOff: "Alle abwählen",
   barCounts: { add: "hinzufügen", change: "ändern", remove: "entfernen", adopt: "übernehmen" },
@@ -382,6 +396,12 @@ const en: Strings = {
   fixAddresses: "Fix the invalid group address",
   fieldLabel: (f) => FIELDS_EN[f] ?? f,
   eyebrow: "ETS project",
+  firstTitle: "Project loaded, nothing created yet",
+  firstDetail:
+    "All detected entities are preselected. Switch off what you do not need, fix names, types and addresses, then click “Apply”.",
+  ownYamlTitle: (n) => `${n} ${n === 1 ? "entity is" : "entities are"} already in your own KNX YAML`,
+  ownYamlDetail: "They are not created twice. You can take them over into the app with your configuration; your file is backed up first.",
+  adoptAll: (n) => `Take all ${n} over into the app`,
   sources: { upload: "file upload", knx_project: "KNX panel", file: "file" },
   lastImportLine: (time, source) => `Last import ${time} · Source: ${source}`,
   stagedTitle: "New project version loaded",
@@ -394,8 +414,9 @@ const en: Strings = {
     off: ["Deselected", "not created"],
     unmapped: ["No type", "group addresses"],
   },
+  statsSelected: ["Selected", "will be created"],
   moreFilters: "More",
-  roomCount: (on, total) => `${on} of ${total} created`,
+  roomCount: (on, total) => `${on} of ${total} selected`,
   allOn: "Create all",
   allOff: "Deselect all",
   barCounts: { add: "add", change: "change", remove: "remove", adopt: "take over" },

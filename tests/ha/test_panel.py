@@ -193,3 +193,23 @@ async def test_correct_addresses(hass: HomeAssistant, config_dir, knx_reloads, u
     assert (await client.receive_json())["success"]
     assert [s["state_address"] for s in _package(config_dir)["sensor"]] == ["3/0/9", "3/0/2"]
     assert er.async_get(hass).async_get(temperature.entity_id).unique_id == "3/0/9"
+
+
+async def test_panel_after_setup(hass: HomeAssistant, config_dir, knx_reloads, upload, hass_ws_client) -> None:
+    """Setup only reads the project: the panel shows everything preselected, nothing exists yet."""
+    from test_import_flow import _setup
+
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/plan"})
+    result = (await client.receive_json())["result"]
+    assert result["last_import"] is None
+    assert result["has_changes"]
+    rows = _rows(result)
+    assert rows["light:GA-3"]["status"] == "new"
+    assert rows["switch:GA-1"]["status"] == "conflict"
+    assert not (config_dir / PACKAGE).exists()
+
+    await client.send_json_auto_id({"type": f"{DOMAIN}/apply", "selection": {"sensor:GA-13": {"enabled": False}}})
+    assert (await client.receive_json())["result"]["new"] == 5
+    assert [s["state_address"] for s in _package(config_dir)["sensor"]] == ["3/0/1"]

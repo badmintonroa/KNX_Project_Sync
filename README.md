@@ -22,9 +22,10 @@ Die Integration hieß bis 0.1.0 „KNX2HOME Importer“ (`knx2home_importer`). N
 
 ## Benutzung
 
-- **Erster Import:** `.knxproj` hochladen (oder das schon im KNX-Panel hochgeladene Projekt wählen), Entity-Typen wählen, Vorschau prüfen, absenden. Alle erkannten Entities landen in `packages/knx_project_sync.yaml`, und KNX wird neu geladen.
+- **Einrichten:** Nur die Quelle wählen, also eine `.knxproj` hochladen oder das schon im KNX-Panel hochgeladene Projekt verwenden. Das Projekt wird eingelesen, **angelegt wird noch nichts**.
+- **Erster Import im Panel:** Alle erkannten Entities sind vorausgewählt. Abwählen, korrigieren und *Übernehmen* klicken. Erst dann werden die Entities in `packages/knx_project_sync.yaml` geschrieben und KNX neu geladen.
 - **Panel „KNX Project Sync“ (Seitenleiste, nur Admins):** Liste aller erkannten Entities, gruppiert nach ETS-Raum oder Typ, mit Suche und Filtern. Pro Entity: anlegen ja/nein, umbenennen, falsche Gruppenadressen korrigieren, Schalter ↔ Licht umstellen (bei Schaltern mit „Licht“, „Lampe“ usw. im Namen schlägt das Panel *Als Licht?* vor). Änderungen sind ein Entwurf, bis du auf *Übernehmen* klickst.
-- **Update:** Im Panel eine neue Projektdatei hochladen oder das Projekt aus dem KNX-Panel einlesen (alternativ bei der Integration *Konfigurieren*). Geänderte und entfernte Entities werden nachgezogen. **Neue Entities werden nicht automatisch angelegt**, sondern erscheinen als „Neu verfügbar“, und eine Benachrichtigung weist darauf hin.
+- **Update:** Im Panel eine neue Projektdatei hochladen oder das Projekt aus dem KNX-Panel einlesen (oder bei der Integration *Konfigurieren*, die neue Version wird dann ebenfalls im Panel geprüft und übernommen). Geänderte und entfernte Entities werden nachgezogen. **Neue Entities werden nicht automatisch angelegt**, sondern erscheinen als „Neu verfügbar“, und eine Benachrichtigung weist darauf hin.
 - **Eigene KNX-YAML:** Entities, die du schon von Hand angelegt hast (gleiche Gruppenadresse, auch Schalter ↔ Licht), werden erkannt und nicht doppelt angelegt. Im Panel kannst du sie per *In App übernehmen* in die App verschieben, mit Sicherung deiner Datei, oder beliebige Entities als *Schon vorhanden* markieren.
 - **Automatisierbar:** Service `knx_project_sync.import_project` (mit `dry_run`).
 
