@@ -170,6 +170,9 @@
     },
     "no_knx_project": {
       "message": "Im KNX-Panel ist kein Projekt hochgeladen."
+    },
+    "adopt_failed": {
+      "message": "Die Entity konnte nicht aus deiner eigenen YAML übernommen werden: {error}"
     }
   },
   "services": {

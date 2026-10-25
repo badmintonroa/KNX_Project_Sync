@@ -58,7 +58,10 @@
    "entity_id": null,
    "previous_domain": null,
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "switch:GA-6",
@@ -83,7 +86,10 @@
    "entity_id": null,
    "previous_domain": null,
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "switch:GA-9",
@@ -108,7 +114,10 @@
    "entity_id": null,
    "previous_domain": null,
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "switch:GA-18",
@@ -133,7 +142,10 @@
    "entity_id": null,
    "previous_domain": null,
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "switch:GA-26",
@@ -158,7 +170,10 @@
    "entity_id": null,
    "previous_domain": null,
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "switch:GA-43",
@@ -187,12 +202,15 @@
    "entity_id": null,
    "previous_domain": null,
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "binary_sensor:GA-19",
-   "status": "unchanged",
-   "reason": null,
+   "status": "conflict",
+   "reason": "own_yaml",
    "domain": "binary_sensor",
    "detected_domain": "binary_sensor",
    "domains": [
@@ -208,10 +226,19 @@
    ],
    "room": "Bad",
    "in_project": true,
-   "entity_id": "binary_sensor.entity_6",
+   "entity_id": null,
    "previous_domain": "binary_sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": {
+    "domain": "binary_sensor",
+    "name": "Fenster Bad",
+    "file": "configuration.yaml",
+    "line": 12,
+    "adoptable": true
+   },
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "binary_sensor:GA-36",
@@ -237,7 +264,10 @@
    "selection": {
     "enabled": false
    },
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "binary_sensor:GA-41",
@@ -261,7 +291,10 @@
    "entity_id": "binary_sensor.entity_8",
    "previous_domain": "binary_sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "light:GA-1",
@@ -299,7 +332,10 @@
    "selection": {
     "name": "Umbenannt"
    },
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "light:GA-6",
@@ -327,7 +363,10 @@
    "entity_id": "light.entity_10",
    "previous_domain": "light",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "light:GA-9",
@@ -359,7 +398,10 @@
    "entity_id": "light.entity_11",
    "previous_domain": "light",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "sensor:GA-22",
@@ -383,7 +425,10 @@
    "entity_id": "sensor.entity_12",
    "previous_domain": "sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "sensor:GA-23",
@@ -407,7 +452,10 @@
    "entity_id": "sensor.entity_13",
    "previous_domain": "sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "sensor:GA-28",
@@ -431,7 +479,10 @@
    "entity_id": "sensor.entity_14",
    "previous_domain": "sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "sensor:GA-29",
@@ -455,7 +506,10 @@
    "entity_id": "sensor.entity_15",
    "previous_domain": "sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "sensor:GA-37",
@@ -479,7 +533,10 @@
    "entity_id": "sensor.entity_16",
    "previous_domain": "sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "sensor:GA-38",
@@ -503,7 +560,10 @@
    "entity_id": "sensor.entity_17",
    "previous_domain": "sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "sensor:GA-39",
@@ -527,7 +587,10 @@
    "entity_id": "sensor.entity_18",
    "previous_domain": "sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "sensor:GA-40",
@@ -551,7 +614,10 @@
    "entity_id": "sensor.entity_19",
    "previous_domain": "sensor",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "datetime:GA-20",
@@ -579,7 +645,10 @@
    "entity_id": "datetime.entity_20",
    "previous_domain": "datetime",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "cover:GA-13",
@@ -615,7 +684,10 @@
    "entity_id": "cover.entity_21",
    "previous_domain": "cover",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "cover:GA-17",
@@ -639,7 +711,10 @@
    "entity_id": "cover.entity_22",
    "previous_domain": "cover",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "cover:GA-45",
@@ -667,7 +742,10 @@
    "entity_id": "cover.entity_23",
    "previous_domain": "cover",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "scene:GA-25",
@@ -691,7 +769,10 @@
    "entity_id": "scene.entity_24",
    "previous_domain": "scene",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "scene:GA-24",
@@ -715,7 +796,10 @@
    "entity_id": "scene.entity_25",
    "previous_domain": "scene",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "climate:GA-29",
@@ -767,7 +851,10 @@
    "entity_id": "climate.entity_26",
    "previous_domain": "climate",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   },
   {
    "key": "weather:GA-37",
@@ -811,7 +898,10 @@
    "entity_id": "weather.entity_27",
    "previous_domain": "weather",
    "selection": {},
-   "suggest_light": false
+   "suggest_light": false,
+   "conflict_with": null,
+   "adopt": false,
+   "own_config": false
   }
  ],
  "unmapped": [
@@ -837,7 +927,7 @@
  "summary": {
   "new": 0,
   "changed": 1,
-  "unchanged": 20,
+  "unchanged": 19,
   "kept": 0,
   "removed": 0,
   "pending": 3,
@@ -845,7 +935,7 @@
   "excluded": 0,
   "duplicate": 3,
   "invalid": 0,
-  "conflict": 0,
+  "conflict": 1,
   "unmapped": 3
  },
  "removed_unique_ids": 1

@@ -44,6 +44,20 @@ def read_unique_ids(path: Path) -> set[tuple[str, str]]:
     return unique_ids_of_knx_config(data.get("knx") or {})
 
 
+def _plain(value: Any) -> Any:
+    """Plain Python types (HA's YAML loader returns str/dict/list subclasses with line info)."""
+    if isinstance(value, dict):
+        return {str(k): _plain(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_plain(v) for v in value]
+    if isinstance(value, bool) or value is None:
+        return value
+    for kind in (int, float, str):
+        if isinstance(value, kind):
+            return kind(value)
+    return str(value)
+
+
 def _first(value: Any) -> Any:
     """Raw YAML allows a single address or a list (first = sending address)."""
     if isinstance(value, list):
@@ -53,7 +67,15 @@ def _first(value: Any) -> Any:
 
 def unique_ids_of_knx_config(knx: dict[str, Any]) -> set[tuple[str, str]]:
     """(domain, unique_id) of all entities in a raw (not validated) `knx:` config."""
-    out: set[tuple[str, str]] = set()
+    return set(entities_of_knx_config(knx))
+
+
+def entities_of_knx_config(knx: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+    """(domain, unique_id) -> {"config", "file", "line"} of a raw `knx:` config.
+
+    `file` and `line` come from Home Assistant's YAML loader (None for plain dicts).
+    """
+    out: dict[tuple[str, str], dict[str, Any]] = {}
     for domain in DOMAINS:
         items = knx.get(domain) or []
         if isinstance(items, dict):
@@ -63,7 +85,15 @@ def unique_ids_of_knx_config(knx: dict[str, Any]) -> set[tuple[str, str]]:
                 continue
             config = {k: _first(v) if k.endswith("address") or k.startswith("address_") else v for k, v in item.items()}
             try:
-                out.add((domain, unique_id_for(domain, config)))
+                uid = unique_id_for(domain, config)
             except (TypeError, ValueError):
                 continue
+            out.setdefault(
+                (domain, uid),
+                {
+                    "config": _plain(item),
+                    "file": getattr(item, "__config_file__", None),
+                    "line": getattr(item, "__line__", None),
+                },
+            )
     return out

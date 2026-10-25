@@ -170,6 +170,9 @@
     },
     "no_knx_project": {
       "message": "No project is uploaded in the KNX panel."
+    },
+    "adopt_failed": {
+      "message": "Could not take the entity over from your own YAML: {error}"
     }
   },
   "services": {

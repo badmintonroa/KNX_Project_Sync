@@ -18,6 +18,9 @@ interface Choice {
   enabled?: boolean | null;
   domain?: string | null;
   name?: string | null;
+  existing?: boolean | null;
+  adopt?: boolean | null;
+  config?: Record<string, unknown> | null;
 }
 type Selection = Record<string, Choice>;
 
@@ -37,6 +40,9 @@ interface Row {
   previous_domain: string | null;
   selection: Choice;
   suggest_light: boolean;
+  conflict_with: { domain: string; name: string | null; file: string | null; line: number | null; adoptable: boolean } | null;
+  adopt: boolean;
+  own_config: boolean;
 }
 
 interface PlanResult {
@@ -54,8 +60,8 @@ interface PlanResult {
 }
 
 const WRITTEN = new Set(["new", "changed", "unchanged", "kept"]);
-const BLOCKED = new Set(["excluded", "duplicate", "invalid", "conflict", "removed"]);
-const FILTERS = ["all", "active", "pending", "off", "issues", "gone", "unmapped"] as const;
+const BLOCKED = new Set(["excluded", "duplicate", "invalid", "conflict", "removed", "existing"]);
+const FILTERS = ["all", "active", "pending", "off", "existing", "issues", "gone", "unmapped"] as const;
 type Filter = (typeof FILTERS)[number];
 
 const inFilter = (row: Row, filter: Filter): boolean => {
@@ -66,6 +72,8 @@ const inFilter = (row: Row, filter: Filter): boolean => {
       return WRITTEN.has(row.status);
     case "pending":
       return row.status === "pending";
+    case "existing":
+      return row.status === "existing";
     case "off":
       return row.status === "deselected";
     case "issues":
@@ -84,6 +92,9 @@ const clean = (selection: Selection): Selection => {
     if (choice.enabled === true || choice.enabled === false) item.enabled = choice.enabled;
     if (choice.domain) item.domain = choice.domain;
     if (choice.name && choice.name.trim()) item.name = choice.name.trim();
+    if (choice.existing) item.existing = true;
+    if (choice.adopt) item.adopt = true;
+    if (choice.config) item.config = choice.config;
     if (Object.keys(item).length) out[key] = item;
   }
   return out;
@@ -166,6 +177,7 @@ class KnxProjectSyncPanel extends LitElement {
 
   private _errorText(err: unknown): string {
     const e = err as { code?: string; message?: string };
+    if (e.code === "adopt_failed") return this.t.adoptFailed(this.t.adoptReasons[e.message ?? ""] ?? e.message ?? "");
     return (e.code && this.t.errors[e.code]) || e.message || String(err);
   }
 
@@ -494,14 +506,55 @@ class KnxProjectSyncPanel extends LitElement {
           : nothing}
       </div>
       <div class="status">
-        <span class="badge ${row.status}">${this._statusLabel(row)}</span>
-        ${row.reason && blocked ? html`<div class="reason" title=${row.reason}>${this._reasonLabel(row)}</div>` : nothing}
+        <span class="badge ${row.adopt ? "adopt" : row.status}">${this._statusLabel(row)}</span>
+        ${row.reason && blocked && !row.conflict_with
+          ? html`<div class="reason" title=${row.reason}>${this._reasonLabel(row)}</div>`
+          : nothing}
+        ${this._renderActions(row, choice)}
       </div>
+      ${row.conflict_with ? this._renderConflict(row, choice) : nothing}
     </div>`;
+  }
+
+  /** Own YAML entity on the same GA: where it is and whether it can be taken over. */
+  private _renderConflict(row: Row, choice: Choice): TemplateResult {
+    const t = this.t;
+    const c = row.conflict_with!;
+    const where = c.file ? `${c.file}${c.line ? `:${c.line}` : ""}` : t.ownYaml;
+    return html`<div class="conflict-box">
+      <span>
+        ${row.adopt ? t.adoptInfo(where) : t.conflictInfo(t.domains[c.domain] ?? c.domain, c.name ?? "", where)}
+      </span>
+      ${choice.adopt
+        ? html`<button class="text" @click=${() => this._choose(row.key, { adopt: null })}>${t.undo}</button>`
+        : c.adoptable
+          ? html`<button @click=${() => this._choose(row.key, { adopt: true })}>${t.adopt}</button>`
+          : html`<span class="sub">${t.notAdoptable}</span>`}
+    </div>`;
+  }
+
+  /** Small per-entity actions: already exists elsewhere, back to the project's definition. */
+  private _renderActions(row: Row, choice: Choice): TemplateResult | typeof nothing {
+    const t = this.t;
+    if (!row.in_project) return nothing;
+    if (row.status === "existing" || choice.existing) {
+      return html`<button class="link" @click=${() => this._choose(row.key, { existing: null })}>${t.undo}</button>`;
+    }
+    if (row.own_config && choice.config) {
+      return html`<button class="link" title=${t.ownConfigTitle} @click=${() => this._choose(row.key, { config: null, domain: null })}>
+        ${t.resetConfig}
+      </button>`;
+    }
+    if (row.status === "conflict" || BLOCKED.has(row.status) || row.adopt) return nothing;
+    return html`<button class="link mark" title=${t.existingTitle} @click=${() => this._choose(row.key, { existing: true })}>
+      ${t.markExisting}
+    </button>`;
   }
 
   private _statusLabel(row: Row): string {
     const t = this.t;
+    if (row.adopt) return t.status.adopt;
+    if (row.own_config && row.status === "unchanged") return t.status.own_config;
     if (row.status === "deselected" && row.entity_id) return t.status.deselected_removed;
     if (row.status === "changed" && row.previous_domain && row.previous_domain !== row.domain) return t.status.retyped;
     return t.status[row.status] ?? row.status;
@@ -536,9 +589,12 @@ class KnxProjectSyncPanel extends LitElement {
     const t = this.t;
     const s = this._data?.summary ?? {};
     const rows = this._data?.entities ?? [];
-    const added = rows.filter((r) => r.status === "new");
+    const added = rows.filter((r) => r.status === "new" && !r.adopt);
+    const adopted = rows.filter((r) => r.adopt);
     const changed = rows.filter((r) => r.status === "changed");
-    const removed = rows.filter((r) => r.status === "removed" || (r.status === "deselected" && r.entity_id));
+    const removed = rows.filter(
+      (r) => r.status === "removed" || ((r.status === "deselected" || r.status === "existing") && r.entity_id)
+    );
     return html`<div class="bar">
       ${this._showChanges
         ? html`<div class="changes">
@@ -546,6 +602,7 @@ class KnxProjectSyncPanel extends LitElement {
               [t.willAdd, added],
               [t.willChange, changed],
               [t.willRemove, removed],
+              [t.willAdopt, adopted],
             ].map(([label, list]) =>
               (list as Row[]).length
                 ? html`<div>
@@ -565,7 +622,7 @@ class KnxProjectSyncPanel extends LitElement {
             aria-expanded=${this._showChanges}
             @click=${() => (this._showChanges = !this._showChanges)}
           >
-            ${t.summary(added.length, changed.length, removed.length)} ${this._showChanges ? "▾" : "▴"}
+            ${t.summary(added.length, changed.length, removed.length)}${adopted.length ? ` · ${t.adoptCount(adopted.length)}` : ""} ${this._showChanges ? "▾" : "▴"}
           </button>
           ${s.pending ? html`<span class="sub">${t.stillPending(s.pending)}</span>` : nothing}
         </div>
@@ -899,6 +956,50 @@ class KnxProjectSyncPanel extends LitElement {
       white-space: nowrap;
       margin-top: 2px;
     }
+    .badge.adopt {
+      background: var(--accent);
+      color: var(--text-primary-color, #fff);
+    }
+    .badge.existing {
+      background: var(--secondary-background-color, rgba(0, 0, 0, 0.06));
+    }
+    button.link {
+      border: none;
+      background: none;
+      padding: 2px 0;
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 4px;
+    }
+    /* "already exists" only on hover/focus, it is rarely needed */
+    @media (hover: hover) {
+      .row .mark {
+        opacity: 0;
+      }
+      .row:hover .mark,
+      .row:focus-within .mark {
+        opacity: 1;
+      }
+    }
+    .conflict-box {
+      grid-column: 2 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--secondary-background-color, rgba(0, 0, 0, 0.04));
+    }
+    .conflict-box span:first-child {
+      flex: 1 1 260px;
+    }
+    .conflict-box button {
+      padding: 4px 12px;
+      font-size: 13px;
+    }
     .empty {
       padding: 48px 16px;
       text-align: center;
@@ -975,6 +1076,9 @@ class KnxProjectSyncPanel extends LitElement {
       }
       .status {
         grid-area: status;
+      }
+      .conflict-box {
+        grid-column: 1 / -1;
       }
     }
   `;

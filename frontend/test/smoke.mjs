@@ -74,7 +74,13 @@ try {
       check(Object.values(selection).some((c) => c.enabled === true), "enabled pending entity");
       check(Object.values(selection).some((c) => c.domain === "light"), "type change");
       check(Object.values(selection).some((c) => c.name === "Stehlampe"), "rename");
-      await tab.click("knx-project-sync-panel >> .bar >> text=Übernehmen");
+      await tab.click("knx-project-sync-panel >> .conflict-box button:has-text('In App übernehmen')");
+      await tab.locator("knx-project-sync-panel >> button.link:has-text('Schon vorhanden')").first().click();
+      await tab.waitForTimeout(400);
+      const marked = await tab.evaluate(() => window.calls.at(-1).selection);
+      check(Object.values(marked).some((c) => c.adopt === true), "adopt own YAML");
+      check(Object.values(marked).some((c) => c.existing === true), "mark as existing");
+      await tab.click("knx-project-sync-panel >> .bar >> button.primary");
       await tab.waitForTimeout(100);
       const apply = await tab.evaluate(() => window.calls.find((c) => c.type === "knx_project_sync/apply"));
       check(apply && Object.values(apply.selection).some((c) => c.name === "Stehlampe"), "apply sends selection");

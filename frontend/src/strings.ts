@@ -1,5 +1,5 @@
 /** Texts of the panel (German and English). */
-type Filter = "all" | "active" | "pending" | "off" | "issues" | "gone" | "unmapped";
+type Filter = "all" | "active" | "pending" | "off" | "existing" | "issues" | "gone" | "unmapped";
 
 export interface Strings {
   menu: string;
@@ -39,6 +39,20 @@ export interface Strings {
   apply: string;
   applying: string;
   applied: (summary: Record<string, number>) => string;
+  willAdopt: string;
+  adoptCount: (n: number) => string;
+  adopt: string;
+  undo: string;
+  ownYaml: string;
+  conflictInfo: (domain: string, name: string, where: string) => string;
+  adoptInfo: (where: string) => string;
+  notAdoptable: string;
+  markExisting: string;
+  existingTitle: string;
+  resetConfig: string;
+  ownConfigTitle: string;
+  adoptFailed: (reason: string) => string;
+  adoptReasons: Record<string, string>;
   filters: Record<Filter, string>;
   status: Record<string, string>;
   reasons: Record<string, string>;
@@ -86,11 +100,33 @@ const de: Strings = {
   applying: "Übernehme …",
   applied: (s) =>
     `Übernommen: ${s.new ?? 0} neu, ${s.changed ?? 0} geändert, ${s.deleted ?? 0} entfernt. KNX wurde neu geladen.`,
+  willAdopt: "Wird aus deiner YAML übernommen",
+  adoptCount: (n) => `${n} übernehmen`,
+  adopt: "In App übernehmen",
+  undo: "Rückgängig",
+  ownYaml: "deiner eigenen KNX-YAML",
+  conflictInfo: (domain, name, where) => `Schon in deiner YAML: ${domain} „${name}“ (${where}). Wird nicht doppelt angelegt.`,
+  adoptInfo: (where) =>
+    `Wird mit deiner Konfiguration in die App übernommen und aus ${where} entfernt. Vorher wird eine Sicherung angelegt.`,
+  notAdoptable: "Nicht automatisch übernehmbar, bitte in der YAML entfernen.",
+  markExisting: "Schon vorhanden",
+  existingTitle: "Diese Entity gibt es schon (z. B. in deiner YAML als anderer Typ). Nicht anlegen.",
+  resetConfig: "Auf Projekt zurücksetzen",
+  ownConfigTitle: "Nutzt deine übernommene Konfiguration. Zurücksetzen auf die Erkennung aus dem ETS-Projekt.",
+  adoptFailed: (reason) => `Übernahme aus deiner YAML nicht möglich: ${reason}. Es wurde nichts geändert.`,
+  adoptReasons: {
+    not_a_list_item: "der Eintrag ist kein einfacher Listeneintrag („- name: …“)",
+    flow_style: "der Eintrag steht in Kurzschreibweise ({ … })",
+    outside_config: "die Datei liegt außerhalb des Konfigurationsordners",
+    line_not_found: "die Datei hat sich geändert, bitte neu laden",
+    verification: "nach dem Entfernen hätte sich mehr als dieser Eintrag geändert",
+  },
   filters: {
     all: "Alle",
     active: "Angelegt",
     pending: "Neu verfügbar",
     off: "Abgewählt",
+    existing: "Schon vorhanden",
     issues: "Nicht möglich",
     gone: "Nicht mehr im Projekt",
     unmapped: "Ohne Typ",
@@ -109,6 +145,9 @@ const de: Strings = {
     duplicate: "Doppelt",
     invalid: "Ungültig",
     conflict: "Eigene YAML",
+    existing: "Schon vorhanden",
+    adopt: "Wird übernommen",
+    own_config: "Aktiv · eigene Konfiguration",
   },
   reasons: {
     own_yaml: "Schon in deiner eigenen KNX-YAML definiert",
@@ -176,11 +215,32 @@ const en: Strings = {
   apply: "Apply",
   applying: "Applying …",
   applied: (s) => `Applied: ${s.new ?? 0} new, ${s.changed ?? 0} changed, ${s.deleted ?? 0} removed. KNX was reloaded.`,
+  willAdopt: "Taken over from your YAML",
+  adoptCount: (n) => `${n} take over`,
+  adopt: "Take over into the app",
+  undo: "Undo",
+  ownYaml: "your own KNX YAML",
+  conflictInfo: (domain, name, where) => `Already in your YAML: ${domain} “${name}” (${where}). Not created twice.`,
+  adoptInfo: (where) => `Taken over into the app with your configuration and removed from ${where}. A backup is made first.`,
+  notAdoptable: "Cannot be taken over automatically, please remove it from the YAML.",
+  markExisting: "Already exists",
+  existingTitle: "This entity already exists (e.g. in your YAML as another type). Do not create it.",
+  resetConfig: "Reset to project",
+  ownConfigTitle: "Uses your taken-over configuration. Reset to what the ETS project detects.",
+  adoptFailed: (reason) => `Could not take over from your YAML: ${reason}. Nothing was changed.`,
+  adoptReasons: {
+    not_a_list_item: "the entry is not a plain list item (“- name: …”)",
+    flow_style: "the entry uses the short flow style ({ … })",
+    outside_config: "the file is outside the configuration folder",
+    line_not_found: "the file has changed, please reload",
+    verification: "removing it would have changed more than this entry",
+  },
   filters: {
     all: "All",
     active: "Created",
     pending: "Newly available",
     off: "Deselected",
+    existing: "Already exists",
     issues: "Not possible",
     gone: "No longer in project",
     unmapped: "No type",
@@ -199,6 +259,9 @@ const en: Strings = {
     duplicate: "Duplicate",
     invalid: "Invalid",
     conflict: "Own YAML",
+    existing: "Already exists",
+    adopt: "Will be taken over",
+    own_config: "Active · own configuration",
   },
   reasons: {
     own_yaml: "Already defined in your own KNX YAML",

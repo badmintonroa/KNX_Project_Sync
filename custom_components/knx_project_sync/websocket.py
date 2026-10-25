@@ -46,6 +46,9 @@ SELECTION_SCHEMA = vol.Schema(
                 vol.Optional("enabled"): vol.Any(bool, None),
                 vol.Optional("domain"): vol.Any(str, None),
                 vol.Optional("name"): vol.Any(str, None),
+                vol.Optional("existing"): vol.Any(bool, None),
+                vol.Optional("adopt"): vol.Any(bool, None),
+                vol.Optional("config"): vol.Any(dict, None),
             }
         )
     }
@@ -143,9 +146,29 @@ def _serialize(hass: HomeAssistant, prepared: Prepared, plan: ImportPlan, select
                 "previous_domain": entry.previous_domain,
                 "selection": selection.get(entry.key, {}),
                 "suggest_light": base_domain == "switch" and bool(ets_name and LIGHT_HINT.search(ets_name)),
+                "conflict_with": _conflict(hass, entry.conflict_with),
+                "adopt": entry.adopt,
+                "own_config": bool(selection.get(entry.key, {}).get("config")),
             }
         )
     return rows
+
+
+def _conflict(hass: HomeAssistant, info: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not info:
+        return None
+    file = info.get("file")
+    if file:
+        path = Path(file)
+        config_dir = Path(hass.config.config_dir)
+        file = str(path.relative_to(config_dir)) if path.is_relative_to(config_dir) else str(path)
+    return {
+        "domain": info["domain"],
+        "name": info.get("name"),
+        "file": file,
+        "line": info.get("line"),
+        "adoptable": bool(info.get("file") and info.get("line")),
+    }
 
 
 async def _async_plan_response(
@@ -252,9 +275,13 @@ async def ws_apply(hass: HomeAssistant, connection: websocket_api.ActiveConnecti
         return
     prepared, plan, source = planned
     options = {**default_options(), **entry.options}
-    summary = await entry.runtime_data.async_apply(
-        prepared, plan, options, source or SOURCE_UPLOAD, selection=selection, notify=False
-    )
+    try:
+        summary = await entry.runtime_data.async_apply(
+            prepared, plan, options, source or SOURCE_UPLOAD, selection=selection, notify=False
+        )
+    except KnxImportError as err:
+        connection.send_error(msg["id"], err.key, err.placeholders.get("error") or err.key)
+        return
     connection.send_result(msg["id"], summary)
 
 
@@ -262,7 +289,8 @@ def _clean(selection: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
     """Drop empty values so that only real choices are stored."""
     out: dict[str, dict[str, Any]] = {}
     for key, choice in selection.items():
-        item = {k: v for k, v in choice.items() if v is not None and v != ""}
+        # enabled=False is a choice, existing/adopt=False only the absence of one
+        item = {k: v for k, v in choice.items() if v is not None and v != "" and (v is not False or k == "enabled")}
         if item:
             out[key] = item
     return out

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from homeassistant.components.persistent_notification import _async_get_or_create_notifications
 from homeassistant.core import HomeAssistant
 from test_import_flow import PACKAGE, _first_import
@@ -109,3 +111,59 @@ async def test_unload_removes_panel(hass: HomeAssistant, config_dir, knx_reloads
     assert "knx-project-sync" not in hass.data["frontend_panels"]
     assert await hass.config_entries.async_setup(entry.entry_id)
     assert "knx-project-sync" in hass.data["frontend_panels"]
+
+
+async def test_adopt_own_yaml(hass: HomeAssistant, config_dir, knx_reloads, upload, hass_ws_client) -> None:
+    from homeassistant.helpers import entity_registry as er
+
+    await _first_import(hass)
+    own = er.async_get(hass).async_get_or_create("switch", "knx", "1/0/1", suggested_object_id="handgeschrieben")
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/plan"})
+    row = _rows((await client.receive_json())["result"])["switch:GA-1"]
+    assert row["conflict_with"] == {
+        "domain": "switch",
+        "name": "Handgeschrieben Wohnzimmer",
+        "file": "configuration.yaml",
+        "line": 5,
+        "adoptable": True,
+    }
+
+    await client.send_json_auto_id({"type": f"{DOMAIN}/apply", "selection": {"switch:GA-1": {"adopt": True}}})
+    response = await client.receive_json()
+    assert response["success"], response
+    summary = response["result"]
+    assert summary["adopted"] == 1
+    configuration = (config_dir / "configuration.yaml").read_text(encoding="utf-8")
+    assert "Handgeschrieben" not in configuration
+    assert "  switch: []\n" in configuration
+    assert len(summary["backups"]) == 1
+    assert "Handgeschrieben" in Path(summary["backups"][0]).read_text(encoding="utf-8")
+    assert {"name": "Handgeschrieben Wohnzimmer", "address": "1/0/1", "state_address": "1/0/2"} in _package(config_dir)[
+        "switch"
+    ]
+    assert er.async_get(hass).async_get(own.entity_id) is not None
+
+    await client.send_json_auto_id({"type": f"{DOMAIN}/plan"})
+    result = (await client.receive_json())["result"]
+    row = _rows(result)["switch:GA-1"]
+    assert (row["status"], row["own_config"], row["conflict_with"]) == ("unchanged", True, None)
+    assert "adopt" not in result["stored_selection"]["switch:GA-1"]
+
+
+async def test_adopt_refused_for_flow_style(
+    hass: HomeAssistant, config_dir, knx_reloads, upload, hass_ws_client
+) -> None:
+    await _first_import(hass)
+    configuration = config_dir / "configuration.yaml"
+    text = configuration.read_text(encoding="utf-8")
+    flow = 'knx:\n  switch: [{name: Kurz, address: "1/0/1"}]\n'
+    configuration.write_text(text[: text.index("knx:")] + flow, encoding="utf-8")
+    package = (config_dir / PACKAGE).read_text(encoding="utf-8")
+
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/apply", "selection": {"switch:GA-1": {"adopt": True}}})
+    response = await client.receive_json()
+    assert response["error"]["code"] == "adopt_failed"
+    assert configuration.read_text(encoding="utf-8").endswith(flow)
+    assert (config_dir / PACKAGE).read_text(encoding="utf-8") == package

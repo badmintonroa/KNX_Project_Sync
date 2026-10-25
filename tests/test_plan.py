@@ -185,3 +185,73 @@ def test_choices():
         {"name": "a", "address": "1/0/1"},
     )
     assert apply_choice("sensor", {"state_address": "3/0/1"}, {"domain": "light", "name": " "})[0] == "sensor"
+
+
+def test_own_light_on_a_detected_switch_is_a_conflict():
+    """Own YAML defines the GA as a light, the project detects a switch."""
+    own = {
+        ("light", "1/0/1"): {
+            "config": {"name": "Mein Licht", "address": "1/0/1"},
+            "file": "/c/configuration.yaml",
+            "line": 7,
+        }
+    }
+    plan = build_plan(_manifest("musterhaus_v1"), {}, domains=DOMAINS, keep_removed=False, foreign_entities=own)
+    entry = next(e for e in plan.entries if e.key == "switch:GA-1")
+    assert entry.status == "conflict"
+    assert entry.conflict_with == {
+        "domain": "light",
+        "unique_id": "1/0/1",
+        "name": "Mein Licht",
+        "file": "/c/configuration.yaml",
+        "line": 7,
+    }
+
+    adopted = build_plan(
+        _manifest("musterhaus_v1"),
+        {},
+        domains=DOMAINS,
+        keep_removed=False,
+        foreign_entities=own,
+        selection={"switch:GA-1": {"adopt": True}},
+    )
+    entry = next(e for e in adopted.entries if e.key == "switch:GA-1")
+    assert (entry.status, entry.domain, entry.config) == ("new", "light", {"name": "Mein Licht", "address": "1/0/1"})
+    assert adopted.adoptions == [entry]
+    assert {"name": "Mein Licht", "address": "1/0/1"} in adopted.yaml_data()["light"]
+    assert adopted.removed_unique_ids == []
+
+    # afterwards the own definition is gone and kept as the entity's config
+    later = build_plan(
+        _manifest("musterhaus_v1"),
+        adopted.state(),
+        domains=DOMAINS,
+        keep_removed=False,
+        selection={"switch:GA-1": {"domain": "light", "config": entry.config}},
+    )
+    assert next(e for e in later.entries if e.key == "switch:GA-1").status == "unchanged"
+
+
+def test_marked_as_existing():
+    previous = _v1_state()
+    plan = build_plan(
+        _manifest("musterhaus_v1"),
+        previous,
+        domains=DOMAINS,
+        keep_removed=True,
+        selection={"light:GA-3": {"existing": True}},
+    )
+    entry = next(e for e in plan.entries if e.key == "light:GA-3")
+    assert entry.status == "existing"
+    assert "light:GA-3" not in plan.state()
+    # ours goes, unless the user's own YAML now defines the same entity
+    assert plan.removed_unique_ids == [("light", "1/1/1")]
+    own = build_plan(
+        _manifest("musterhaus_v1"),
+        previous,
+        domains=DOMAINS,
+        keep_removed=True,
+        foreign_unique_ids={("light", "1/1/1")},
+        selection={"light:GA-3": {"existing": True}},
+    )
+    assert own.removed_unique_ids == []

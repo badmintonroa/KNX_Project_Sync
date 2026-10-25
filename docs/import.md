@@ -38,7 +38,8 @@
 | `unchanged` | wie beim letzten Import | ✔ |
 | `kept` | nicht mehr im Projekt, Einstellung „Behalten“ | ✔ |
 | `removed` | nicht mehr im Projekt (oder Typ abgewählt), Einstellung „Löschen“ → Entity wird gelöscht | – |
-| `conflict` | gleiche unique_id existiert schon in deiner **eigenen KNX-YAML**. Deine Definition gewinnt, nichts wird doppelt angelegt | – |
+| `conflict` | gleiche Gruppenadresse existiert schon in deiner **eigenen KNX-YAML**, gleicher Typ oder Schalter ↔ Licht. Deine Definition gewinnt, nichts wird doppelt angelegt. Im Panel per *In App übernehmen* übernehmbar | – |
+| `existing` | im Panel als *Schon vorhanden* markiert (z. B. anders definiert, als die Erkennung meint). Wird nicht angelegt | – |
 | `invalid` | vom KNX-YAML-Schema der installierten HA-Version abgelehnt (z. B. Szene ohne Nummer) | – |
 | `duplicate` | GA schon von einer anderen Entity belegt (knx2home erzeugt z. B. Licht *und* Schalter auf derselben GA, dann gewinnt das Licht) | – |
 | `excluded` | Entity-Typ in den Einstellungen abgewählt | – |
@@ -56,6 +57,21 @@ Das Panel *KNX Project Sync* in der Seitenleiste zeigt alle erkannten Entities m
 | anlegen ja/nein | `deselected` bzw. wieder angelegt. Neue Entities ohne Entscheidung sind `pending`. |
 | Name | Standardname in der YAML. Ein in HA vergebener Name hat weiter Vorrang. |
 | Typ Schalter ↔ Licht | Nur für reine Ein/Aus-Entities (`address`, `state_address`). Schalter-Optionen wie `respond_to_read` entfallen. Die Entity bekommt eine neue entity_id (`switch.…` → `light.…`), die alte wird gelöscht. |
+
+### Eigene YAML in die App übernehmen
+
+Bei einem Konflikt zeigt das Panel, wo die Entity in deiner YAML steht (Datei und Zeile). *In App übernehmen* verschiebt sie beim nächsten *Übernehmen* in die Paket-Datei:
+
+1. Der Eintrag wird **mit deiner Konfiguration** übernommen (Name, Typ, Optionen wie `invert`), nicht mit der aus dem Projekt. Er bleibt so, bis du im Panel *Auf Projekt zurücksetzen* wählst.
+2. Aus deiner Datei wird nur genau dieser Listeneintrag (`- name: …` mit den eingerückten Zeilen) entfernt. Kommentare und der Rest bleiben, eine leere Liste wird zu `[]`. Vorher entsteht eine Sicherung `<datei>.knx_project_sync-<zeit>.bak` daneben.
+3. Danach liest der Import die Konfiguration mit dem YAML-Loader von HA neu. Fehlt mehr als dieser eine Eintrag, wird die Sicherung zurückgespielt und nichts übernommen.
+4. entity_id, Name, Bereich und Verlauf bleiben, weil die unique_id gleich bleibt.
+
+Nicht automatisch übernehmbar sind Einträge in Kurzschreibweise (`- {name: …}`), mit YAML-Tags oder außerhalb des Konfigurationsordners. Das Panel sagt dann, dass du sie selbst entfernen musst.
+
+### Schon vorhanden
+
+Erkennt das Panel einen Konflikt nicht, z. B. weil deine YAML die GA anders verwendet, kannst du jede Entity als *Schon vorhanden* markieren. Sie wird dann nicht angelegt. Hatte die App sie schon angelegt, wird nur diese eigene Kopie gelöscht, nie eine Entity deiner YAML. Schalter und Licht auf derselben GA werden inzwischen automatisch als Konflikt erkannt.
 
 Alle Änderungen sind ein Entwurf. Erst *Übernehmen* schreibt die Paket-Datei und lädt KNX neu. Eine im Panel geladene Projektversion (Upload oder KNX-Panel) wird ebenfalls erst damit angewendet.
 
