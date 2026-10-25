@@ -1,0 +1,191 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Quelle",
+        "menu_options": {
+          "upload": "Projektdatei hochladen",
+          "knx_project": "Projekt aus dem KNX-Panel verwenden"
+        }
+      },
+      "upload": {
+        "title": "ETS-Projekt hochladen",
+        "description": "Wähle die `.knxproj`-Datei aus der ETS. Das Passwort wird nur für das Entschlüsseln verwendet und nicht gespeichert.{error}",
+        "data": {
+          "file": "Projektdatei",
+          "password": "Projektpasswort"
+        },
+        "data_description": {
+          "password": "Nur bei passwortgeschützten Projekten nötig."
+        }
+      },
+      "options": {
+        "title": "Import-Einstellungen",
+        "data": {
+          "domains": "Entity-Typen",
+          "removed": "Entities, die im Projekt fehlen",
+          "assign_areas": "Bereiche aus ETS-Räumen zuweisen",
+          "package_path": "Paket-Datei"
+        },
+        "data_description": {
+          "domains": "Nur diese Typen werden angelegt.",
+          "removed": "Was mit Entities passiert, die in einer neuen Projektdatei nicht mehr vorkommen.",
+          "assign_areas": "Nur Entities ohne Bereich bekommen den ETS-Raum ihres Geräts; fehlende Bereiche werden angelegt.",
+          "package_path": "Relativ zum Konfigurationsordner. Die Datei wird bei jedem Import überschrieben und muss über `homeassistant: packages:` geladen werden."
+        }
+      },
+      "confirm": {
+        "title": "Vorschau: {project}",
+        "description": "➕ Neu: **{new}** · ✏️ Geändert: **{changed}** · ✅ Unverändert: **{unchanged}** · 🗑️ Entfernt: **{removed}** · 📌 Behalten: **{kept}**\n\nNicht angelegt: {conflict} schon in eigener KNX-YAML, {invalid} ungültig, {duplicate} doppelt, {excluded} abgewählt, {unmapped} ohne Entity-Typ.\n\n{details}\n\nMit **Absenden** wird die Paket-Datei geschrieben und KNX neu geladen."
+      }
+    },
+    "error": {
+      "invalid_password": "Falsches oder fehlendes Projektpasswort.",
+      "invalid_project": "Die Datei ist kein lesbares ETS-Projekt."
+    },
+    "abort": {
+      "knx_not_configured": "Richte zuerst die KNX-Integration ein.",
+      "no_knx_project": "Im KNX-Panel ist kein Projekt hochgeladen.",
+      "single_instance_allowed": "Bereits eingerichtet. Neue Projektdateien über „Konfigurieren“ importieren."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Erneut importieren",
+        "menu_options": {
+          "upload": "Projektdatei hochladen",
+          "knx_project": "Projekt aus dem KNX-Panel verwenden",
+          "settings": "Nur Einstellungen ändern"
+        }
+      },
+      "upload": {
+        "title": "ETS-Projekt hochladen",
+        "description": "Wähle die `.knxproj`-Datei aus der ETS. Das Passwort wird nur für das Entschlüsseln verwendet und nicht gespeichert.{error}",
+        "data": {
+          "file": "Projektdatei",
+          "password": "Projektpasswort"
+        },
+        "data_description": {
+          "password": "Nur bei passwortgeschützten Projekten nötig."
+        }
+      },
+      "options": {
+        "title": "Import-Einstellungen",
+        "data": {
+          "domains": "Entity-Typen",
+          "removed": "Entities, die im Projekt fehlen",
+          "assign_areas": "Bereiche aus ETS-Räumen zuweisen",
+          "package_path": "Paket-Datei"
+        },
+        "data_description": {
+          "domains": "Nur diese Typen werden angelegt.",
+          "removed": "Was mit Entities passiert, die in einer neuen Projektdatei nicht mehr vorkommen.",
+          "assign_areas": "Nur Entities ohne Bereich bekommen den ETS-Raum ihres Geräts; fehlende Bereiche werden angelegt.",
+          "package_path": "Relativ zum Konfigurationsordner. Die Datei wird bei jedem Import überschrieben und muss über `homeassistant: packages:` geladen werden."
+        }
+      },
+      "confirm": {
+        "title": "Vorschau: {project}",
+        "description": "➕ Neu: **{new}** · ✏️ Geändert: **{changed}** · ✅ Unverändert: **{unchanged}** · 🗑️ Entfernt: **{removed}** · 📌 Behalten: **{kept}**\n\nNicht angelegt: {conflict} schon in eigener KNX-YAML, {invalid} ungültig, {duplicate} doppelt, {excluded} abgewählt, {unmapped} ohne Entity-Typ.\n\n{details}\n\nMit **Absenden** wird die Paket-Datei geschrieben und KNX neu geladen."
+      }
+    },
+    "error": {
+      "invalid_password": "Falsches oder fehlendes Projektpasswort.",
+      "invalid_project": "Die Datei ist kein lesbares ETS-Projekt."
+    },
+    "abort": {
+      "no_knx_project": "Im KNX-Panel ist kein Projekt hochgeladen."
+    }
+  },
+  "selector": {
+    "domains": {
+      "options": {
+        "switch": "Schalter",
+        "binary_sensor": "Binärsensor",
+        "light": "Licht",
+        "sensor": "Sensor",
+        "time": "Uhrzeit",
+        "date": "Datum",
+        "datetime": "Datum/Uhrzeit",
+        "cover": "Rollladen/Jalousie",
+        "scene": "Szene",
+        "climate": "Klima",
+        "weather": "Wetter"
+      }
+    },
+    "removed": {
+      "options": {
+        "delete": "Löschen",
+        "keep": "Behalten"
+      }
+    },
+    "service_source": {
+      "options": {
+        "file": "Datei",
+        "knx_project": "Projekt aus dem KNX-Panel verwenden"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "last_import": {
+        "name": "Letzter Import"
+      }
+    }
+  },
+  "issues": {
+    "package_not_loaded": {
+      "title": "KNX-Paket wird nicht geladen",
+      "description": "Die erzeugten Entities stehen in `{path}`, aber Home Assistant lädt diese Datei nicht. Ergänze in der `configuration.yaml`:\n\n```yaml\nhomeassistant:\n  packages: !include_dir_named packages\n```\n\nund starte Home Assistant neu."
+    },
+    "knx_reload_failed": {
+      "title": "KNX konnte nicht neu geladen werden",
+      "description": "Nach dem Import ist das Neuladen der KNX-Integration fehlgeschlagen: {error}"
+    }
+  },
+  "exceptions": {
+    "not_set_up": {
+      "message": "KNX2HOME Importer ist nicht eingerichtet."
+    },
+    "file_required": {
+      "message": "Für die Quelle „Datei“ muss `file` angegeben werden."
+    },
+    "file_not_found": {
+      "message": "Datei {path} nicht gefunden oder nicht erlaubt (erlaubt: Konfigurationsordner, allowlist_external_dirs)."
+    },
+    "invalid_password": {
+      "message": "Falsches oder fehlendes Projektpasswort."
+    },
+    "invalid_project": {
+      "message": "Kein lesbares ETS-Projekt: {error}"
+    },
+    "no_knx_project": {
+      "message": "Im KNX-Panel ist kein Projekt hochgeladen."
+    }
+  },
+  "services": {
+    "import_project": {
+      "name": "Projekt importieren",
+      "description": "Importiert ein ETS-Projekt mit den Einstellungen der Integration.",
+      "fields": {
+        "source": {
+          "name": "Quelle",
+          "description": "Projektdatei oder das Projekt aus dem KNX-Panel."
+        },
+        "file": {
+          "name": "Datei",
+          "description": "Pfad zur `.knxproj`, relativ zum Konfigurationsordner."
+        },
+        "password": {
+          "name": "Passwort",
+          "description": "Projektpasswort, falls geschützt."
+        },
+        "dry_run": {
+          "name": "Nur Vorschau",
+          "description": "Nichts ändern, nur den Plan zurückgeben."
+        }
+      }
+    }
+  }
+}

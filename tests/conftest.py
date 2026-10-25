@@ -1,24 +1,10 @@
-"""Shared fixtures for the step 0/1 tests (xknxproject spike and manifest contract)."""
+"""Fixtures shared by all tests."""
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
-import sys
-
 import pytest
 
-ROOT = Path(__file__).parents[1]
-FIXTURES = ROOT / "tests" / "fixtures"
-
-sys.path.insert(0, str(ROOT / "tools" / "spike"))
-sys.path.insert(0, str(ROOT / "tools" / "fixtures"))
-
-FIXTURE_NAMES = sorted(p.stem for p in FIXTURES.glob("*.knxproj"))
-
-
-def load_json(path: Path):
-    return json.loads(path.read_text(encoding="utf-8"))
+from helpers import FIXTURE_NAMES, FIXTURES, load_json
 
 
 @pytest.fixture(scope="session")

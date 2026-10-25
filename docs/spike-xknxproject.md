@@ -22,6 +22,7 @@ Geprüft mit **xknxproject 3.8.2**, der Version, die die aktuelle HA-KNX-Integra
 | `musterhaus_v2` | v1 mit Umbenennungen, umadressierter GA, entferntem und neuem Gerät | 17 | identisch |
 | `musterhaus_protected` | v1 als passwortgeschütztes ETS6-Projekt (AES) | 18 | identisch |
 | `musterhaus_overrides` | v1 mit Texten/DPTs, die auf `ComObjectRef`/`ComObjectInstanceRef` überschrieben sind | 18 | 4 erwartete Abweichungen |
+| `heuristics` (nachträglich, Schritt 3) | GA-Muster ohne Links, Heizungsregler, Wetterstation, Taster mit 1.011-Rückmeldung, Jalousiekanäle auf gemeinsamer GA | 46 | identisch |
 
 ### Erkenntnisse
 

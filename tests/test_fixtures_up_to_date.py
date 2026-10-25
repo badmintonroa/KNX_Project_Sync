@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 import build_fixtures
-from conftest import FIXTURES
+from helpers import FIXTURES
 
 
 @pytest.mark.parametrize("name", sorted(build_fixtures.FIXTURES))

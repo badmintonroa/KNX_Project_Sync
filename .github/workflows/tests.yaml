@@ -11,7 +11,7 @@ on:
 
 jobs:
   pytest:
-    name: pytest
+    name: pytest + ruff
     runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Check out code from GitHub
@@ -22,8 +22,32 @@ jobs:
           python-version: "3.13"
       - name: 🏗 Install dependencies
         run: pip install -r requirements_test.txt
+      - name: 🔍 Lint
+        run: |
+          ruff check custom_components tests tools/spike tools/fixtures
+          ruff format --check custom_components tests tools/spike tools/fixtures
       - name: 🚀 Run tests
         run: pytest -v
+
+  hassfest:
+    name: hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v6.1.0
+      - name: 🔍 Validate integration
+        uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔍 Validate HACS repository
+        uses: hacs/action@main
+        with:
+          category: integration
+          # not in home-assistant/brands; description and topics are repository settings
+          ignore: brands description topics
 
   reference:
     # Regenerates the golden files with the current knx2home main branch and

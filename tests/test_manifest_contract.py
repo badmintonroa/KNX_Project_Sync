@@ -5,7 +5,7 @@ from __future__ import annotations
 import jsonschema
 import pytest
 
-from conftest import FIXTURES, ROOT, load_json
+from helpers import FIXTURES, ROOT, load_json
 from xknx_digest import parse
 
 SCHEMA = load_json(ROOT / "schema" / "manifest-v1.schema.json")

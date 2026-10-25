@@ -17,6 +17,10 @@ Fixtures:
     musterhaus_overrides  v1 with texts/DPTs overridden on ComObjectRef and
                           ComObjectInstanceRef level, as ETS applications commonly do
     musterhaus_protected  v1 as password protected ETS6 export (password: geheim)
+    heuristics            many GAs without links (name/address heuristics, single GA
+                          fallbacks) plus heating controller, weather station, push
+                          button with 1.011 feedback and a shutter actuator whose two
+                          channels share one GA
 
 Usage: python tools/fixtures/build_fixtures.py [output_dir]
 """
@@ -119,7 +123,11 @@ def base_project() -> Project:
     ]
     devices = [
         Device(
-            "DI-1", 1, "Schaltaktor", "0010-11-AAAA", "AKS-0416",
+            "DI-1",
+            1,
+            "Schaltaktor",
+            "0010-11-AAAA",
+            "AKS-0416",
             [
                 CO(0, "Kanal A", "Schalten", "DPST-1-1", "W", "1 Bit", ["GA-1"]),
                 CO(1, "Kanal A", "Status", "DPST-1-1", "RT", "1 Bit", ["GA-2"]),
@@ -127,7 +135,11 @@ def base_project() -> Project:
             ],
         ),
         Device(
-            "DI-2", 2, "Dimmaktor", "0020-12-BBBB", "AKD-0401",
+            "DI-2",
+            2,
+            "Dimmaktor",
+            "0020-12-BBBB",
+            "AKD-0401",
             [
                 CO(0, "Kanal A", "Schalten", "DPST-1-1", "W", "1 Bit", ["GA-3"]),
                 CO(1, "Kanal A", "Dimmen relativ", "DPST-3-7", "W", "4 Bit", ["GA-7"]),
@@ -137,7 +149,11 @@ def base_project() -> Project:
             ],
         ),
         Device(
-            "DI-3", 3, "Jalousieaktor", "0030-13-CCCC", "JAL-0410",
+            "DI-3",
+            3,
+            "Jalousieaktor",
+            "0030-13-CCCC",
+            "JAL-0410",
             [
                 CO(0, "Kanal A", "Auf/Ab", "DPST-1-8", "W", "1 Bit", ["GA-8"]),
                 CO(1, "Kanal A", "Stop", "DPST-1-17", "W", "1 Bit", ["GA-9"]),
@@ -146,7 +162,11 @@ def base_project() -> Project:
             ],
         ),
         Device(
-            "DI-4", 4, "Raumsensor", "0040-14-DDDD", "SCN-RS",
+            "DI-4",
+            4,
+            "Raumsensor",
+            "0040-14-DDDD",
+            "SCN-RS",
             [
                 CO(0, "Temperatur", "Messwert", "DPST-9-1", "RT", "2 Bytes", ["GA-12"]),
                 CO(1, "Luftfeuchte", "Messwert", "DPST-9-7", "RT", "2 Bytes", ["GA-13"]),
@@ -154,14 +174,22 @@ def base_project() -> Project:
             ],
         ),
         Device(
-            "DI-5", 5, "Taster", "0050-15-EEEE", "BE-TA55",
+            "DI-5",
+            5,
+            "Taster",
+            "0050-15-EEEE",
+            "BE-TA55",
             [
                 CO(0, "Taste 1", "Szene", "DPST-18-1", "WT", "1 Byte", ["GA-15"]),
                 CO(1, "Taste 2", "Schalten", "DPST-1-1", "WT", "1 Bit", ["GA-1", "GA-2"]),
             ],
         ),
         Device(
-            "DI-6", 6, "Zeitgeber", "0060-16-FFFF", "GPS-01",
+            "DI-6",
+            6,
+            "Zeitgeber",
+            "0060-16-FFFF",
+            "GPS-01",
             [
                 CO(0, "Uhrzeit", "Senden", "DPST-10-1", "RT", "3 Bytes", ["GA-16"]),
                 CO(1, "Datum", "Senden", "DPST-11-1", "RT", "3 Bytes", ["GA-17"]),
@@ -187,7 +215,11 @@ def revised_project() -> Project:
     gas["GA-19"] = GA("GA-19", "3/0/4", "Wohnzimmer CO2", "DPST-9-8")
     project.devices.append(
         Device(
-            "DI-7", 7, "CO2 Sensor", "0070-17-ABCD", "SCN-CO2",
+            "DI-7",
+            7,
+            "CO2 Sensor",
+            "0070-17-ABCD",
+            "SCN-CO2",
             [CO(0, "CO2", "Messwert", "DPST-9-8", "RT", "2 Bytes", ["GA-19"])],
         )
     )
@@ -208,6 +240,140 @@ def overrides_project() -> Project:
     # user changed the object text of one instance in ETS
     devices["DI-4"].com_objects[0].instance_attrs["Text"] = "Temperatur Wohnzimmer"
     return project
+
+
+def heuristics_project() -> Project:
+    counter = iter(range(1, 1000))
+    gas: list[GA] = []
+
+    def ga(address: str, name: str, dpt: str | None) -> str:
+        ga_id = f"GA-{next(counter)}"
+        gas.append(GA(ga_id, address, name, dpt))
+        return ga_id
+
+    # lighting by address pattern 1/<function>/<index>
+    ga("1/1/10", "Küche Spots", "DPST-1-1")
+    ga("1/2/10", "Küche Spots dimmen", "DPST-3-7")
+    ga("1/3/10", "Küche Spots Wert", "DPST-5-1")
+    ga("1/4/10", "Küche Spots Wert Status", "DPST-5-1")
+    ga("1/5/10", "Küche Spots Status", "DPST-1-1")
+    ga("1/1/20", "LA12 Flur", "DPST-1-1")
+    ga("1/3/20", "LA12 Flur", "DPST-5-1")
+    ga("1/1/30", "Licht ohne DPT", None)
+    # lighting by name suffix s/d/w
+    ga("7/0/1", "Bad Spiegel s", "DPST-1-1")
+    ga("7/0/2", "Bad Spiegel d", "DPST-3-7")
+    ga("7/0/3", "Bad Spiegel w", "DPST-5-1")
+    ga("7/0/4", "Bad Spiegel status", "DPST-1-1")
+    # covers by name
+    ga("8/0/1", "Schlafzimmer Rollladen Auf/Ab", "DPST-1-8")
+    ga("8/0/2", "Schlafzimmer Rollladen Stop", "DPST-1-8")
+    ga("8/0/3", "Schlafzimmer Rollladen Position", "DPST-5-1")
+    ga("8/0/4", "Schlafzimmer Rollladen Position Status", "DPST-5-1")
+    ga("8/1/1", "Markise Auf/Ab invert", "DPST-1-8")
+    # single GA fallbacks
+    ga("9/0/1", "Fenster Kontakt", "DPST-1-19")
+    ga("9/0/2", "Alarm Status", "DPST-1-5")
+    ga("9/0/3", "Zeitstempel", "DPST-19-1")
+    ga("9/0/4", "Leistung Wärmepumpe", "DPST-14-56")
+    ga("9/0/5", "Zähler", "DPST-12-1")
+    ga("9/0/6", "Meldung Text", "DPST-16-1")
+    ga("9/0/7", "Szene 5 Abend", "DPST-17-1")
+    ga("0/1/3", "Zentral 3", None)
+    ga("9/1/1", "Lüftung [switch]", "DPST-5-1")
+    ga("9/1/2", "Reserve", "DPST-14-0")
+    ga("9/1/3", "Wind Geschwindigkeit km/h", None)
+
+    heating = [
+        ga("10/0/1", "Bad Temperatur Ist", "DPST-9-1"),
+        ga("10/0/2", "Bad Sollwert", "DPST-9-1"),
+        ga("10/0/3", "Bad Sollwertverschiebung", "DPST-9-2"),
+        ga("10/0/4", "Bad Sollwertverschiebung Status", "DPST-9-2"),
+        ga("10/0/5", "Bad Betriebsart", "DPST-20-102"),
+        ga("10/0/6", "Bad Betriebsart Status", "DPST-20-102"),
+        ga("10/0/7", "Bad Stellwert", "DPST-5-1"),
+        ga("10/0/8", "Heizen Kühlen Status", "DPST-1-100"),
+    ]
+    weather = [
+        ga("11/0/1", "Außentemperatur", "DPST-9-1"),
+        ga("11/0/2", "Windgeschwindigkeit", "DPST-9-5"),
+        ga("11/0/3", "Helligkeit Süd", "DPST-9-4"),
+        ga("11/0/4", "Helligkeit Ost", "DPST-9-4"),
+        ga("11/0/5", "Regenalarm", "DPST-1-5"),
+        ga("11/0/6", "Tag/Nacht", "DPST-1-24"),
+    ]
+    socket_cmd = ga("12/0/1", "Terrasse Steckdose", "DPST-1-1")
+    socket_state = ga("12/0/2", "Terrasse Steckdose Rückmeldung", "DPST-1-11")
+    shutter_cmd = ga("13/0/1", "Wohnzimmer Rollos Auf/Ab", "DPST-1-8")
+    shutter_pos = ga("13/0/2", "Wohnzimmer Rollos Position", "DPST-5-1")
+
+    h = heating
+    devices = [
+        Device(
+            "DI-10",
+            10,
+            "Heizungsregler",
+            "0100-20-AAAA",
+            "HZR-01",
+            [
+                CO(0, "Heizung Bad", "Isttemperatur", "DPST-9-1", "RT", "2 Bytes", [h[0]]),
+                CO(1, "Heizung Bad", "Sollwert", "DPST-9-1", "RT", "2 Bytes", [h[1]]),
+                CO(2, "Heizung Bad", "Sollwertverschiebung", "DPST-9-2", "W", "2 Bytes", [h[2]]),
+                CO(3, "Heizung Bad", "Status Sollwertverschiebung", "DPST-9-2", "RT", "2 Bytes", [h[3]]),
+                CO(4, "Heizung Bad", "Betriebsart", "DPST-20-102", "W", "1 Byte", [h[4]]),
+                CO(5, "Heizung Bad", "Status Betriebsart", "DPST-20-102", "RT", "1 Byte", [h[5]]),
+                CO(6, "Heizung Bad", "Stellgröße", "DPST-5-1", "RT", "1 Byte", [h[6]]),
+                CO(7, "Allgemein", "Heizen/Kühlen", "DPST-1-100", "RT", "1 Bit", [h[7]]),
+            ],
+        ),
+        Device(
+            "DI-11",
+            11,
+            "Wetterstation",
+            "0110-21-BBBB",
+            "WS-01",
+            [
+                CO(0, "Temperatur", "Messwert", "DPST-9-1", "RT", "2 Bytes", [weather[0]]),
+                CO(1, "Wind", "Messwert", "DPST-9-5", "RT", "2 Bytes", [weather[1]]),
+                CO(2, "Helligkeit Süd", "Messwert", "DPST-9-4", "RT", "2 Bytes", [weather[2]]),
+                CO(3, "Helligkeit Ost", "Messwert", "DPST-9-4", "RT", "2 Bytes", [weather[3]]),
+                CO(4, "Regen", "Alarm", "DPST-1-5", "RT", "1 Bit", [weather[4]]),
+                CO(5, "Tag/Nacht", "Ausgang", "DPST-1-24", "RT", "1 Bit", [weather[5]]),
+            ],
+        ),
+        Device(
+            "DI-12",
+            12,
+            "Taster Terrasse",
+            "0120-22-CCCC",
+            "TA-02",
+            [CO(0, "Taste 3", "Schalten", "DPST-1-1", "WT", "1 Bit", [socket_cmd, socket_state])],
+        ),
+        Device(
+            "DI-13",
+            13,
+            "Schaltaktor Terrasse",
+            "0130-23-DDDD",
+            "AKS-0216",
+            [
+                CO(0, "Kanal C", "Schalten", "DPST-1-1", "W", "1 Bit", [socket_cmd]),
+                CO(1, "Kanal C", "Rückmeldung", "DPST-1-11", "RT", "1 Bit", [socket_state]),
+            ],
+        ),
+        Device(
+            "DI-14",
+            14,
+            "Jalousieaktor Wohnzimmer",
+            "0140-24-EEEE",
+            "JAL-0810",
+            [
+                CO(0, "Kanal A", "Auf/Ab", "DPST-1-8", "W", "1 Bit", [shutter_cmd]),
+                CO(1, "Kanal A", "Position", "DPST-5-1", "W", "1 Byte", [shutter_pos]),
+                CO(10, "Kanal B", "Auf/Ab", "DPST-1-8", "W", "1 Bit", [shutter_cmd]),
+            ],
+        ),
+    ]
+    return Project("Heuristik", gas, devices)
 
 
 def protected_project() -> Project:
@@ -397,9 +563,7 @@ def ets6_zip_password(password: str) -> bytes:
 def protected_archive(files: dict[str, str], password: str) -> bytes:
     """ETS6 stores the project folder as AES encrypted P-XXXX.zip (files at its root)."""
     buffer = io.BytesIO()
-    with pyzipper.AESZipFile(
-        buffer, "w", compression=pyzipper.ZIP_DEFLATED, encryption=pyzipper.WZ_AES
-    ) as archive:
+    with pyzipper.AESZipFile(buffer, "w", compression=pyzipper.ZIP_DEFLATED, encryption=pyzipper.WZ_AES) as archive:
         archive.setpassword(ets6_zip_password(password))
         for name, content in files.items():
             archive.writestr(name, content.encode("utf-8"))  # AES salt is random anyway
@@ -436,6 +600,7 @@ FIXTURES = {
     "musterhaus_v2": revised_project,
     "musterhaus_overrides": overrides_project,
     "musterhaus_protected": protected_project,
+    "heuristics": heuristics_project,
 }
 
 # Passwords of the protected fixtures, used by the reference generator and the tests.

@@ -11,7 +11,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent))
-from xknx_digest import digest, parse  # noqa: E402
+from xknx_digest import digest, parse
 
 
 def diff(expected: dict, actual: dict) -> list[str]:

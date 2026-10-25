@@ -8,7 +8,7 @@ Known, documented differences live in <name>.deviations.json.
 from __future__ import annotations
 
 from compare import diff
-from conftest import FIXTURES, load_json
+from helpers import FIXTURES, load_json
 from xknx_digest import digest, parse
 
 

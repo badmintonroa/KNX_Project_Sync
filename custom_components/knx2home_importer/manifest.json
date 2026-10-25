@@ -1,0 +1,14 @@
+{
+  "domain": "knx2home_importer",
+  "name": "KNX2HOME Importer",
+  "codeowners": ["@badmintonroa"],
+  "config_flow": true,
+  "dependencies": ["file_upload", "knx"],
+  "documentation": "https://github.com/badmintonroa/Knx-has-auto-importer",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/badmintonroa/Knx-has-auto-importer/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}
