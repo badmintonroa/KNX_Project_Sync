@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.config_entries import SIGNAL_CONFIG_ENTRY_CHANGED, ConfigEntry, ConfigEntryChange
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse, callback
+from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.typing import ConfigType
 import voluptuous as vol
 
@@ -18,7 +17,6 @@ from .const import (
     CONF_PASSWORD,
     CONF_SOURCE,
     DOMAIN,
-    LEGACY_DOMAIN,
     SERVICE_IMPORT_PROJECT,
     SOURCE_KNX_PROJECT,
 )
@@ -29,7 +27,6 @@ from .importer import (
     async_prepare_knx_project,
     default_options,
 )
-from .migration import async_update_legacy_issue
 from .websocket import async_register_commands, async_register_panel, async_unregister_panel
 
 PLATFORMS = [Platform.SENSOR]
@@ -107,15 +104,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: KnxProjectSyncConfigEntr
     importer = Importer(hass)
     await importer.async_load()
     entry.runtime_data = importer
-
-    async_update_legacy_issue(hass)
-
-    @callback
-    def legacy_changed(change: ConfigEntryChange, changed: ConfigEntry) -> None:
-        if changed.domain == LEGACY_DOMAIN:
-            async_update_legacy_issue(hass)
-
-    entry.async_on_unload(async_dispatcher_connect(hass, SIGNAL_CONFIG_ENTRY_CHANGED, legacy_changed))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await async_register_panel(hass)
     return True

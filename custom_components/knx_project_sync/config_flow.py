@@ -38,7 +38,6 @@ from .importer import (
     default_options,
 )
 from .mapping.manifest import HA_DOMAINS
-from .migration import async_find_legacy, async_take_over
 
 
 def _options_schema(options: dict[str, Any]) -> vol.Schema:
@@ -121,24 +120,10 @@ class KnxProjectSyncConfigFlow(_SourceSteps, ConfigFlow, domain=DOMAIN):
     VERSION = 1
     MINOR_VERSION = 2  # 1.2: "text" in the entity types
 
-    def __init__(self) -> None:
-        self._legacy: dict[str, Any] | None = None
-
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if not self.hass.config_entries.async_entries(KNX_DOMAIN):
             return self.async_abort(reason="knx_not_configured")
-        if self._legacy is None:
-            self._legacy = await async_find_legacy(self.hass) or {}
-        if self._legacy:
-            return await self.async_step_legacy()
         return await self._async_source_menu("user")
-
-    async def async_step_legacy(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        """Former installation found: take over its state instead of importing anew."""
-        if user_input is None:
-            return self.async_show_form(step_id="legacy")
-        options = await async_take_over(self.hass, self._legacy)
-        return self.async_create_entry(title=self._legacy["title"] or "KNX", data={}, options=options)
 
     async def _async_loaded(self, prepared: Prepared, source: str) -> ConfigFlowResult:
         importer = Importer(self.hass)

@@ -20,10 +20,6 @@ Die Integration ist in der **Beta** (`0.1.0-beta.x`). Jede Version steht mit ihr
 
 3. *Einstellungen → Geräte & Dienste → Integration hinzufügen → KNX Project Sync*. Voraussetzung ist eine eingerichtete KNX-Integration.
 
-### Umstieg von „KNX2HOME Importer“
-
-Frühe Entwicklungsstände vor der ersten Beta hießen „KNX2HOME Importer“ (`knx2home_importer`). Nach dem Update in HACS „KNX Project Sync“ hinzufügen: Die bisherige Installation wird erkannt und mit allen Entities, Einstellungen und dem Import-Stand übernommen, `packages/knx2home_importer.yaml` wird zu `packages/knx_project_sync.yaml`. Danach den alten Eintrag löschen (ein Repair-Hinweis erinnert daran). entity_ids, Namen, Bereiche und Verlauf bleiben erhalten.
-
 ## Benutzung
 
 - **Einrichten:** Nur die Quelle wählen, also eine `.knxproj` hochladen oder das schon im KNX-Panel hochgeladene Projekt verwenden. Das Projekt wird eingelesen, **angelegt wird noch nichts**.
@@ -60,7 +56,6 @@ custom_components/knx_project_sync/
   config_flow.py    Einrichtung und erneuter Import
   websocket.py      API und Registrierung des Panels
   frontend/         gebündeltes Panel (Quelltext in /frontend)
-  migration.py      Übernahme einer Installation als „KNX2HOME Importer“
   sensor.py, diagnostics.py, services.yaml, strings.json, translations/
 schema/             JSON-Schema des Manifests
 docs/               Spike, Manifest, Port-Notizen, Import

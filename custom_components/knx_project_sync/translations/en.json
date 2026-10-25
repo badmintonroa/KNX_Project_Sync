@@ -18,10 +18,6 @@
         "data_description": {
           "password": "Only needed for password protected projects."
         }
-      },
-      "legacy": {
-        "title": "Take over previous installation",
-        "description": "An installation under the former name “KNX2HOME Importer” was found. Its imported entities, settings and import state are taken over unchanged, and the package file is renamed to `packages/knx_project_sync.yaml`. Afterwards delete the old “KNX2HOME Importer” entry and remove it in HACS."
       }
     },
     "error": {
@@ -131,10 +127,6 @@
     "knx_reload_failed": {
       "title": "KNX could not be reloaded",
       "description": "Reloading the KNX integration after the import failed: {error}"
-    },
-    "legacy_entry": {
-      "title": "Remove “KNX2HOME Importer”",
-      "description": "The integration is now called “KNX Project Sync” and has taken over the entities of “{title}”. Delete the old “KNX2HOME Importer” entry under *Settings → Devices & services* and remove it in HACS. Your entities stay."
     }
   },
   "exceptions": {
