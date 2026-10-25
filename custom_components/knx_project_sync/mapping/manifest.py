@@ -31,6 +31,9 @@ DOMAINS = [
     "weather",
 ]
 
+# what the integration can write: the knx2home domains plus types only the panel offers
+HA_DOMAINS = [*DOMAINS, "text"]
+
 PRIMARY_FIELDS = {
     "switch": ["address"],
     "binary_sensor": ["state_address"],
@@ -121,7 +124,7 @@ def unique_id_for(domain: str, config: dict[str, Any]) -> str:
         # KNX stringifies a missing group address as "None"
         return str(config.get(key))
 
-    if domain in ("switch", "light", "time", "date", "datetime"):
+    if domain in ("switch", "light", "time", "date", "datetime", "text"):
         return ga("address")
     if domain in ("binary_sensor", "sensor"):
         return ga("state_address")

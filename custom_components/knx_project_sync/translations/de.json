@@ -99,7 +99,8 @@
         "cover": "Rollladen/Jalousie",
         "scene": "Szene",
         "climate": "Klima",
-        "weather": "Wetter"
+        "weather": "Wetter",
+        "text": "Text"
       }
     },
     "removed": {

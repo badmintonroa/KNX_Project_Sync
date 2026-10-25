@@ -58,6 +58,7 @@ Das Panel *KNX Project Sync* in der Seitenleiste zeigt alle erkannten Entities m
 | Name | Standardname in der YAML. Ein in HA vergebener Name hat weiter Vorrang. |
 | Gruppenadressen | Einzelne Adressen korrigieren, ergänzen (z. B. fehlender Status) oder entfernen. Die Adresse aus der ETS wird daneben angezeigt und lässt sich zurücksetzen. Die Korrektur gilt auch bei späteren Importen, bis du sie zurücksetzt. Ein Tippfehler wird vom KNX-Schema abgelehnt (`invalid`) und löscht nichts. Ändert sich die Haupt-GA, zieht die Entity mit (gleiche entity_id). |
 | Typ Schalter ↔ Licht | Nur für reine Ein/Aus-Entities (`address`, `state_address`). Schalter-Optionen wie `respond_to_read` entfallen. Die Entity bekommt eine neue entity_id (`switch.…` → `light.…`), die alte wird gelöscht. |
+| Typ Text ↔ Sensor | Texte (DPT 16, 14 Zeichen) legt knx2home als Sensor an. Die Integration macht daraus standardmäßig eine `text`-Entity (`address` und `state_address` = die Text-GA): Sie zeigt den Text an und kann auch einen senden. Im Panel lässt sich das pro Entity auf Sensor zurückstellen. Texte, die eine frühere Version schon als Sensor angelegt hat, bleiben Sensoren (gleiche entity_id). |
 
 ### Eigene YAML in die App übernehmen
 

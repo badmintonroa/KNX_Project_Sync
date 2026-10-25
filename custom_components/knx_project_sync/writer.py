@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 
 from .const import DOMAIN
-from .mapping.manifest import DOMAINS, unique_id_for
+from .mapping.manifest import HA_DOMAINS, unique_id_for
 
 HEADER = f"""\
 # Automatisch erzeugt von {DOMAIN} – nicht von Hand bearbeiten.
@@ -76,7 +76,7 @@ def entities_of_knx_config(knx: dict[str, Any]) -> dict[tuple[str, str], dict[st
     `file` and `line` come from Home Assistant's YAML loader (None for plain dicts).
     """
     out: dict[tuple[str, str], dict[str, Any]] = {}
-    for domain in DOMAINS:
+    for domain in HA_DOMAINS:
         items = knx.get(domain) or []
         if isinstance(items, dict):
             items = [items]

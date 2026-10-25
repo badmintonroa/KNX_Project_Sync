@@ -13,7 +13,15 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.typing import ConfigType
 import voluptuous as vol
 
-from .const import CONF_PASSWORD, CONF_SOURCE, DOMAIN, LEGACY_DOMAIN, SERVICE_IMPORT_PROJECT, SOURCE_KNX_PROJECT
+from .const import (
+    CONF_DOMAINS,
+    CONF_PASSWORD,
+    CONF_SOURCE,
+    DOMAIN,
+    LEGACY_DOMAIN,
+    SERVICE_IMPORT_PROJECT,
+    SOURCE_KNX_PROJECT,
+)
 from .importer import (
     Importer,
     KnxImportError,
@@ -79,6 +87,19 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         schema=SERVICE_SCHEMA,
         supports_response=SupportsResponse.OPTIONAL,
     )
+    return True
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """1.1 -> 1.2: text entities exist; offer them wherever sensors were enabled."""
+    if entry.version > 1:
+        return False
+    if entry.minor_version < 2:
+        domains = list(entry.options.get(CONF_DOMAINS) or [])
+        if "sensor" in domains and "text" not in domains:
+            domains.append("text")
+        options = {**entry.options, CONF_DOMAINS: domains} if domains else dict(entry.options)
+        hass.config_entries.async_update_entry(entry, options=options, minor_version=2)
     return True
 
 
