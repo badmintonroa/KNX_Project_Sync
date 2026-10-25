@@ -12,6 +12,7 @@ from .aggregate import (
     build_climate_aggregates,
     build_cover_aggregates,
     build_la_light_aggregates,
+    build_linked_light_aggregates,
     build_name_based_light_aggregates,
     build_switch_aggregates,
     build_weather_aggregates,
@@ -67,6 +68,7 @@ def _light_fields(agg: dict) -> int:
 def build_ha_entities(catalog: Catalog, drop_reserve: bool = True) -> HaEntities:
     gas = catalog.group_addresses
     links = catalog.links
+    contexts = catalog.function_context or None
     ent = HaEntities()
 
     def push(lst: list[dict], payload: dict[str, Any]) -> None:
@@ -76,6 +78,7 @@ def build_ha_entities(catalog: Catalog, drop_reserve: bool = True) -> HaEntities
     channel_lights = build_channel_light_aggregates(gas, links)
     all_lights = [
         *channel_lights,
+        *build_linked_light_aggregates(gas, contexts),
         *build_address_light_aggregates(gas),
         *build_la_light_aggregates(gas),
         *build_name_based_light_aggregates(gas),
@@ -107,7 +110,7 @@ def build_ha_entities(catalog: Catalog, drop_reserve: bool = True) -> HaEntities
             entry["brightness_state_address"] = a["brightness_state"]
         push(ent.lights, entry)
 
-    switch_aggs = build_switch_aggregates(gas, links)
+    switch_aggs = build_switch_aggregates(gas, links, contexts)
     # switch outputs of dimming actuators are exported as lights
     light_addresses = {a.get("on_off") for a in channel_lights if a.get("on_off")}
     for s in switch_aggs:
@@ -122,7 +125,7 @@ def build_ha_entities(catalog: Catalog, drop_reserve: bool = True) -> HaEntities
 
     channel_covers = build_channel_cover_aggregates(gas, links)
     channel_cover_ids = {i for c in channel_covers for i in c["consumed"]}
-    cover_aggs = [*channel_covers, *build_cover_aggregates([g for g in gas if g.id not in channel_cover_ids])]
+    cover_aggs = [*channel_covers, *build_cover_aggregates([g for g in gas if g.id not in channel_cover_ids], contexts)]
     for c in cover_aggs:
         entry = {"name": c["name"]}
         for key in (

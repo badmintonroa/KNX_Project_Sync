@@ -4,9 +4,9 @@ Aggregates are plain dicts so that key order and key counts behave like the
 JavaScript objects they mirror (knx2home compares `Object.keys(...).length`).
 `consumed` holds the GA ids an aggregate uses.
 
-Only the code paths reachable for ETS 5.7+/6 projects are ported: link infos
-with `origin: "groupAddressRef"` (ETS4/5 `Connectors`) do not exist in the
-xknxproject based catalog, so `linksByGa` is always undefined in knx2home terms.
+`contexts` is knx2home's `linksByGa` reduced to what the code reads from it:
+GA id -> context of the GroupAddressRef link (ETS6 functions). The flags of
+those links are always undefined, so `isReadFlag` is always false.
 See docs/port-notes.md.
 """
 
@@ -117,6 +117,54 @@ def build_address_light_aggregates(gas: list[GroupAddress]) -> list[Agg]:
             continue
         g["consumed"].add(ga.id)
     return [a for a in groups.values() if a.get("brightness") or a.get("dimming")]
+
+
+_STATUS_OR_STATE = js(r"\bstatus\b|\bstate\b", True)
+
+
+def build_linked_light_aggregates(gas: list[GroupAddress], contexts: dict[str, str] | None) -> list[Agg]:
+    """GAs referenced by the same ETS6 function form one light."""
+    if not contexts:
+        return []
+    by_ctx: dict[str, list[GroupAddress]] = {}
+    for g in gas:
+        ctx = contexts.get(g.id)
+        if ctx:
+            by_ctx.setdefault(ctx, []).append(g)
+
+    def is_status(g: GroupAddress) -> bool:
+        return test(_STATUS_OR_STATE, g.name or "")
+
+    out = []
+    for ctx, items in by_ctx.items():
+        one_bits = [g for g in items if to_hyphen(g.dpt) == "1-1"]
+        dimming = [g for g in items if to_hyphen(g.dpt) == "3-7"]
+        bright = [g for g in items if to_hyphen(g.dpt) in ("5-1", "5")]
+        if not one_bits and not dimming and not bright:
+            continue
+        agg = _light(items[0].name if items[0].name is not None else ctx)
+        if one_bits:
+            cmd = next((g for g in one_bits if not is_status(g)), one_bits[0])
+            st = next((g for g in one_bits if is_status(g)), None)
+            agg["on_off"] = cmd.address
+            agg["consumed"].add(cmd.id)
+            if st:
+                agg["on_off_state"] = st.address
+                agg["consumed"].add(st.id)
+        if dimming:
+            agg["dimming"] = dimming[0].address
+            agg["consumed"].add(dimming[0].id)
+        if bright:
+            st = next((g for g in bright if is_status(g)), None)
+            cmd = next((g for g in bright if not is_status(g)), bright[0])
+            agg["brightness"] = cmd.address
+            agg["consumed"].add(cmd.id)
+            if st:
+                agg["brightness_state"] = st.address
+                agg["consumed"].add(st.id)
+        if agg.get("on_off") or agg.get("brightness") or agg.get("dimming"):
+            out.append(agg)
+    return out
 
 
 _NAME_SUFFIX = js(r"\s+(s|d|w|status|aan|uit|on|off)$", True)
@@ -252,7 +300,9 @@ def _normalize_base_name(name: str) -> str:
     return n if n else raw.lower().strip()
 
 
-def build_switch_aggregates(gas: list[GroupAddress], links: list[Link]) -> list[Agg]:
+def build_switch_aggregates(
+    gas: list[GroupAddress], links: list[Link], contexts: dict[str, str] | None = None
+) -> list[Agg]:
     by_base: dict[str, Agg] = {}
     for ga in gas:
         if ga.address.startswith("0/1/"):
@@ -275,6 +325,24 @@ def build_switch_aggregates(gas: list[GroupAddress], links: list[Link]) -> list[
     result = [a for a in by_base.values() if a.get("address")]
     if links:
         _pair_switch_states_from_links(result, gas, links)
+    if not contexts:
+        return result
+
+    # a switch without state: a 1-bit GA of the same ETS6 function
+    for agg in result:
+        if agg.get("state_address") or not agg.get("address"):
+            continue
+        cmd = next((g for g in gas if g.address == agg["address"]), None)
+        cmd_ctx = contexts.get(cmd.id) if cmd else None
+        if not cmd_ctx:
+            continue
+        candidates = [g for g in gas if g.id != cmd.id and to_hyphen(g.dpt) == "1-1" and contexts.get(g.id) == cmd_ctx]
+        chosen = next((g for g in candidates if is_status_name(g.name)), None) or (
+            candidates[0] if candidates else None
+        )
+        if chosen:
+            agg["state_address"] = chosen.address
+            agg["consumed"].add(chosen.id)
     return result
 
 
@@ -610,7 +678,7 @@ _COVER_ADDRESS_KEYS = (
 )
 
 
-def build_cover_aggregates(gas: list[GroupAddress]) -> list[Agg]:
+def build_cover_aggregates(gas: list[GroupAddress], contexts: dict[str, str] | None = None) -> list[Agg]:
     groups: dict[str, dict[str, Any]] = {}
     for ga in gas:
         name = ga.name or ""
@@ -681,7 +749,38 @@ def build_cover_aggregates(gas: list[GroupAddress]) -> list[Agg]:
                 agg["invert_position"] = True
         if any(agg.get(k) for k in _COVER_ADDRESS_KEYS):
             aggregates.append(agg)
+
+    if contexts:
+        # missing state addresses from GAs of the same ETS6 function
+        by_address = {g.address: g for g in gas}
+        by_ctx: dict[str, list[GroupAddress]] = {}
+        for g in gas:
+            if ctx := contexts.get(g.id):
+                by_ctx.setdefault(ctx, []).append(g)
+        for agg in aggregates:
+            seed = next((agg.get(k) for k in _COVER_SEED_KEYS if agg.get(k)), None)
+            seed_ga = by_address.get(seed) if seed else None
+            ctx = contexts.get(seed_ga.id) if seed_ga else None
+            if not ctx:
+                continue
+            peers = [
+                g
+                for g in by_ctx.get(ctx, [])
+                if (to_hyphen(g.dpt) or "").startswith("5-") and test(_RE_STATUS2, g.name or "")
+            ]
+            for value_key, state_key, dpt in (
+                ("position_address", "position_state_address", "5-1"),
+                ("angle_address", "angle_state_address", "5-3"),
+            ):
+                if agg.get(value_key) and not agg.get(state_key):
+                    cand = next((g for g in peers if to_hyphen(g.dpt) == dpt), None)
+                    if cand:
+                        agg[state_key] = cand.address
+                        agg["consumed"].add(cand.id)
     return aggregates
+
+
+_COVER_SEED_KEYS = ("position_address", "angle_address", "move_long_address", "move_short_address", "stop_address")
 
 
 # ====================== SINGLE GA FALLBACK ======================

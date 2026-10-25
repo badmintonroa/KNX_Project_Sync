@@ -45,14 +45,9 @@ Das sind Beobachtungen aus den Golden-Files, kein Fehler im Spike. Es sind mögl
 - `time`/`date` setzen `address` und `state_address` auf dieselbe GA.
 - `buildHaEntities` hat zwei Pfade: strukturiertes Mapping über Geräte/Kanäle (`map.ts`) und, falls es nichts findet, die Aggregat-Heuristiken (`aggregate.ts`). Für die ETS6-Fixtures greift der Aggregat-Pfad. Der Port braucht beide.
 
-## Noch nicht abgedeckt
+## Nachträglich geprüft mit echten Projekten
 
-Diese Punkte brauchen echte Projektdateien und werden vor bzw. während Schritt 3 geprüft:
-
-- **ETS4 / ETS5 < 5.7** (Schema ≤ 14, `Connectors` mit `Send`/`Receive` statt `Links`). knx2home leitet daraus Rollen ab, xknxproject nur die Reihenfolge.
-- **ETS-Module und echte Kanäle** (`ModuleDefs`/`ModuleInstances`, `GroupObjectTree`), wie sie große Aktoren (z. B. MDT, Gira) verwenden.
-- **ETS6-Funktionen** (Räume/Funktionen mit GA-Rollen). xknxproject liefert sie, knx2home nutzt sie noch nicht.
-- **Große Projekte** (Performance von Parsing und Mapping im HA-Event-Loop → Parsing im Executor).
+ETS4, ETS5 mit Modulen, ETS6-Funktionen/Smart Linking sowie zweistufige und freie Adressierung sind inzwischen mit den echten Testprojekten von xknxproject abgedeckt (CI-Job „real ETS projects“, Ergebnis in [port-notes.md](port-notes.md)). Offen bleibt die Performance bei großen Projekten. Das Parsen läuft im Executor und blockiert den HA-Event-Loop nicht.
 
 ## Reproduzieren
 

@@ -43,10 +43,14 @@ class Catalog:
     links: list[Link]
     # individual address -> name of the innermost ETS location (room) holding the device
     device_rooms: dict[str, str] = field(default_factory=dict)
+    # GA id -> context of the ETS6 function referencing it (knx2home: GroupAddressRef links,
+    # `linksByGa`; the last reference of a GA wins like in the JS Map)
+    function_context: dict[str, str] = field(default_factory=dict)
 
 
-def _address_key(address: str) -> tuple[int, ...]:
-    return tuple(int(part) if part.isdigit() else 0 for part in address.split("/"))
+def three_level(raw_address: int) -> str:
+    """knx2home writes every group address as main/middle/sub, whatever the ETS address style."""
+    return f"{raw_address >> 11}/{(raw_address >> 8) & 0x7}/{raw_address & 0xFF}"
 
 
 def _flags(flags: dict[str, Any] | None) -> dict[str, bool] | None:
@@ -82,6 +86,7 @@ def _device_rooms(spaces: dict[str, Any]) -> dict[str, str]:
 def catalog_from_xknxproject(project: dict[str, Any]) -> Catalog:
     """Build the catalog from a parsed project (xknxproject KNXProject dict)."""
     gas_by_address = project["group_addresses"]
+    # keys are formatted in the project's address style (three level, two level or free)
     id_by_address = {address: ga["identifier"] for address, ga in gas_by_address.items()}
 
     links: list[Link] = []
@@ -114,8 +119,8 @@ def catalog_from_xknxproject(project: dict[str, Any]) -> Catalog:
             )
 
     group_addresses = []
-    for address in sorted(gas_by_address, key=_address_key):
-        ga = gas_by_address[address]
+    for ga in sorted(gas_by_address.values(), key=lambda g: g["raw_address"]):
+        address = three_level(ga["raw_address"])
         dpt = from_xknxproject(ga.get("dpt"))
         if not dpt:
             # like knx2home: fall back to the DPT of a linked com object
@@ -129,4 +134,10 @@ def catalog_from_xknxproject(project: dict[str, Any]) -> Catalog:
         group_addresses=group_addresses,
         links=links,
         device_rooms=_device_rooms(project.get("locations", {})),
+        function_context={
+            id_by_address[address]: f"{function['name']} ({function['identifier']})"
+            for function in project.get("functions", {}).values()
+            for address in function.get("group_addresses", {})
+            if address in id_by_address
+        },
     )
