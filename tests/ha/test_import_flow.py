@@ -199,3 +199,15 @@ async def test_remove_entry_deletes_package(hass: HomeAssistant, config_dir, knx
     await hass.async_block_till_done()
     assert not (config_dir / PACKAGE).exists()
     assert len(knx_reloads) == 2
+
+
+async def test_migrate_options_adds_text(hass: HomeAssistant, config_dir, knx_reloads) -> None:
+    from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+    entry = MockConfigEntry(
+        domain=DOMAIN, version=1, minor_version=1, options={**default_options(), "domains": ["sensor", "light"]}
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    assert entry.minor_version == 2
+    assert entry.options["domains"] == ["sensor", "light", "text"]

@@ -37,7 +37,7 @@ from .importer import (
     async_prepare_upload,
     default_options,
 )
-from .mapping.manifest import DOMAINS
+from .mapping.manifest import HA_DOMAINS
 from .migration import async_find_legacy, async_take_over
 
 
@@ -45,7 +45,7 @@ def _options_schema(options: dict[str, Any]) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(CONF_DOMAINS, default=options[CONF_DOMAINS]): selector.SelectSelector(
-                selector.SelectSelectorConfig(options=list(DOMAINS), multiple=True, translation_key=CONF_DOMAINS)
+                selector.SelectSelectorConfig(options=list(HA_DOMAINS), multiple=True, translation_key=CONF_DOMAINS)
             ),
             vol.Required(CONF_REMOVED, default=options[CONF_REMOVED]): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=[REMOVED_DELETE, REMOVED_KEEP], translation_key=CONF_REMOVED)
@@ -119,6 +119,7 @@ class KnxProjectSyncConfigFlow(_SourceSteps, ConfigFlow, domain=DOMAIN):
     """Set up: read the project; choosing and creating entities happens in the panel."""
 
     VERSION = 1
+    MINOR_VERSION = 2  # 1.2: "text" in the entity types
 
     def __init__(self) -> None:
         self._legacy: dict[str, Any] | None = None

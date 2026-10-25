@@ -323,6 +323,7 @@ const de: Strings = {
     scene: "Szene",
     climate: "Klima",
     weather: "Wetter",
+    text: "Text",
   },
   errors: {
     invalid_password: "Falsches oder fehlendes Projekt-Passwort.",
@@ -481,6 +482,7 @@ const en: Strings = {
     scene: "Scene",
     climate: "Climate",
     weather: "Weather",
+    text: "Text",
   },
   errors: {
     invalid_password: "Wrong or missing project password.",

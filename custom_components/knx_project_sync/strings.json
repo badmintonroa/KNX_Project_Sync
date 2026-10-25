@@ -99,7 +99,8 @@
         "cover": "Cover",
         "scene": "Scene",
         "climate": "Climate",
-        "weather": "Weather"
+        "weather": "Weather",
+        "text": "Text"
       }
     },
     "removed": {

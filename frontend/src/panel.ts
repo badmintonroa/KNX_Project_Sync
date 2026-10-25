@@ -1740,6 +1740,7 @@ const ICONS = {
   weather: "M12 3v2M5.6 5.6 7 7M3 12h2M17 7l1.4-1.4M16 12a4 4 0 1 0-6.9 2.8M8 19h9a3 3 0 0 0 0-6 4.5 4.5 0 0 0-8.6 1.4A2.4 2.4 0 0 0 8 19z",
   clock: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2",
   generic: "M4 4h16v16H4zM9 9h6v6H9z",
+  text: "M4 7V5h16v2M9 19h6M12 5v14",
 } as const;
 
 const DOMAIN_ICONS: Record<string, string> = {
@@ -1754,6 +1755,7 @@ const DOMAIN_ICONS: Record<string, string> = {
   time: ICONS.clock,
   date: ICONS.clock,
   datetime: ICONS.clock,
+  text: ICONS.text,
 };
 
 const tileClass = (domain: string): string =>

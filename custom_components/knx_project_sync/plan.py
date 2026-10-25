@@ -19,7 +19,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from .mapping.manifest import DOMAINS, unique_id_for
+from .mapping.manifest import HA_DOMAINS, unique_id_for
 
 NEW = "new"
 CHANGED = "changed"
@@ -43,6 +43,8 @@ SAME_GA_DOMAINS = {"switch": "light", "light": "switch"}
 
 # domains an entity can be switched to in the panel (on/off entities only)
 SIMPLE_ON_OFF_FIELDS = {"name", "address", "state_address"}
+# DPT 16 (14 byte text); knx2home makes sensors of it, Home Assistant has a text entity
+TEXT_TYPES = {"string", "latin_1"}
 
 Validator = Callable[[str, dict[str, Any]], str | None]
 
@@ -136,7 +138,7 @@ class ImportPlan:
     def yaml_data(self) -> dict[str, list[dict[str, Any]]]:
         """`knx:` mapping of the package file."""
         data: dict[str, list[dict[str, Any]]] = {}
-        for domain in DOMAINS:
+        for domain in HA_DOMAINS:
             items = [e.config for e in self.written if e.domain == domain]
             if items:
                 data[domain] = items
@@ -185,6 +187,14 @@ def build_plan(
     candidates: list[PlanEntry] = []
     for e in entities:
         choice = selection.get(e["key"], {})
+        if (
+            "domain" not in choice
+            and not choice.get("config")
+            and _is_text(e["domain"], e["config"])
+            and previous.get(e["key"], {}).get("domain", "text") == "text"
+        ):
+            # texts become text entities; ones imported as sensors before keep their entity_id
+            choice = {**choice, "domain": "text"}
         domain, name, config = apply_choice(e["domain"], e["config"], choice)
         entry = PlanEntry(
             key=e["key"],
@@ -323,7 +333,42 @@ def domain_choices(domain: str, config: dict[str, Any]) -> list[str]:
         return ["switch", "light"]
     if domain == "light" and "address" in config and set(config) <= SIMPLE_ON_OFF_FIELDS:
         return ["light", "switch"]
+    if _is_text(domain, config):
+        return [domain, "text" if domain == "sensor" else "sensor"]
     return [domain]
+
+
+def _is_text(domain: str, config: dict[str, Any]) -> bool:
+    return domain in ("sensor", "text") and config.get("type", "latin_1" if domain == "text" else None) in TEXT_TYPES
+
+
+def _retype(domain: str, target: str, config: dict[str, Any]) -> dict[str, Any]:
+    """Config of the same GAs as another entity type."""
+    if target == "text":
+        address = config.get("state_address") or config.get("address")
+        return {
+            k: v
+            for k, v in {
+                "name": config.get("name"),
+                "address": address,
+                "state_address": config.get("state_address") or address,
+                "type": config.get("type"),
+            }.items()
+            if v
+        }
+    if target == "sensor" and domain == "text":
+        state = config.get("state_address") or config.get("address")
+        return {
+            k: v
+            for k, v in {
+                "name": config.get("name"),
+                "state_address": state,
+                "type": config.get("type") or "latin_1",
+            }.items()
+            if v
+        }
+    # switch <-> light: switch-only options (invert, respond_to_read, ...) do not exist for lights
+    return {k: v for k, v in config.items() if k in SIMPLE_ON_OFF_FIELDS}
 
 
 def _addresses(config: dict[str, Any]) -> list[str]:
@@ -384,6 +429,7 @@ ADDRESS_FIELDS: dict[str, tuple[str, ...]] = {
         "angle_state_address",
     ),
     "scene": ("address",),
+    "text": ("address", "state_address"),
     "climate": (
         "temperature_address",
         "target_temperature_address",
@@ -432,8 +478,7 @@ def apply_choice(domain: str, config: dict[str, Any], choice: dict[str, Any]) ->
         config = dict(config)
         target = choice.get("domain") or domain
         if target != domain and target in domain_choices(domain, config):
-            # switch-only options (invert, respond_to_read, ...) do not exist for lights
-            config = {k: v for k, v in config.items() if k in SIMPLE_ON_OFF_FIELDS}
+            config = _retype(domain, target, config)
             domain = target
     allowed = set(address_fields(domain, config))
     for key, address in (choice.get("addresses") or {}).items():

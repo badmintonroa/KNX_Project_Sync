@@ -336,3 +336,68 @@ def test_ga_used_by_an_own_climate():
     assert entries["sensor:GA-12"].status == "unchanged"
     assert (entries["sensor:GA-13"].status, entries["sensor:GA-13"].reason) == ("duplicate", "ga_in_use")
     assert entries["sensor:GA-13"].conflict_with["kind"] == "app"
+
+
+def _text_manifest() -> dict:
+    return {
+        "project": {"name": "Texte"},
+        "entities": [
+            {
+                "key": "sensor:GA-1",
+                "domain": "sensor",
+                "name": "Display Zeile 1",
+                "config": {"name": "Display Zeile 1", "state_address": "7/0/1", "type": "string"},
+                "sources": [],
+            },
+            {
+                "key": "sensor:GA-2",
+                "domain": "sensor",
+                "name": "Temperatur",
+                "config": {"name": "Temperatur", "state_address": "7/0/2", "type": "temperature"},
+                "sources": [],
+            },
+        ],
+        "unmapped": [],
+    }
+
+
+def test_texts_become_text_entities():
+    from homeassistant.components.knx.schema import TextSchema
+
+    plan = build_plan(_text_manifest(), {}, domains=[*DOMAINS, "text"], keep_removed=False)
+    entries = {e.key: e for e in plan.entries}
+    text = entries["sensor:GA-1"]
+    assert (text.status, text.domain, text.detected_domain) == ("new", "text", "sensor")
+    assert text.config == {"name": "Display Zeile 1", "address": "7/0/1", "state_address": "7/0/1", "type": "string"}
+    assert text.unique_id == "7/0/1"
+    TextSchema.ENTITY_SCHEMA(text.config)
+    assert plan.yaml_data()["text"] == [text.config]
+    assert entries["sensor:GA-2"].domain == "sensor"
+    assert domain_choices("sensor", _text_manifest()["entities"][0]["config"]) == ["sensor", "text"]
+    assert domain_choices("sensor", _text_manifest()["entities"][1]["config"]) == ["sensor"]
+
+    # back to a sensor in the panel
+    back = build_plan(
+        _text_manifest(),
+        plan.state(),
+        domains=[*DOMAINS, "text"],
+        keep_removed=False,
+        selection={"sensor:GA-1": {"domain": "sensor"}},
+    )
+    entry = next(e for e in back.entries if e.key == "sensor:GA-1")
+    assert (entry.domain, entry.config["state_address"], entry.config["type"]) == ("sensor", "7/0/1", "string")
+    assert ("text", "7/0/1") in back.removed_unique_ids
+
+
+def test_text_imported_as_sensor_stays_a_sensor():
+    """Earlier versions imported texts as sensors: keep their entity_id."""
+    old = build_plan(
+        _text_manifest(),
+        {},
+        domains=[*DOMAINS, "text"],
+        keep_removed=False,
+        selection={"sensor:GA-1": {"domain": "sensor"}},
+    ).state()
+    plan = build_plan(_text_manifest(), old, domains=[*DOMAINS, "text"], keep_removed=False)
+    entry = next(e for e in plan.entries if e.key == "sensor:GA-1")
+    assert (entry.status, entry.domain) == ("unchanged", "sensor")

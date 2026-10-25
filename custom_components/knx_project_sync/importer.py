@@ -36,7 +36,7 @@ from .const import (
 )
 from .mapping import build_ha_entities, build_manifest, catalog_from_xknxproject
 from .mapping.catalog import Catalog
-from .mapping.manifest import DOMAINS
+from .mapping.manifest import HA_DOMAINS
 from .plan import PENDING, ImportPlan, build_plan
 
 _LOGGER = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class Prepared:
 
 def default_options() -> dict[str, Any]:
     return {
-        CONF_DOMAINS: list(DOMAINS),
+        CONF_DOMAINS: list(HA_DOMAINS),
         CONF_REMOVED: "delete",
         CONF_ASSIGN_AREAS: False,
         CONF_PACKAGE_PATH: DEFAULT_PACKAGE_PATH,
@@ -169,6 +169,7 @@ def _validator():
         "scene": schema.SceneSchema,
         "climate": schema.ClimateSchema,
         "weather": schema.WeatherSchema,
+        "text": schema.TextSchema,
     }
 
     def validate(domain: str, config: dict[str, Any]) -> str | None:
@@ -233,7 +234,7 @@ class Importer:
         return build_plan(
             prepared.manifest,
             self.applied,
-            domains=options.get(CONF_DOMAINS) or list(DOMAINS),
+            domains=options.get(CONF_DOMAINS) or list(HA_DOMAINS),
             keep_removed=options.get(CONF_REMOVED) == REMOVED_KEEP,
             foreign_entities=foreign,
             validate=validate,
