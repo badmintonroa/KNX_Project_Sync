@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from custom_components.knx2home_importer.mapping import (
+from custom_components.knx_project_sync.mapping import (
     build_ha_entities,
     build_manifest,
     catalog_from_xknxproject,

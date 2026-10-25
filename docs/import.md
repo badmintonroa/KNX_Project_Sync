@@ -6,15 +6,15 @@
 .knxproj (Upload, Datei, oder Projekt aus dem KNX-Panel)
   └─ xknxproject ──> mapping/ (Port von knx2home) ──> Manifest (Entities mit stabilen Schlüsseln)
                                                         │
-       letzter Import (.storage/knx2home_importer) ─────┤
+       letzter Import (.storage/knx_project_sync) ─────┤
        eigene knx:-YAML (configuration.yaml) ───────────┼─> Plan (plan.py) ──> Vorschau im Dialog
        Einstellungen + KNX-Schema von HA ───────────────┘          │
                                                                    ▼  Absenden
   1. Entity-Registry: unique_ids umziehen (GA umadressiert → gleiche entity_id)
-  2. packages/knx2home_importer.yaml schreiben (atomar) + knx.reload
+  2. packages/knx_project_sync.yaml schreiben (atomar) + knx.reload
   3. entfernte Entities aus der Registry löschen (oder behalten)
   4. optional: ETS-Räume → HA-Bereiche (nur Entities ohne Bereich)
-  5. Stand speichern, Sensor „Letzter Import“ aktualisieren, Event knx2home_importer_imported
+  5. Stand speichern, Sensor „Letzter Import“ aktualisieren, Event knx_project_sync_imported
 ```
 
 ## Voraussetzungen
@@ -63,14 +63,14 @@ Entities, die im KNX-Panel per UI angelegt wurden, haben zufällige unique_ids u
 | Entity-Typen | alle |
 | Entities, die im Projekt fehlen | Löschen |
 | Bereiche aus ETS-Räumen | aus |
-| Paket-Datei | `packages/knx2home_importer.yaml` |
+| Paket-Datei | `packages/knx_project_sync.yaml` |
 
-Änderbar unter *Einstellungen → Geräte & Dienste → KNX2HOME Importer → Konfigurieren → Nur Einstellungen ändern*. Dabei wird der zuletzt importierte Projektstand neu angewendet, ohne die Datei erneut hochzuladen.
+Änderbar unter *Einstellungen → Geräte & Dienste → KNX Project Sync → Konfigurieren → Nur Einstellungen ändern*. Dabei wird der zuletzt importierte Projektstand neu angewendet, ohne die Datei erneut hochzuladen.
 
 ## Service
 
 ```yaml
-action: knx2home_importer.import_project
+action: knx_project_sync.import_project
 data:
   file: knx/musterhaus.knxproj   # relativ zum Konfigurationsordner
   password: !secret knx_projekt  # optional

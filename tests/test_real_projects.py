@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 from xknxproject import XKNXProj
 
-from custom_components.knx2home_importer.mapping import build_ha_entities, build_manifest, catalog_from_xknxproject
+from custom_components.knx_project_sync.mapping import build_ha_entities, build_manifest, catalog_from_xknxproject
 
 REAL = Path(os.environ["REAL_PROJECTS_DIR"]) if os.environ.get("REAL_PROJECTS_DIR") else None
 pytestmark = pytest.mark.skipif(REAL is None, reason="REAL_PROJECTS_DIR not set")

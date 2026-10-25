@@ -37,6 +37,10 @@
       "confirm": {
         "title": "Vorschau: {project}",
         "description": "➕ Neu: **{new}** · ✏️ Geändert: **{changed}** · ✅ Unverändert: **{unchanged}** · 🗑️ Entfernt: **{removed}** · 📌 Behalten: **{kept}**\n\nNicht angelegt: {conflict} schon in eigener KNX-YAML, {invalid} ungültig, {duplicate} doppelt, {excluded} abgewählt, {unmapped} ohne Entity-Typ.\n\n{details}\n\nMit **Absenden** wird die Paket-Datei geschrieben und KNX neu geladen."
+      },
+      "legacy": {
+        "title": "Bisherige Installation übernehmen",
+        "description": "Es wurde eine Installation unter dem alten Namen „KNX2HOME Importer“ gefunden. Importierte Entities, Einstellungen und Import-Stand werden unverändert übernommen, die Paket-Datei wird in `packages/knx_project_sync.yaml` umbenannt. Lösche danach den alten Eintrag „KNX2HOME Importer“ und entferne ihn in HACS."
       }
     },
     "error": {
@@ -142,11 +146,15 @@
     "knx_reload_failed": {
       "title": "KNX konnte nicht neu geladen werden",
       "description": "Nach dem Import ist das Neuladen der KNX-Integration fehlgeschlagen: {error}"
+    },
+    "legacy_entry": {
+      "title": "„KNX2HOME Importer“ entfernen",
+      "description": "Die Integration heißt jetzt „KNX Project Sync“ und hat die Entities von „{title}“ übernommen. Lösche den alten Eintrag „KNX2HOME Importer“ unter *Einstellungen → Geräte & Dienste* und entferne ihn in HACS. Deine Entities bleiben erhalten."
     }
   },
   "exceptions": {
     "not_set_up": {
-      "message": "KNX2HOME Importer ist nicht eingerichtet."
+      "message": "KNX Project Sync ist nicht eingerichtet."
     },
     "file_required": {
       "message": "Für die Quelle „Datei“ muss `file` angegeben werden."

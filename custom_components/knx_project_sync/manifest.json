@@ -1,6 +1,6 @@
 {
-  "domain": "knx2home_importer",
-  "name": "KNX2HOME Importer",
+  "domain": "knx_project_sync",
+  "name": "KNX Project Sync",
   "codeowners": ["@badmintonroa"],
   "config_flow": true,
   "dependencies": ["file_upload", "knx"],
@@ -10,5 +10,5 @@
   "issue_tracker": "https://github.com/badmintonroa/Knx-has-auto-importer/issues",
   "requirements": [],
   "single_config_entry": true,
-  "version": "0.1.0"
+  "version": "0.2.0"
 }

@@ -38,7 +38,7 @@ Das JSON-Schema liegt in [`schema/manifest-v1.schema.json`](../schema/manifest-v
 | Feld | Bedeutung |
 |---|---|
 | `format`, `version` | Fest `knx2home-ha-manifest` / `1`. Inkompatible Änderungen erhöhen `version`. |
-| `generator` | Wer das Manifest erzeugt hat (`knx2home` oder später `knx2home_importer`), Version, optional Commit. Wird beim Vergleich ignoriert. |
+| `generator` | Wer das Manifest erzeugt hat (`knx2home` oder später `knx_project_sync`), Version, optional Commit. Wird beim Vergleich ignoriert. |
 | `project.name` | Projektname aus der ETS. |
 | `options.drop_reserve` | GAs/Entities mit dem Namen „Reserve“ wurden verworfen (knx2home-Option `dropReserveFromUnknown`). |
 | `entities[]` | Eine Entity pro Eintrag, siehe unten. |

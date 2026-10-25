@@ -10,10 +10,10 @@ from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er, issue_registry as ir
 import yaml
 
-from custom_components.knx2home_importer.const import DOMAIN
+from custom_components.knx_project_sync.const import DOMAIN
 from helpers import file_id
 
-PACKAGE = "packages/knx2home_importer.yaml"
+PACKAGE = "packages/knx_project_sync.yaml"
 
 
 async def _first_import(hass: HomeAssistant, fixture: str = "musterhaus_v1", **options):
@@ -76,7 +76,7 @@ async def test_first_import(hass: HomeAssistant, config_dir, knx_reloads, upload
     assert result["title"] == "Musterhaus"
     assert not ir.async_get(hass).async_get_issue(DOMAIN, "package_not_loaded")
 
-    state = hass.states.get("sensor.knx2home_importer_last_import")
+    state = hass.states.get("sensor.knx_project_sync_last_import")
     assert state is not None
     assert state.attributes["project"] == "Musterhaus"
     assert state.attributes["new"] == 6

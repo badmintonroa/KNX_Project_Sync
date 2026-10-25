@@ -1,6 +1,6 @@
 # Schritt 3: Python-Port der knx2home-Erkennung
 
-Der Port liegt in [`custom_components/knx2home_importer/mapping/`](../custom_components/knx2home_importer/mapping/). Er ist reines Python ohne Home-Assistant-Abhängigkeit.
+Der Port liegt in [`custom_components/knx_project_sync/mapping/`](../custom_components/knx_project_sync/mapping/). Er ist reines Python ohne Home-Assistant-Abhängigkeit.
 
 | Modul | knx2home-Vorlage |
 |---|---|

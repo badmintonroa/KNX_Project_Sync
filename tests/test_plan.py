@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from custom_components.knx2home_importer.mapping.manifest import DOMAINS
-from custom_components.knx2home_importer.plan import build_plan
-from custom_components.knx2home_importer.writer import render, unique_ids_of_knx_config
+from custom_components.knx_project_sync.mapping.manifest import DOMAINS
+from custom_components.knx_project_sync.plan import build_plan
+from custom_components.knx_project_sync.writer import render, unique_ids_of_knx_config
 from helpers import FIXTURES, load_json
 
 

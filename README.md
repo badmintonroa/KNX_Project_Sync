@@ -1,4 +1,4 @@
-# KNX2HOME Importer
+# KNX Project Sync
 
 Home-Assistant-Integration (HACS), die aus einer ETS-Projektdatei (`.knxproj`) automatisch die KNX-Entities anlegt und sie beim Hochladen einer geänderten Datei aktualisiert. Dabei bleiben entity_ids, Namen, Bereiche und der Verlauf erhalten.
 
@@ -6,7 +6,7 @@ Die Entity-Erkennung stammt aus [knx2home](https://github.com/badmintonroa/knx2h
 
 ## Installation
 
-1. HACS → *Integrationen* → ⋮ → *Benutzerdefinierte Repositories* → `https://github.com/badmintonroa/Knx-has-auto-importer`, Typ *Integration*. Danach „KNX2HOME Importer“ installieren und HA neu starten.
+1. HACS → *Integrationen* → ⋮ → *Benutzerdefinierte Repositories* → `https://github.com/badmintonroa/Knx-has-auto-importer`, Typ *Integration*. Danach „KNX Project Sync“ installieren und HA neu starten.
 2. In der `configuration.yaml` Pakete aktivieren (falls noch nicht geschehen) und HA neu starten:
 
    ```yaml
@@ -14,14 +14,18 @@ Die Entity-Erkennung stammt aus [knx2home](https://github.com/badmintonroa/knx2h
      packages: !include_dir_named packages
    ```
 
-3. *Einstellungen → Geräte & Dienste → Integration hinzufügen → KNX2HOME Importer*. Voraussetzung ist eine eingerichtete KNX-Integration.
+3. *Einstellungen → Geräte & Dienste → Integration hinzufügen → KNX Project Sync*. Voraussetzung ist eine eingerichtete KNX-Integration.
+
+### Umstieg von „KNX2HOME Importer“ (0.1.0)
+
+Die Integration hieß bis 0.1.0 „KNX2HOME Importer“ (`knx2home_importer`). Nach dem Update in HACS „KNX Project Sync“ hinzufügen: Die bisherige Installation wird erkannt und mit allen Entities, Einstellungen und dem Import-Stand übernommen, `packages/knx2home_importer.yaml` wird zu `packages/knx_project_sync.yaml`. Danach den alten Eintrag löschen (ein Repair-Hinweis erinnert daran). entity_ids, Namen, Bereiche und Verlauf bleiben erhalten.
 
 ## Benutzung
 
-- **Erster Import:** `.knxproj` hochladen (oder das schon im KNX-Panel hochgeladene Projekt wählen), Entity-Typen wählen, Vorschau prüfen, absenden. Die Entities landen in `packages/knx2home_importer.yaml`, und KNX wird neu geladen.
+- **Erster Import:** `.knxproj` hochladen (oder das schon im KNX-Panel hochgeladene Projekt wählen), Entity-Typen wählen, Vorschau prüfen, absenden. Die Entities landen in `packages/knx_project_sync.yaml`, und KNX wird neu geladen.
 - **Update:** Bei der Integration auf *Konfigurieren* klicken und die neue Datei hochladen. Die Vorschau zeigt neue, geänderte, entfernte und übersprungene Entities.
 - **Eigene KNX-YAML:** Entities, die du schon von Hand angelegt hast (gleiche Gruppenadresse), werden erkannt und nicht doppelt angelegt.
-- **Automatisierbar:** Service `knx2home_importer.import_project` (mit `dry_run`).
+- **Automatisierbar:** Service `knx_project_sync.import_project` (mit `dry_run`).
 
 Details: [docs/import.md](docs/import.md)
 
@@ -41,7 +45,7 @@ Details: [docs/import.md](docs/import.md)
 ## Aufbau
 
 ```
-custom_components/knx2home_importer/
+custom_components/knx_project_sync/
   mapping/          Port der knx2home-Erkennung (reines Python)
   plan.py           Diff zwischen Projekt und letztem Import
   importer.py       Parsen, Planen, Anwenden (YAML, Reload, Registry, Bereiche)

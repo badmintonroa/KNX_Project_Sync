@@ -13,7 +13,7 @@ from pytest_homeassistant_custom_component.components.diagnostics import get_dia
 from xknxproject import XKNXProj
 import yaml
 
-from custom_components.knx2home_importer.const import DOMAIN
+from custom_components.knx_project_sync.const import DOMAIN
 from helpers import FIXTURES, file_id
 
 
@@ -77,7 +77,7 @@ async def test_service_dry_run_and_import(
     )
     assert response["summary"]["removed"] == 2
     assert len(knx_reloads) == 2
-    package = yaml.safe_load((config_dir / "packages/knx2home_importer.yaml").read_text(encoding="utf-8"))
+    package = yaml.safe_load((config_dir / "packages/knx_project_sync.yaml").read_text(encoding="utf-8"))
     assert {"name": "Wohnzimmer CO2", "state_address": "3/0/4", "type": "ppm"} in package["knx"]["sensor"]
 
     with pytest.raises(ServiceValidationError):
