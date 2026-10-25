@@ -74,6 +74,8 @@ async def test_setup_only_reads_the_project(hass: HomeAssistant, config_dir, knx
     result = await _setup(hass)
     assert result["title"] == "Musterhaus"
     assert result["description_placeholders"]["entities"] == "8"
+    # the success dialog links straight to the panel
+    assert result["description_placeholders"]["panel"] == "/knx-project-sync"
     assert not (config_dir / PACKAGE).exists()
     assert not knx_reloads
     assert "knx_project_sync_project_loaded" in _async_get_or_create_notifications(hass)
