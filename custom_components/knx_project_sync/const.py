@@ -33,8 +33,3 @@ SERVICE_IMPORT_PROJECT: Final = "import_project"
 
 ISSUE_PACKAGE_NOT_LOADED: Final = "package_not_loaded"
 ISSUE_RELOAD_FAILED: Final = "knx_reload_failed"
-ISSUE_LEGACY_ENTRY: Final = "legacy_entry"
-
-# former name of this integration (development builds before the first release)
-LEGACY_DOMAIN: Final = "knx2home_importer"
-LEGACY_PACKAGE_PATH: Final = "packages/knx2home_importer.yaml"
