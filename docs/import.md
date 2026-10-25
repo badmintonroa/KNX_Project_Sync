@@ -20,14 +20,20 @@
 ## Voraussetzungen
 
 - Die **KNX-Integration** ist eingerichtet.
-- Die Paket-Datei wird geladen. In der `configuration.yaml` steht:
+- Die Paket-Datei wird geladen. Home Assistant liest KNX-YAML nur aus der `configuration.yaml`, eine eigene Datei kommt nur über Pakete dazu:
 
   ```yaml
   homeassistant:
     packages: !include_dir_named packages
   ```
 
-  Fehlt das, erscheint nach dem Import ein Repair-Hinweis. Eine eigene `knx:`-YAML (z. B. in der `configuration.yaml`) darf parallel bestehen bleiben, HA führt beide zusammen.
+  Fehlt das, zeigt das Panel einen Hinweis mit *Automatisch eintragen*, und nach einem Import erscheint eine Reparatur mit derselben Funktion. Dabei passiert Folgendes:
+  - Die `configuration.yaml` wird gesichert (`configuration.yaml.knx_project_sync-<zeit>.bak`).
+  - Die Zeile wird unter `homeassistant:` eingefügt bzw. der Block angelegt.
+  - Das Ergebnis wird mit dem YAML-Loader von HA geprüft, bei einem Fehler wird die Sicherung zurückgespielt.
+  - KNX wird neu geladen. Ein Neustart ist nicht nötig, weil KNX beim Reload die Pakete neu liest.
+
+  Nutzt du schon `packages: !include_dir_named <ordner>`, wird nur die Datei in diesen Ordner verschoben. Bei einzeln eingebundenen Paketen wird `knx_project_sync: !include …` ergänzt. Eine eigene `knx:`-YAML darf parallel bestehen bleiben, HA führt beide zusammen.
 
 ## Status im Plan
 

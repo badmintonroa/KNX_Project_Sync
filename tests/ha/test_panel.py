@@ -249,3 +249,44 @@ async def test_own_climate_on_a_detected_sensor(
         {"name": "Wohnzimmer", "temperature_address": "3/0/1", "target_temperature_state_address": "3/0/9"}
     ]
     assert [s["state_address"] for s in knx["sensor"]] == ["3/0/2"]
+
+
+async def test_fix_packages(hass: HomeAssistant, config_dir, knx_reloads, upload, hass_ws_client) -> None:
+    """configuration.yaml without packages: one click adds the line, KNX reloads, no restart."""
+    from homeassistant.helpers import issue_registry as ir
+
+    configuration = config_dir / "configuration.yaml"
+    configuration.write_text("default_config:\n", encoding="utf-8")
+    await _first_import(hass)
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, "package_not_loaded")
+    assert issue is not None and issue.is_fixable
+
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/plan"})
+    assert (await client.receive_json())["result"]["packages"]["status"] == "add"
+
+    await client.send_json_auto_id({"type": f"{DOMAIN}/fix_packages"})
+    response = await client.receive_json()
+    assert response["success"], response
+    assert response["result"]["status"] == "ok"
+    assert configuration.read_text(encoding="utf-8") == (
+        "default_config:\n\nhomeassistant:\n  packages: !include_dir_named packages\n"
+    )
+    assert list(config_dir.glob("configuration.yaml.knx_project_sync-*.bak"))
+    assert len(knx_reloads) == 2
+    assert ir.async_get(hass).async_get_issue(DOMAIN, "package_not_loaded") is None
+
+
+async def test_repair_flow(hass: HomeAssistant, config_dir, knx_reloads, upload) -> None:
+    from custom_components.knx_project_sync.repairs import async_create_fix_flow
+
+    (config_dir / "configuration.yaml").write_text("default_config:\n", encoding="utf-8")
+    await _first_import(hass)
+    flow = await async_create_fix_flow(hass, "package_not_loaded", None)
+    flow.hass = hass
+    result = await flow.async_step_init()
+    assert result["step_id"] == "confirm"
+    assert result["description_placeholders"]["path"] == PACKAGE
+    result = await flow.async_step_confirm({})
+    assert result["type"] == "create_entry"
+    assert "packages: !include_dir_named packages" in (config_dir / "configuration.yaml").read_text(encoding="utf-8")

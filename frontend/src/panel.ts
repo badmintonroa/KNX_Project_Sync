@@ -59,6 +59,7 @@ interface Row {
 interface PlanResult {
   project: string | null;
   version?: string;
+  packages?: { status: "ok" | "add" | "move" | "include" | "manual"; package_path: string; detail: string | null };
   staged: boolean;
   has_knx_project: boolean;
   has_changes?: boolean;
@@ -359,6 +360,7 @@ class KnxProjectSyncPanel extends LitElement {
         ${this._error ? html`<div class="alert error" role="alert">${this._error}</div>` : nothing}
         ${this._message ? html`<div class="alert info" role="status">${this._message}</div>` : nothing}
         ${this._passwordFor ? this._renderPassword() : nothing}
+        ${this._renderPackages()}
         ${!data
           ? html`<div class="empty">${t.loading}</div>`
           : !data.project
@@ -383,6 +385,33 @@ class KnxProjectSyncPanel extends LitElement {
         ${data?.version ? html` · <span title="KNX Project Sync">v${data.version}</span>` : nothing}
       </div>
     </section>`;
+  }
+
+  /** Home Assistant only reads the package file through `homeassistant: packages:`. */
+  private _renderPackages(): TemplateResult | typeof nothing {
+    const t = this.t;
+    const p = this._data?.packages;
+    if (!p || p.status === "ok") return nothing;
+    return html`<section class="staged">
+      <div class="staged-icon">${icon(ICONS.file, 20)}</div>
+      <div class="grow">
+        <div class="staged-title">${t.packagesTitle}</div>
+        <div>${p.status === "manual" ? t.packagesManual(p.detail ?? "") : t.packagesText[p.status]}</div>
+      </div>
+      ${p.status === "manual"
+        ? nothing
+        : html`<button class="primary" ?disabled=${!!this._busy} @click=${this._fixPackages}>
+            ${this._busy === "packages" ? t.applying : t.packagesFix[p.status]}
+          </button>`}
+    </section>`;
+  }
+
+  private async _fixPackages(): Promise<void> {
+    await this._run("packages", async () => {
+      await this.hass.callWS({ type: "knx_project_sync/fix_packages" });
+      await this._refresh(this._draft);
+      this._message = this.t.packagesDone;
+    });
   }
 
   private _renderStaged(): TemplateResult | typeof nothing {

@@ -62,6 +62,7 @@ def async_register_commands(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_load_project)
     websocket_api.async_register_command(hass, ws_discard)
     websocket_api.async_register_command(hass, ws_apply)
+    websocket_api.async_register_command(hass, ws_fix_packages)
 
 
 async def async_register_panel(hass: HomeAssistant) -> None:
@@ -198,6 +199,8 @@ async def _async_plan_response(
     if prepared is None:
         return {**base, "project": None, "entities": [], "unmapped": [], "summary": {}}, None
     options = {**default_options(), **entry.options}
+    setup = await importer.async_package_setup(options)
+    base["packages"] = {"status": setup.status, "package_path": setup.package_path, "detail": setup.detail}
     plan = await importer.async_plan(prepared, options, selection)
     return {
         **base,
@@ -293,6 +296,22 @@ async def ws_apply(hass: HomeAssistant, connection: websocket_api.ActiveConnecti
         connection.send_error(msg["id"], err.key, err.placeholders.get("error") or err.key)
         return
     connection.send_result(msg["id"], summary)
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/fix_packages"})
+@websocket_api.async_response
+async def ws_fix_packages(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Add what configuration.yaml needs to load the package file (backed up, checked)."""
+    if (entry := _entry(hass)) is None:
+        _not_set_up(connection, msg)
+        return
+    try:
+        setup = await entry.runtime_data.async_fix_packages(entry)
+    except KnxImportError as err:
+        connection.send_error(msg["id"], err.key, err.placeholders.get("error") or err.key)
+        return
+    connection.send_result(msg["id"], {"status": setup.status, "package_path": setup.package_path})
 
 
 def _clean(selection: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
