@@ -1,11 +1,11 @@
-"""Constants for the KNX2HOME Importer integration."""
+"""Constants for the KNX Project Sync integration."""
 
 from __future__ import annotations
 
 from typing import Final
 
-DOMAIN: Final = "knx2home_importer"
-VERSION: Final = "0.1.0"
+DOMAIN: Final = "knx_project_sync"
+VERSION: Final = "0.2.0"
 
 KNX_DOMAIN: Final = "knx"
 # xknxproject output of the project uploaded in the KNX panel
@@ -24,7 +24,7 @@ REMOVED_KEEP: Final = "keep"
 CONF_ASSIGN_AREAS: Final = "assign_areas"
 CONF_PACKAGE_PATH: Final = "package_path"
 
-DEFAULT_PACKAGE_PATH: Final = "packages/knx2home_importer.yaml"
+DEFAULT_PACKAGE_PATH: Final = "packages/knx_project_sync.yaml"
 
 SIGNAL_IMPORTED: Final = f"{DOMAIN}_imported"
 EVENT_IMPORTED: Final = f"{DOMAIN}_imported"
@@ -33,3 +33,8 @@ SERVICE_IMPORT_PROJECT: Final = "import_project"
 
 ISSUE_PACKAGE_NOT_LOADED: Final = "package_not_loaded"
 ISSUE_RELOAD_FAILED: Final = "knx_reload_failed"
+ISSUE_LEGACY_ENTRY: Final = "legacy_entry"
+
+# name of this integration up to 0.1.0
+LEGACY_DOMAIN: Final = "knx2home_importer"
+LEGACY_PACKAGE_PATH: Final = "packages/knx2home_importer.yaml"

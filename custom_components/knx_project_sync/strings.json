@@ -36,7 +36,11 @@
       },
       "confirm": {
         "title": "Preview: {project}",
-        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
+        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\n🆕 **{pending}** newly available (add them in the *KNX Project Sync* panel) · 🚫 {deselected} deselected in the panel\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
+      },
+      "legacy": {
+        "title": "Take over previous installation",
+        "description": "An installation under the former name “KNX2HOME Importer” was found. Its imported entities, settings and import state are taken over unchanged, and the package file is renamed to `packages/knx_project_sync.yaml`. Afterwards delete the old “KNX2HOME Importer” entry and remove it in HACS."
       }
     },
     "error": {
@@ -87,7 +91,7 @@
       },
       "confirm": {
         "title": "Preview: {project}",
-        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
+        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\n🆕 **{pending}** newly available (add them in the *KNX Project Sync* panel) · 🚫 {deselected} deselected in the panel\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
       }
     },
     "error": {
@@ -142,11 +146,15 @@
     "knx_reload_failed": {
       "title": "KNX could not be reloaded",
       "description": "Reloading the KNX integration after the import failed: {error}"
+    },
+    "legacy_entry": {
+      "title": "Remove “KNX2HOME Importer”",
+      "description": "The integration is now called “KNX Project Sync” and has taken over the entities of “{title}”. Delete the old “KNX2HOME Importer” entry under *Settings → Devices & services* and remove it in HACS. Your entities stay."
     }
   },
   "exceptions": {
     "not_set_up": {
-      "message": "KNX2HOME Importer is not set up."
+      "message": "KNX Project Sync is not set up."
     },
     "file_required": {
       "message": "`file` is required for source “file”."
@@ -162,6 +170,9 @@
     },
     "no_knx_project": {
       "message": "No project is uploaded in the KNX panel."
+    },
+    "adopt_failed": {
+      "message": "Could not take the entity over from your own YAML: {error}"
     }
   },
   "services": {

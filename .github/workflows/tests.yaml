@@ -49,6 +49,35 @@ jobs:
           # not in home-assistant/brands; description and topics are repository settings
           ignore: brands description topics
 
+  frontend:
+    # The panel is committed as one bundled file (HACS installs custom_components only).
+    name: panel
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v6.1.0
+      - name: 🏗 Set up Node
+        uses: actions/setup-node@v6.5.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: 🏗 Install dependencies
+        run: npm ci
+      - name: 🔍 Type check
+        run: npm run check
+      - name: 📦 Bundle is up to date
+        run: |
+          npm run build
+          git diff --exit-code -- ../custom_components/knx_project_sync/frontend
+      - name: 🏗 Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: 🚀 Smoke test
+        run: npm test
+
   reference:
     # Regenerates the golden files with the current knx2home main branch and
     # fails if they changed, i.e. knx2home changed behavior the port must follow.

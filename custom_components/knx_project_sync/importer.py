@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from homeassistant.components import persistent_notification
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import area_registry as ar, entity_registry as er, issue_registry as ir
@@ -16,7 +17,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
-from . import writer
+from . import writer, yamledit
 from .const import (
     CONF_ASSIGN_AREAS,
     CONF_DOMAINS,
@@ -36,11 +37,13 @@ from .const import (
 from .mapping import build_ha_entities, build_manifest, catalog_from_xknxproject
 from .mapping.catalog import Catalog
 from .mapping.manifest import DOMAINS
-from .plan import ImportPlan, build_plan
+from .plan import PENDING, ImportPlan, build_plan
 
 _LOGGER = logging.getLogger(__name__)
 
 STORAGE_VERSION = 1
+NOTIFICATION_NEW = f"{DOMAIN}_new_entities"
+PANEL_URL = "/knx-project-sync"
 GENERATOR = {"name": DOMAIN, "version": VERSION}
 
 
@@ -177,18 +180,18 @@ def _validator():
     return validate
 
 
-async def _async_foreign_unique_ids(hass: HomeAssistant, package: Path) -> set[tuple[str, str]]:
-    """unique_ids of KNX YAML entities that are not ours (e.g. hand written knx: YAML)."""
+async def _async_foreign_entities(hass: HomeAssistant, package: Path) -> dict[tuple[str, str], dict[str, Any]]:
+    """KNX YAML entities that are not ours (e.g. hand written knx: YAML), with file and line."""
     from homeassistant.config import async_hass_config_yaml
 
     try:
         config = await async_hass_config_yaml(hass)
     except HomeAssistantError:
         _LOGGER.warning("Could not read configuration.yaml to detect own KNX YAML entities")
-        return set()
-    merged = writer.unique_ids_of_knx_config(config.get(KNX_DOMAIN) or {})
+        return {}
+    merged = writer.entities_of_knx_config(config.get(KNX_DOMAIN) or {})
     ours = await hass.async_add_executor_job(writer.read_unique_ids, package)
-    return merged - ours
+    return {uid: info for uid, info in merged.items() if uid not in ours}
 
 
 class Importer:
@@ -198,6 +201,8 @@ class Importer:
         self.hass = hass
         self._store = Store[dict](hass, STORAGE_VERSION, DOMAIN)
         self.data: dict[str, Any] = {}
+        # project loaded in the panel, not applied yet
+        self.staged: tuple[Prepared, str] | None = None
 
     async def async_load(self) -> None:
         self.data = await self._store.async_load() or {}
@@ -210,19 +215,30 @@ class Importer:
     def applied(self) -> dict[str, dict[str, Any]]:
         return self.data.get("applied", {})
 
+    @property
+    def selection(self) -> dict[str, dict[str, Any]]:
+        """Choices made in the panel per entity key: enabled, domain, name."""
+        return self.data.get("selection", {})
+
     def package_path(self, options: dict[str, Any]) -> Path:
         return Path(self.hass.config.path(options.get(CONF_PACKAGE_PATH) or DEFAULT_PACKAGE_PATH))
 
-    async def async_plan(self, prepared: Prepared, options: dict[str, Any]) -> ImportPlan:
-        foreign = await _async_foreign_unique_ids(self.hass, self.package_path(options))
+    async def async_plan(
+        self, prepared: Prepared, options: dict[str, Any], selection: dict[str, dict[str, Any]] | None = None
+    ) -> ImportPlan:
+        """Plan an import; `selection` defaults to the stored choices of the panel."""
+        foreign = await _async_foreign_entities(self.hass, self.package_path(options))
         validate = await self.hass.async_add_executor_job(_validator)
         return build_plan(
             prepared.manifest,
             self.applied,
             domains=options.get(CONF_DOMAINS) or list(DOMAINS),
             keep_removed=options.get(CONF_REMOVED) == REMOVED_KEEP,
-            foreign_unique_ids=foreign,
+            foreign_entities=foreign,
             validate=validate,
+            selection=self.selection if selection is None else selection,
+            # first import: everything; later new entities are only offered in the panel
+            include_new="last_import" not in self.data,
         )
 
     def stored_prepared(self) -> Prepared | None:
@@ -232,10 +248,23 @@ class Importer:
 
     # ------------------------------------------------------------ applying
 
-    async def async_apply(self, prepared: Prepared, plan: ImportPlan, options: dict[str, Any], source: str) -> dict:
+    async def async_apply(
+        self,
+        prepared: Prepared,
+        plan: ImportPlan,
+        options: dict[str, Any],
+        source: str,
+        selection: dict[str, dict[str, Any]] | None = None,
+        notify: bool = True,
+    ) -> dict:
         hass = self.hass
+        known = {e["key"] for e in (self.manifest or {}).get("entities", [])}
+        selection = dict(self.selection if selection is None else selection)
+
+        # 0. definitions taken over from the own YAML: remove them there first
         registry = er.async_get(hass)
         package = self.package_path(options)
+        adopted = await self._async_adopt(plan, package, selection)
 
         # 1. keep entity_id, name, area and history when a unique_id changes (e.g. GA re-addressed)
         migrated = 0
@@ -248,7 +277,12 @@ class Importer:
 
         # 2. package file + reload of the KNX integration
         content = writer.render(plan.yaml_data(), plan.project)
-        await hass.async_add_executor_job(writer.write, package, content)
+        try:
+            await hass.async_add_executor_job(writer.write, package, content)
+        except Exception:
+            # never lose an entity that was just removed from the own YAML
+            await hass.async_add_executor_job(yamledit.restore, adopted)
+            raise
         await self._async_reload_knx()
 
         # 3. entities that are gone from the project
@@ -265,11 +299,19 @@ class Importer:
 
         await self._async_check_package_loaded(plan, package)
 
-        summary = {**plan.summary(), "migrated": migrated, "deleted": removed, "areas": areas}
+        summary = {
+            **plan.summary(),
+            "migrated": migrated,
+            "deleted": removed,
+            "areas": areas,
+            "adopted": len(adopted),
+            "backups": sorted(str(b) for b in adopted.values()),
+        }
         self.data = {
             "manifest": prepared.manifest,
             "rooms": prepared.rooms,
             "applied": plan.state(),
+            "selection": selection,
             "last_import": {
                 "time": dt_util.utcnow().isoformat(),
                 "source": source,
@@ -279,9 +321,62 @@ class Importer:
             },
         }
         await self._store.async_save(self.data)
+        self.staged = None
+        self._notify_new(plan, known if notify else None)
         async_dispatcher_send(hass, SIGNAL_IMPORTED)
         hass.bus.async_fire(EVENT_IMPORTED, {"project": plan.project, **summary})
         return summary
+
+    async def _async_adopt(self, plan: ImportPlan, package: Path, selection: dict[str, dict[str, Any]]) -> dict:
+        """Remove adopted entities from the user's YAML; returns file -> backup.
+
+        Checked with Home Assistant's own YAML loader: exactly the adopted entities
+        must be gone, otherwise the files are restored and nothing is applied.
+        """
+        entries = plan.adoptions
+        if not entries:
+            return {}
+        items = [(e.conflict_with["file"], e.conflict_with["line"]) for e in entries]
+        before = set(await _async_foreign_entities(self.hass, package))
+        try:
+            backups = await self.hass.async_add_executor_job(
+                yamledit.remove_items, Path(self.hass.config.config_dir), items
+            )
+        except (yamledit.YamlEditError, OSError) as err:
+            reason = err.reason if isinstance(err, yamledit.YamlEditError) else str(err)
+            raise KnxImportError("adopt_failed", error=reason) from err
+        gone = {(e.conflict_with["domain"], e.conflict_with["unique_id"]) for e in entries}
+        after = set(await _async_foreign_entities(self.hass, package))
+        if after != before - gone:
+            await self.hass.async_add_executor_job(yamledit.restore, backups)
+            raise KnxImportError("adopt_failed", error="verification")
+        for e in entries:
+            choice = {k: v for k, v in selection.get(e.key, {}).items() if k not in ("adopt", "existing")}
+            selection[e.key] = {**choice, "domain": e.domain, "config": e.config}
+        _LOGGER.info("Took over %s entities from the own KNX YAML, backups: %s", len(entries), backups)
+        return backups
+
+    def _notify_new(self, plan: ImportPlan, known: set[str] | None) -> None:
+        """Tell about entities that are new in the project and can be added in the panel."""
+        pending = plan.by_status(PENDING)
+        if not pending or known is None:
+            persistent_notification.async_dismiss(self.hass, NOTIFICATION_NEW)
+            return
+        new = [e for e in pending if e.key not in known]
+        if not new:
+            return
+        names = "\n".join(f"- {e.name or e.key} ({e.domain})" for e in new[:10])
+        if len(new) > 10:
+            names += f"\n- … +{len(new) - 10}"
+        if self.hass.config.language.startswith("de"):
+            title = "KNX Project Sync: neue Entities gefunden"
+            message = f"Das Projekt enthält {len(new)} neue Entities:\n\n{names}\n\n[Im Panel hinzufügen]({PANEL_URL})"
+        else:
+            title = "KNX Project Sync: new entities found"
+            message = (
+                f"The project contains {len(new)} new entities:\n\n{names}\n\n[Add them in the panel]({PANEL_URL})"
+            )
+        persistent_notification.async_create(self.hass, message, title=title, notification_id=NOTIFICATION_NEW)
 
     async def _async_reload_knx(self) -> None:
         hass = self.hass

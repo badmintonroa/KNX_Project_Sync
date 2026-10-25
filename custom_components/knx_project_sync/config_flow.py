@@ -33,7 +33,8 @@ from .importer import (
     default_options,
 )
 from .mapping.manifest import DOMAINS
-from .plan import CHANGED, CONFLICT, DUPLICATE, INVALID, KEPT, NEW, REMOVED, ImportPlan
+from .migration import async_find_legacy, async_take_over
+from .plan import CHANGED, CONFLICT, DESELECTED, DUPLICATE, EXISTING, INVALID, KEPT, NEW, PENDING, REMOVED, ImportPlan
 
 PREVIEW_LIMIT = 15
 
@@ -58,6 +59,9 @@ def preview_markdown(plan: ImportPlan) -> str:
         (CHANGED, "✏️"),
         (REMOVED, "🗑️"),
         (KEPT, "📌"),
+        (PENDING, "🆕"),
+        (DESELECTED, "🚫"),
+        (EXISTING, "🏠"),
         (CONFLICT, "⚠️"),
         (INVALID, "⛔"),
         (DUPLICATE, "♊"),
@@ -179,7 +183,7 @@ class _ImportSteps:
         )
 
 
-class Knx2HomeImporterConfigFlow(_ImportSteps, ConfigFlow, domain=DOMAIN):
+class KnxProjectSyncConfigFlow(_ImportSteps, ConfigFlow, domain=DOMAIN):
     """First import."""
 
     VERSION = 1
@@ -187,6 +191,7 @@ class Knx2HomeImporterConfigFlow(_ImportSteps, ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         self._options = default_options()
         self._importer_instance: Importer | None = None
+        self._legacy: dict[str, Any] | None = None
 
     async def _async_importer(self) -> Importer:
         if self._importer_instance is None:
@@ -197,7 +202,18 @@ class Knx2HomeImporterConfigFlow(_ImportSteps, ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if not self.hass.config_entries.async_entries(KNX_DOMAIN):
             return self.async_abort(reason="knx_not_configured")
+        if self._legacy is None:
+            self._legacy = await async_find_legacy(self.hass) or {}
+        if self._legacy:
+            return await self.async_step_legacy()
         return await self._async_source_menu()
+
+    async def async_step_legacy(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Former installation found: take over its state instead of importing anew."""
+        if user_input is None:
+            return self.async_show_form(step_id="legacy")
+        options = await async_take_over(self.hass, self._legacy)
+        return self.async_create_entry(title=self._legacy["title"] or "KNX", data={}, options=options)
 
     async def _async_finish(self, summary: dict[str, Any]) -> ConfigFlowResult:
         return self.async_create_entry(title=self._plan.project or "KNX", data={}, options=self._options)
@@ -205,10 +221,10 @@ class Knx2HomeImporterConfigFlow(_ImportSteps, ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
-        return Knx2HomeImporterOptionsFlow()
+        return KnxProjectSyncOptionsFlow()
 
 
-class Knx2HomeImporterOptionsFlow(_ImportSteps, OptionsFlow):
+class KnxProjectSyncOptionsFlow(_ImportSteps, OptionsFlow):
     """Re-import: new project file, project from the KNX panel or changed settings."""
 
     async def _async_importer(self) -> Importer:

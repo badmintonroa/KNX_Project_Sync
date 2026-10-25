@@ -5,15 +5,16 @@ from __future__ import annotations
 from pathlib import Path
 
 from homeassistant import config_entries
+from homeassistant.components.persistent_notification import _async_get_or_create_notifications
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er, issue_registry as ir
 import yaml
 
-from custom_components.knx2home_importer.const import DOMAIN
+from custom_components.knx_project_sync.const import DOMAIN
 from helpers import file_id
 
-PACKAGE = "packages/knx2home_importer.yaml"
+PACKAGE = "packages/knx_project_sync.yaml"
 
 
 async def _first_import(hass: HomeAssistant, fixture: str = "musterhaus_v1", **options):
@@ -76,7 +77,7 @@ async def test_first_import(hass: HomeAssistant, config_dir, knx_reloads, upload
     assert result["title"] == "Musterhaus"
     assert not ir.async_get(hass).async_get_issue(DOMAIN, "package_not_loaded")
 
-    state = hass.states.get("sensor.knx2home_importer_last_import")
+    state = hass.states.get("sensor.knx_project_sync_last_import")
     assert state is not None
     assert state.attributes["project"] == "Musterhaus"
     assert state.attributes["new"] == 6
@@ -100,7 +101,8 @@ async def test_reimport_keeps_entities(hass: HomeAssistant, config_dir, knx_relo
     result = await hass.config_entries.options.async_configure(result["flow_id"], {})
     assert result["step_id"] == "confirm"
     placeholders = result["description_placeholders"]
-    assert placeholders["new"] == "1"  # CO2 sensor
+    assert placeholders["new"] == "0"
+    assert placeholders["pending"] == "1"  # CO2 sensor: offered in the panel, not added
     assert placeholders["changed"] == "1"  # temperature re-addressed
     assert placeholders["removed"] == "2"  # time and date sender removed
     result = await hass.config_entries.options.async_configure(result["flow_id"], {})
@@ -114,9 +116,12 @@ async def test_reimport_keeps_entities(hass: HomeAssistant, config_dir, knx_relo
     assert registry.async_get(light.entity_id) is not None
 
     knx = _package(config_dir)
-    assert [s["state_address"] for s in knx["sensor"]] == ["3/0/2", "3/0/4", "3/1/1"]
+    assert [s["state_address"] for s in knx["sensor"]] == ["3/0/2", "3/1/1"]
     assert "time" not in knx
     assert len(knx_reloads) == 2
+
+    notification = _async_get_or_create_notifications(hass)["knx_project_sync_new_entities"]
+    assert "Wohnzimmer CO2" in notification["message"]
 
 
 async def test_keep_removed(hass: HomeAssistant, config_dir, knx_reloads, upload) -> None:
