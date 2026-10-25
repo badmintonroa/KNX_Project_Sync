@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "knx_project_sync"
-VERSION: Final = "0.2.0"
+VERSION: Final = "0.1.0-beta.1"
 
 KNX_DOMAIN: Final = "knx"
 # xknxproject output of the project uploaded in the KNX panel
@@ -35,6 +35,6 @@ ISSUE_PACKAGE_NOT_LOADED: Final = "package_not_loaded"
 ISSUE_RELOAD_FAILED: Final = "knx_reload_failed"
 ISSUE_LEGACY_ENTRY: Final = "legacy_entry"
 
-# name of this integration up to 0.1.0
+# former name of this integration (development builds before the first release)
 LEGACY_DOMAIN: Final = "knx2home_importer"
 LEGACY_PACKAGE_PATH: Final = "packages/knx2home_importer.yaml"

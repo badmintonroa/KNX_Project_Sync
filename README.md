@@ -4,6 +4,10 @@ Home-Assistant-Integration (HACS), die aus einer ETS-Projektdatei (`.knxproj`) a
 
 Die Entity-Erkennung stammt aus [knx2home](https://github.com/badmintonroa/knx2home). Die Integration enthält einen Python-Port davon, der per Tests exakt gleiche Ergebnisse liefert. Die ETS-Datei wird mit [xknxproject](https://github.com/XKNX/xknxproject) gelesen, derselben Bibliothek, die die offizielle KNX-Integration verwendet. Passwortgeschützte Projekte werden unterstützt.
 
+## Versionen
+
+Die Integration ist in der **Beta** (`0.1.0-beta.x`). Jede Version steht mit ihren Änderungen im [CHANGELOG](CHANGELOG.md) und als Release auf GitHub. Beta-Versionen sind Pre-Releases. HACS zeigt sie nur, wenn bei der Integration *Beta-Versionen anzeigen* aktiv ist (HACS → KNX Project Sync → ⋮ → *Erneut herunterladen* → Schalter *Beta-Versionen anzeigen*).
+
 ## Installation
 
 1. HACS → *Integrationen* → ⋮ → *Benutzerdefinierte Repositories* → `https://github.com/badmintonroa/Knx-has-auto-importer`, Typ *Integration*. Danach „KNX Project Sync“ installieren und HA neu starten.
@@ -16,9 +20,9 @@ Die Entity-Erkennung stammt aus [knx2home](https://github.com/badmintonroa/knx2h
 
 3. *Einstellungen → Geräte & Dienste → Integration hinzufügen → KNX Project Sync*. Voraussetzung ist eine eingerichtete KNX-Integration.
 
-### Umstieg von „KNX2HOME Importer“ (0.1.0)
+### Umstieg von „KNX2HOME Importer“
 
-Die Integration hieß bis 0.1.0 „KNX2HOME Importer“ (`knx2home_importer`). Nach dem Update in HACS „KNX Project Sync“ hinzufügen: Die bisherige Installation wird erkannt und mit allen Entities, Einstellungen und dem Import-Stand übernommen, `packages/knx2home_importer.yaml` wird zu `packages/knx_project_sync.yaml`. Danach den alten Eintrag löschen (ein Repair-Hinweis erinnert daran). entity_ids, Namen, Bereiche und Verlauf bleiben erhalten.
+Frühe Entwicklungsstände vor der ersten Beta hießen „KNX2HOME Importer“ (`knx2home_importer`). Nach dem Update in HACS „KNX Project Sync“ hinzufügen: Die bisherige Installation wird erkannt und mit allen Entities, Einstellungen und dem Import-Stand übernommen, `packages/knx2home_importer.yaml` wird zu `packages/knx_project_sync.yaml`. Danach den alten Eintrag löschen (ein Repair-Hinweis erinnert daran). entity_ids, Namen, Bereiche und Verlauf bleiben erhalten.
 
 ## Benutzung
 

@@ -1,7 +1,7 @@
 {
   "name": "knx-project-sync-panel",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.1.0-beta.1",
   "description": "Sidebar panel of the KNX Project Sync integration",
   "type": "module",
   "scripts": {

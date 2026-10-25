@@ -17,7 +17,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 import voluptuous as vol
 
-from .const import DOMAIN, KNX_DOMAIN, SOURCE_KNX_PROJECT, SOURCE_UPLOAD
+from .const import DOMAIN, KNX_DOMAIN, SOURCE_KNX_PROJECT, SOURCE_UPLOAD, VERSION
 from .importer import (
     PANEL_URL,
     Importer,
@@ -188,6 +188,7 @@ async def _async_plan_response(
     selection = importer.selection if selection is None else _clean(selection)
     base: dict[str, Any] = {
         "language": hass.config.language,
+        "version": VERSION,
         "has_knx_project": await async_has_knx_project(hass),
         "staged": importer.staged is not None,
         "last_import": importer.data.get("last_import"),

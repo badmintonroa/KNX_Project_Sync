@@ -1,4 +1,4 @@
-"""Take over an installation of the former name "KNX2HOME Importer" (knx2home_importer, 0.1.0).
+"""Take over an installation of the former name "KNX2HOME Importer" (knx2home_importer, development builds).
 
 The imported entities belong to the KNX integration and are identified by their group
 addresses, so they survive the rename as long as their package file is not loaded twice.
