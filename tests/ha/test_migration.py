@@ -1,4 +1,4 @@
-"""Take-over of an installation under the former name knx2home_importer (0.1.0)."""
+"""Take-over of an installation under the former name knx2home_importer (development builds)."""
 
 from __future__ import annotations
 

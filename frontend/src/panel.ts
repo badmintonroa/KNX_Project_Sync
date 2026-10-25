@@ -58,6 +58,7 @@ interface Row {
 
 interface PlanResult {
   project: string | null;
+  version?: string;
   staged: boolean;
   has_knx_project: boolean;
   has_changes?: boolean;
@@ -377,7 +378,10 @@ class KnxProjectSyncPanel extends LitElement {
     return html`<section class="project">
       <div class="eyebrow">${t.eyebrow}</div>
       <h2>${data?.project ?? "–"}</h2>
-      <div class="sub">${time ? t.lastImportLine(time, t.sources[last!.source] ?? last!.source) : t.neverImported}</div>
+      <div class="sub">
+        ${time ? t.lastImportLine(time, t.sources[last!.source] ?? last!.source) : t.neverImported}
+        ${data?.version ? html` · <span title="KNX Project Sync">v${data.version}</span>` : nothing}
+      </div>
     </section>`;
   }
 

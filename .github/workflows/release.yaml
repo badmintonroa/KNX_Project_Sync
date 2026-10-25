@@ -1,0 +1,44 @@
+---
+name: Release
+
+# A new version in manifest.json on main becomes tag v<version> and a GitHub
+# release (a pre-release for -alpha/-beta/-rc), with its CHANGELOG section as text.
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches: [main]
+    paths: [custom_components/knx_project_sync/manifest.json]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: tag and release
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v6.1.0
+      - name: 🔍 Version and changelog
+        id: version
+        run: |
+          version=$(jq -r .version custom_components/knx_project_sync/manifest.json)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          # section "## <version>" up to the next "## "
+          awk -v v="## $version" '$0 == v {on=1; next} /^## / {on=0} on' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then echo "CHANGELOG.md has no section for $version" >&2; exit 1; fi
+          case "$version" in *-*) echo "prerelease=--prerelease" >> "$GITHUB_OUTPUT" ;; *) echo "prerelease=" >> "$GITHUB_OUTPUT" ;; esac
+      - name: 🚀 Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          if gh release view "v$VERSION" > /dev/null 2>&1; then
+            echo "v$VERSION exists already"
+            exit 0
+          fi
+          # shellcheck disable=SC2086
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --notes-file notes.md $PRERELEASE
