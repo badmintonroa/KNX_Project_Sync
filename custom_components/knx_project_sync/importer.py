@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from homeassistant.components import persistent_notification
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import area_registry as ar, entity_registry as er, issue_registry as ir
@@ -36,11 +37,13 @@ from .const import (
 from .mapping import build_ha_entities, build_manifest, catalog_from_xknxproject
 from .mapping.catalog import Catalog
 from .mapping.manifest import DOMAINS
-from .plan import ImportPlan, build_plan
+from .plan import PENDING, ImportPlan, build_plan
 
 _LOGGER = logging.getLogger(__name__)
 
 STORAGE_VERSION = 1
+NOTIFICATION_NEW = f"{DOMAIN}_new_entities"
+PANEL_URL = "/knx-project-sync"
 GENERATOR = {"name": DOMAIN, "version": VERSION}
 
 
@@ -198,6 +201,8 @@ class Importer:
         self.hass = hass
         self._store = Store[dict](hass, STORAGE_VERSION, DOMAIN)
         self.data: dict[str, Any] = {}
+        # project loaded in the panel, not applied yet
+        self.staged: tuple[Prepared, str] | None = None
 
     async def async_load(self) -> None:
         self.data = await self._store.async_load() or {}
@@ -210,10 +215,18 @@ class Importer:
     def applied(self) -> dict[str, dict[str, Any]]:
         return self.data.get("applied", {})
 
+    @property
+    def selection(self) -> dict[str, dict[str, Any]]:
+        """Choices made in the panel per entity key: enabled, domain, name."""
+        return self.data.get("selection", {})
+
     def package_path(self, options: dict[str, Any]) -> Path:
         return Path(self.hass.config.path(options.get(CONF_PACKAGE_PATH) or DEFAULT_PACKAGE_PATH))
 
-    async def async_plan(self, prepared: Prepared, options: dict[str, Any]) -> ImportPlan:
+    async def async_plan(
+        self, prepared: Prepared, options: dict[str, Any], selection: dict[str, dict[str, Any]] | None = None
+    ) -> ImportPlan:
+        """Plan an import; `selection` defaults to the stored choices of the panel."""
         foreign = await _async_foreign_unique_ids(self.hass, self.package_path(options))
         validate = await self.hass.async_add_executor_job(_validator)
         return build_plan(
@@ -223,6 +236,9 @@ class Importer:
             keep_removed=options.get(CONF_REMOVED) == REMOVED_KEEP,
             foreign_unique_ids=foreign,
             validate=validate,
+            selection=self.selection if selection is None else selection,
+            # first import: everything; later new entities are only offered in the panel
+            include_new="last_import" not in self.data,
         )
 
     def stored_prepared(self) -> Prepared | None:
@@ -232,8 +248,17 @@ class Importer:
 
     # ------------------------------------------------------------ applying
 
-    async def async_apply(self, prepared: Prepared, plan: ImportPlan, options: dict[str, Any], source: str) -> dict:
+    async def async_apply(
+        self,
+        prepared: Prepared,
+        plan: ImportPlan,
+        options: dict[str, Any],
+        source: str,
+        selection: dict[str, dict[str, Any]] | None = None,
+        notify: bool = True,
+    ) -> dict:
         hass = self.hass
+        known = {e["key"] for e in (self.manifest or {}).get("entities", [])}
         registry = er.async_get(hass)
         package = self.package_path(options)
 
@@ -270,6 +295,7 @@ class Importer:
             "manifest": prepared.manifest,
             "rooms": prepared.rooms,
             "applied": plan.state(),
+            "selection": self.selection if selection is None else selection,
             "last_import": {
                 "time": dt_util.utcnow().isoformat(),
                 "source": source,
@@ -279,9 +305,33 @@ class Importer:
             },
         }
         await self._store.async_save(self.data)
+        self.staged = None
+        self._notify_new(plan, known if notify else None)
         async_dispatcher_send(hass, SIGNAL_IMPORTED)
         hass.bus.async_fire(EVENT_IMPORTED, {"project": plan.project, **summary})
         return summary
+
+    def _notify_new(self, plan: ImportPlan, known: set[str] | None) -> None:
+        """Tell about entities that are new in the project and can be added in the panel."""
+        pending = plan.by_status(PENDING)
+        if not pending or known is None:
+            persistent_notification.async_dismiss(self.hass, NOTIFICATION_NEW)
+            return
+        new = [e for e in pending if e.key not in known]
+        if not new:
+            return
+        names = "\n".join(f"- {e.name or e.key} ({e.domain})" for e in new[:10])
+        if len(new) > 10:
+            names += f"\n- … +{len(new) - 10}"
+        if self.hass.config.language.startswith("de"):
+            title = "KNX Project Sync: neue Entities gefunden"
+            message = f"Das Projekt enthält {len(new)} neue Entities:\n\n{names}\n\n[Im Panel hinzufügen]({PANEL_URL})"
+        else:
+            title = "KNX Project Sync: new entities found"
+            message = (
+                f"The project contains {len(new)} new entities:\n\n{names}\n\n[Add them in the panel]({PANEL_URL})"
+            )
+        persistent_notification.async_create(self.hass, message, title=title, notification_id=NOTIFICATION_NEW)
 
     async def _async_reload_knx(self) -> None:
         hass = self.hass

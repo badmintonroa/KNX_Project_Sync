@@ -34,7 +34,7 @@ from .importer import (
 )
 from .mapping.manifest import DOMAINS
 from .migration import async_find_legacy, async_take_over
-from .plan import CHANGED, CONFLICT, DUPLICATE, INVALID, KEPT, NEW, REMOVED, ImportPlan
+from .plan import CHANGED, CONFLICT, DESELECTED, DUPLICATE, INVALID, KEPT, NEW, PENDING, REMOVED, ImportPlan
 
 PREVIEW_LIMIT = 15
 
@@ -59,6 +59,8 @@ def preview_markdown(plan: ImportPlan) -> str:
         (CHANGED, "✏️"),
         (REMOVED, "🗑️"),
         (KEPT, "📌"),
+        (PENDING, "🆕"),
+        (DESELECTED, "🚫"),
         (CONFLICT, "⚠️"),
         (INVALID, "⛔"),
         (DUPLICATE, "♊"),

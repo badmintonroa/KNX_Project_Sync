@@ -1,0 +1,852 @@
+{
+ "language": "de",
+ "project": "Heuristik",
+ "staged": true,
+ "has_knx_project": true,
+ "has_changes": true,
+ "last_import": {
+  "time": "2026-10-25T10:00:00+00:00",
+  "project": "Heuristik",
+  "source": "upload"
+ },
+ "stored_selection": {
+  "binary_sensor:GA-36": {
+   "enabled": false
+  },
+  "light:GA-1": {
+   "name": "Umbenannt"
+  }
+ },
+ "domains": [
+  "switch",
+  "binary_sensor",
+  "light",
+  "sensor",
+  "time",
+  "date",
+  "datetime",
+  "cover",
+  "scene",
+  "climate",
+  "weather"
+ ],
+ "entities": [
+  {
+   "key": "switch:GA-1",
+   "status": "duplicate",
+   "reason": "light",
+   "domain": "switch",
+   "detected_domain": "switch",
+   "domains": [
+    "switch",
+    "light"
+   ],
+   "name": "Küche Spots",
+   "ets_name": "Küche Spots",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "1/1/10"
+    },
+    {
+     "field": "state_address",
+     "address": "1/5/10"
+    }
+   ],
+   "room": null,
+   "in_project": true,
+   "entity_id": null,
+   "previous_domain": null,
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "switch:GA-6",
+   "status": "duplicate",
+   "reason": "light",
+   "domain": "switch",
+   "detected_domain": "switch",
+   "domains": [
+    "switch",
+    "light"
+   ],
+   "name": "LA12 Flur",
+   "ets_name": "LA12 Flur",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "1/1/20"
+    }
+   ],
+   "room": "Küche",
+   "in_project": true,
+   "entity_id": null,
+   "previous_domain": null,
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "switch:GA-9",
+   "status": "duplicate",
+   "reason": "light",
+   "domain": "switch",
+   "detected_domain": "switch",
+   "domains": [
+    "switch",
+    "light"
+   ],
+   "name": "Bad Spiegel s",
+   "ets_name": "Bad Spiegel s",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "7/0/1"
+    }
+   ],
+   "room": "Bad",
+   "in_project": true,
+   "entity_id": null,
+   "previous_domain": null,
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "switch:GA-18",
+   "status": "pending",
+   "reason": null,
+   "domain": "switch",
+   "detected_domain": "switch",
+   "domains": [
+    "switch",
+    "light"
+   ],
+   "name": "Fenster Kontakt",
+   "ets_name": "Fenster Kontakt",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "9/0/1"
+    }
+   ],
+   "room": "Flur",
+   "in_project": true,
+   "entity_id": null,
+   "previous_domain": null,
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "switch:GA-26",
+   "status": "pending",
+   "reason": null,
+   "domain": "switch",
+   "detected_domain": "switch",
+   "domains": [
+    "switch",
+    "light"
+   ],
+   "name": "Lüftung [switch]",
+   "ets_name": "Lüftung [switch]",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "9/1/1"
+    }
+   ],
+   "room": "Wohnzimmer",
+   "in_project": true,
+   "entity_id": null,
+   "previous_domain": null,
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "switch:GA-43",
+   "status": "pending",
+   "reason": null,
+   "domain": "switch",
+   "detected_domain": "switch",
+   "domains": [
+    "switch",
+    "light"
+   ],
+   "name": "Terrasse Steckdose",
+   "ets_name": "Terrasse Steckdose",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "12/0/1"
+    },
+    {
+     "field": "state_address",
+     "address": "12/0/2"
+    }
+   ],
+   "room": null,
+   "in_project": true,
+   "entity_id": null,
+   "previous_domain": null,
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "binary_sensor:GA-19",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "binary_sensor",
+   "detected_domain": "binary_sensor",
+   "domains": [
+    "binary_sensor"
+   ],
+   "name": "Alarm Status",
+   "ets_name": "Alarm Status",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "9/0/2"
+    }
+   ],
+   "room": "Bad",
+   "in_project": true,
+   "entity_id": "binary_sensor.entity_6",
+   "previous_domain": "binary_sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "binary_sensor:GA-36",
+   "status": "deselected",
+   "reason": null,
+   "domain": "binary_sensor",
+   "detected_domain": "binary_sensor",
+   "domains": [
+    "binary_sensor"
+   ],
+   "name": "Heizen Kühlen Status",
+   "ets_name": "Heizen Kühlen Status",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "10/0/8"
+    }
+   ],
+   "room": "Flur",
+   "in_project": true,
+   "entity_id": "binary_sensor.entity_7",
+   "previous_domain": "binary_sensor",
+   "selection": {
+    "enabled": false
+   },
+   "suggest_light": false
+  },
+  {
+   "key": "binary_sensor:GA-41",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "binary_sensor",
+   "detected_domain": "binary_sensor",
+   "domains": [
+    "binary_sensor"
+   ],
+   "name": "Regenalarm",
+   "ets_name": "Regenalarm",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "11/0/5"
+    }
+   ],
+   "room": "Wohnzimmer",
+   "in_project": true,
+   "entity_id": "binary_sensor.entity_8",
+   "previous_domain": "binary_sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "light:GA-1",
+   "status": "changed",
+   "reason": null,
+   "domain": "light",
+   "detected_domain": "light",
+   "domains": [
+    "light"
+   ],
+   "name": "Umbenannt",
+   "ets_name": "Küche Spots",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "1/1/10"
+    },
+    {
+     "field": "state_address",
+     "address": "1/5/10"
+    },
+    {
+     "field": "brightness_address",
+     "address": "1/3/10"
+    },
+    {
+     "field": "brightness_state_address",
+     "address": "1/4/10"
+    }
+   ],
+   "room": "Küche",
+   "in_project": true,
+   "entity_id": "light.entity_9",
+   "previous_domain": "light",
+   "selection": {
+    "name": "Umbenannt"
+   },
+   "suggest_light": false
+  },
+  {
+   "key": "light:GA-6",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "light",
+   "detected_domain": "light",
+   "domains": [
+    "light"
+   ],
+   "name": "LA12 Flur",
+   "ets_name": "LA12 Flur",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "1/1/20"
+    },
+    {
+     "field": "brightness_address",
+     "address": "1/3/20"
+    }
+   ],
+   "room": null,
+   "in_project": true,
+   "entity_id": "light.entity_10",
+   "previous_domain": "light",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "light:GA-9",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "light",
+   "detected_domain": "light",
+   "domains": [
+    "light"
+   ],
+   "name": "Bad Spiegel",
+   "ets_name": "Bad Spiegel",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "7/0/1"
+    },
+    {
+     "field": "state_address",
+     "address": "7/0/4"
+    },
+    {
+     "field": "brightness_address",
+     "address": "7/0/3"
+    }
+   ],
+   "room": "Flur",
+   "in_project": true,
+   "entity_id": "light.entity_11",
+   "previous_domain": "light",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "sensor:GA-22",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "sensor",
+   "detected_domain": "sensor",
+   "domains": [
+    "sensor"
+   ],
+   "name": "Zähler",
+   "ets_name": "Zähler",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "9/0/5"
+    }
+   ],
+   "room": "Wohnzimmer",
+   "in_project": true,
+   "entity_id": "sensor.entity_12",
+   "previous_domain": "sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "sensor:GA-23",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "sensor",
+   "detected_domain": "sensor",
+   "domains": [
+    "sensor"
+   ],
+   "name": "Meldung Text",
+   "ets_name": "Meldung Text",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "9/0/6"
+    }
+   ],
+   "room": "Küche",
+   "in_project": true,
+   "entity_id": "sensor.entity_13",
+   "previous_domain": "sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "sensor:GA-28",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "sensor",
+   "detected_domain": "sensor",
+   "domains": [
+    "sensor"
+   ],
+   "name": "Wind Geschwindigkeit km/h",
+   "ets_name": "Wind Geschwindigkeit km/h",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "9/1/3"
+    }
+   ],
+   "room": "Bad",
+   "in_project": true,
+   "entity_id": "sensor.entity_14",
+   "previous_domain": "sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "sensor:GA-29",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "sensor",
+   "detected_domain": "sensor",
+   "domains": [
+    "sensor"
+   ],
+   "name": "Bad Temperatur Ist",
+   "ets_name": "Bad Temperatur Ist",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "10/0/1"
+    }
+   ],
+   "room": null,
+   "in_project": true,
+   "entity_id": "sensor.entity_15",
+   "previous_domain": "sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "sensor:GA-37",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "sensor",
+   "detected_domain": "sensor",
+   "domains": [
+    "sensor"
+   ],
+   "name": "Außentemperatur",
+   "ets_name": "Außentemperatur",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "11/0/1"
+    }
+   ],
+   "room": "Wohnzimmer",
+   "in_project": true,
+   "entity_id": "sensor.entity_16",
+   "previous_domain": "sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "sensor:GA-38",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "sensor",
+   "detected_domain": "sensor",
+   "domains": [
+    "sensor"
+   ],
+   "name": "Windgeschwindigkeit",
+   "ets_name": "Windgeschwindigkeit",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "11/0/2"
+    }
+   ],
+   "room": "Küche",
+   "in_project": true,
+   "entity_id": "sensor.entity_17",
+   "previous_domain": "sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "sensor:GA-39",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "sensor",
+   "detected_domain": "sensor",
+   "domains": [
+    "sensor"
+   ],
+   "name": "Helligkeit Süd",
+   "ets_name": "Helligkeit Süd",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "11/0/3"
+    }
+   ],
+   "room": "Bad",
+   "in_project": true,
+   "entity_id": "sensor.entity_18",
+   "previous_domain": "sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "sensor:GA-40",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "sensor",
+   "detected_domain": "sensor",
+   "domains": [
+    "sensor"
+   ],
+   "name": "Helligkeit Ost",
+   "ets_name": "Helligkeit Ost",
+   "addresses": [
+    {
+     "field": "state_address",
+     "address": "11/0/4"
+    }
+   ],
+   "room": "Flur",
+   "in_project": true,
+   "entity_id": "sensor.entity_19",
+   "previous_domain": "sensor",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "datetime:GA-20",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "datetime",
+   "detected_domain": "datetime",
+   "domains": [
+    "datetime"
+   ],
+   "name": "Zeitstempel",
+   "ets_name": "Zeitstempel",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "9/0/3"
+    },
+    {
+     "field": "state_address",
+     "address": "9/0/3"
+    }
+   ],
+   "room": null,
+   "in_project": true,
+   "entity_id": "datetime.entity_20",
+   "previous_domain": "datetime",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "cover:GA-13",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "cover",
+   "detected_domain": "cover",
+   "domains": [
+    "cover"
+   ],
+   "name": "Schlafzimmer Rollladen",
+   "ets_name": "Schlafzimmer Rollladen",
+   "addresses": [
+    {
+     "field": "move_long_address",
+     "address": "8/0/1"
+    },
+    {
+     "field": "stop_address",
+     "address": "8/0/2"
+    },
+    {
+     "field": "position_address",
+     "address": "8/0/3"
+    },
+    {
+     "field": "position_state_address",
+     "address": "8/0/4"
+    }
+   ],
+   "room": "Küche",
+   "in_project": true,
+   "entity_id": "cover.entity_21",
+   "previous_domain": "cover",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "cover:GA-17",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "cover",
+   "detected_domain": "cover",
+   "domains": [
+    "cover"
+   ],
+   "name": "Markise Auf/Ab invert",
+   "ets_name": "Markise Auf/Ab invert",
+   "addresses": [
+    {
+     "field": "move_long_address",
+     "address": "8/1/1"
+    }
+   ],
+   "room": "Bad",
+   "in_project": true,
+   "entity_id": "cover.entity_22",
+   "previous_domain": "cover",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "cover:GA-45",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "cover",
+   "detected_domain": "cover",
+   "domains": [
+    "cover"
+   ],
+   "name": "Wohnzimmer Rollos",
+   "ets_name": "Wohnzimmer Rollos",
+   "addresses": [
+    {
+     "field": "move_long_address",
+     "address": "13/0/1"
+    },
+    {
+     "field": "position_address",
+     "address": "13/0/2"
+    }
+   ],
+   "room": "Flur",
+   "in_project": true,
+   "entity_id": "cover.entity_23",
+   "previous_domain": "cover",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "scene:GA-25",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "scene",
+   "detected_domain": "scene",
+   "domains": [
+    "scene"
+   ],
+   "name": "Zentral 3",
+   "ets_name": "Zentral 3",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "0/1/3"
+    }
+   ],
+   "room": "Wohnzimmer",
+   "in_project": true,
+   "entity_id": "scene.entity_24",
+   "previous_domain": "scene",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "scene:GA-24",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "scene",
+   "detected_domain": "scene",
+   "domains": [
+    "scene"
+   ],
+   "name": "Szene 5 Abend",
+   "ets_name": "Szene 5 Abend",
+   "addresses": [
+    {
+     "field": "address",
+     "address": "9/0/7"
+    }
+   ],
+   "room": null,
+   "in_project": true,
+   "entity_id": "scene.entity_25",
+   "previous_domain": "scene",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "climate:GA-29",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "climate",
+   "detected_domain": "climate",
+   "domains": [
+    "climate"
+   ],
+   "name": "Bad",
+   "ets_name": "Bad",
+   "addresses": [
+    {
+     "field": "temperature_address",
+     "address": "10/0/1"
+    },
+    {
+     "field": "target_temperature_state_address",
+     "address": "10/0/2"
+    },
+    {
+     "field": "setpoint_shift_address",
+     "address": "10/0/3"
+    },
+    {
+     "field": "setpoint_shift_state_address",
+     "address": "10/0/4"
+    },
+    {
+     "field": "operation_mode_address",
+     "address": "10/0/5"
+    },
+    {
+     "field": "operation_mode_state_address",
+     "address": "10/0/6"
+    },
+    {
+     "field": "command_value_state_address",
+     "address": "10/0/7"
+    },
+    {
+     "field": "heat_cool_state_address",
+     "address": "10/0/8"
+    }
+   ],
+   "room": "Bad",
+   "in_project": true,
+   "entity_id": "climate.entity_26",
+   "previous_domain": "climate",
+   "selection": {},
+   "suggest_light": false
+  },
+  {
+   "key": "weather:GA-37",
+   "status": "unchanged",
+   "reason": null,
+   "domain": "weather",
+   "detected_domain": "weather",
+   "domains": [
+    "weather"
+   ],
+   "name": "Wetterstation",
+   "ets_name": "Wetterstation",
+   "addresses": [
+    {
+     "field": "address_temperature",
+     "address": "11/0/1"
+    },
+    {
+     "field": "address_brightness_south",
+     "address": "11/0/3"
+    },
+    {
+     "field": "address_brightness_east",
+     "address": "11/0/4"
+    },
+    {
+     "field": "address_wind_speed",
+     "address": "11/0/2"
+    },
+    {
+     "field": "address_rain_alarm",
+     "address": "11/0/5"
+    },
+    {
+     "field": "address_day_night",
+     "address": "11/0/6"
+    }
+   ],
+   "room": "Flur",
+   "in_project": true,
+   "entity_id": "weather.entity_27",
+   "previous_domain": "weather",
+   "selection": {},
+   "suggest_light": false
+  }
+ ],
+ "unmapped": [
+  {
+   "address": "1/1/30",
+   "ga_id": "GA-8",
+   "name": "Licht ohne DPT",
+   "dpt": null
+  },
+  {
+   "address": "9/0/4",
+   "ga_id": "GA-21",
+   "name": "Leistung Wärmepumpe",
+   "dpt": "14.056"
+  },
+  {
+   "address": "11/0/6",
+   "ga_id": "GA-42",
+   "name": "Tag/Nacht",
+   "dpt": "1.024"
+  }
+ ],
+ "summary": {
+  "new": 0,
+  "changed": 1,
+  "unchanged": 20,
+  "kept": 0,
+  "removed": 0,
+  "pending": 3,
+  "deselected": 1,
+  "excluded": 0,
+  "duplicate": 3,
+  "invalid": 0,
+  "conflict": 0,
+  "unmapped": 3
+ },
+ "removed_unique_ids": 1
+}

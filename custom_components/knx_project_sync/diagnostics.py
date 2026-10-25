@@ -15,5 +15,6 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: KnxProj
         "options": dict(entry.options),
         "last_import": importer.data.get("last_import"),
         "applied": importer.applied,
+        "selection": importer.selection,
         "manifest": importer.manifest,
     }

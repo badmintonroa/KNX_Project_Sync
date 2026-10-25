@@ -1,9 +1,20 @@
 {
   "domain": "knx_project_sync",
   "name": "KNX Project Sync",
-  "codeowners": ["@badmintonroa"],
+  "after_dependencies": [
+    "frontend",
+    "panel_custom"
+  ],
+  "codeowners": [
+    "@badmintonroa"
+  ],
   "config_flow": true,
-  "dependencies": ["file_upload", "knx"],
+  "dependencies": [
+    "file_upload",
+    "http",
+    "knx",
+    "websocket_api"
+  ],
   "documentation": "https://github.com/badmintonroa/Knx-has-auto-importer",
   "integration_type": "service",
   "iot_class": "calculated",

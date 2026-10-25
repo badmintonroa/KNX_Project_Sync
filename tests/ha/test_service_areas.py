@@ -68,7 +68,7 @@ async def test_service_dry_run_and_import(
     response = await hass.services.async_call(
         DOMAIN, "import_project", {"file": "projekt.knxproj", "dry_run": True}, blocking=True, return_response=True
     )
-    assert response["summary"]["new"] == 1
+    assert response["summary"]["pending"] == 1
     assert {e["key"]: e["status"] for e in response["entities"]}["sensor:GA-12"] == "changed"
     assert len(knx_reloads) == 1
 
@@ -78,7 +78,7 @@ async def test_service_dry_run_and_import(
     assert response["summary"]["removed"] == 2
     assert len(knx_reloads) == 2
     package = yaml.safe_load((config_dir / "packages/knx_project_sync.yaml").read_text(encoding="utf-8"))
-    assert {"name": "Wohnzimmer CO2", "state_address": "3/0/4", "type": "ppm"} in package["knx"]["sensor"]
+    assert [s["state_address"] for s in package["knx"]["sensor"]] == ["3/0/2", "3/1/1"]
 
     with pytest.raises(ServiceValidationError):
         await hass.services.async_call(DOMAIN, "import_project", {"file": "fehlt.knxproj"}, blocking=True)
@@ -86,7 +86,8 @@ async def test_service_dry_run_and_import(
     entry = hass.config_entries.async_entries(DOMAIN)[0]
     diagnostics = await get_diagnostics_for_config_entry(hass, hass_client, entry)
     assert diagnostics["last_import"]["project"] == "Musterhaus"
-    assert "sensor:GA-19" in diagnostics["applied"]
+    assert "sensor:GA-12" in diagnostics["applied"]
+    assert "sensor:GA-19" not in diagnostics["applied"]
 
 
 async def test_service_requires_setup(hass: HomeAssistant, config_dir, knx_reloads, upload) -> None:

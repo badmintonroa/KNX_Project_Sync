@@ -22,6 +22,7 @@ from .importer import (
     default_options,
 )
 from .migration import async_update_legacy_issue
+from .websocket import async_register_commands, async_register_panel, async_unregister_panel
 
 PLATFORMS = [Platform.SENSOR]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -39,6 +40,8 @@ SERVICE_SCHEMA = vol.Schema(
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    async_register_commands(hass)
+
     async def import_project(call: ServiceCall) -> ServiceResponse:
         entries = hass.config_entries.async_loaded_entries(DOMAIN)
         if not entries:
@@ -93,10 +96,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: KnxProjectSyncConfigEntr
 
     entry.async_on_unload(async_dispatcher_connect(hass, SIGNAL_CONFIG_ENTRY_CHANGED, legacy_changed))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await async_register_panel(hass)
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: KnxProjectSyncConfigEntry) -> bool:
+    async_unregister_panel(hass)
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 

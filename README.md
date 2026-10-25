@@ -22,8 +22,9 @@ Die Integration hieß bis 0.1.0 „KNX2HOME Importer“ (`knx2home_importer`). N
 
 ## Benutzung
 
-- **Erster Import:** `.knxproj` hochladen (oder das schon im KNX-Panel hochgeladene Projekt wählen), Entity-Typen wählen, Vorschau prüfen, absenden. Die Entities landen in `packages/knx_project_sync.yaml`, und KNX wird neu geladen.
-- **Update:** Bei der Integration auf *Konfigurieren* klicken und die neue Datei hochladen. Die Vorschau zeigt neue, geänderte, entfernte und übersprungene Entities.
+- **Erster Import:** `.knxproj` hochladen (oder das schon im KNX-Panel hochgeladene Projekt wählen), Entity-Typen wählen, Vorschau prüfen, absenden. Alle erkannten Entities landen in `packages/knx_project_sync.yaml`, und KNX wird neu geladen.
+- **Panel „KNX Project Sync“ (Seitenleiste, nur Admins):** Liste aller erkannten Entities, gruppiert nach ETS-Raum oder Typ, mit Suche und Filtern. Pro Entity: anlegen ja/nein, umbenennen, Schalter ↔ Licht umstellen (bei Schaltern mit „Licht“, „Lampe“ usw. im Namen schlägt das Panel *Als Licht?* vor). Änderungen sind ein Entwurf, bis du auf *Übernehmen* klickst.
+- **Update:** Im Panel eine neue Projektdatei hochladen oder das Projekt aus dem KNX-Panel einlesen (alternativ bei der Integration *Konfigurieren*). Geänderte und entfernte Entities werden nachgezogen. **Neue Entities werden nicht automatisch angelegt**, sondern erscheinen als „Neu verfügbar“, und eine Benachrichtigung weist darauf hin.
 - **Eigene KNX-YAML:** Entities, die du schon von Hand angelegt hast (gleiche Gruppenadresse), werden erkannt und nicht doppelt angelegt.
 - **Automatisierbar:** Service `knx_project_sync.import_project` (mit `dry_run`).
 
@@ -41,6 +42,7 @@ Details: [docs/import.md](docs/import.md)
 | 5 | Update: Diff-Vorschau, unique_id-Migration, Löschen/Behalten, Service | ✅ |
 | 6 | Diagnose, Sensor „Letzter Import“, ETS-Räume → Bereiche, Repair-Hinweise | ✅ |
 | 7 | CI: pytest, ruff, hassfest, HACS-Validierung, knx2home-Golden-Check | ✅ |
+| 8 | Panel: Auswahl, Umbenennen, Schalter ↔ Licht, neue Entities nur vorschlagen | ✅ |
 
 ## Aufbau
 
@@ -51,10 +53,14 @@ custom_components/knx_project_sync/
   importer.py       Parsen, Planen, Anwenden (YAML, Reload, Registry, Bereiche)
   writer.py         Paket-Datei, unique_ids aus YAML
   config_flow.py    Einrichtung und erneuter Import
+  websocket.py      API und Registrierung des Panels
+  frontend/         gebündeltes Panel (Quelltext in /frontend)
+  migration.py      Übernahme einer Installation als „KNX2HOME Importer“
   sensor.py, diagnostics.py, services.yaml, strings.json, translations/
 schema/             JSON-Schema des Manifests
 docs/               Spike, Manifest, Port-Notizen, Import
 tests/              pytest (Port, Plan, HA-Integration), Fixtures + Golden-Files
+frontend/           Panel (Lit, TypeScript): npm run build / check / test
 tools/              Fixture-Generator, knx2home-Referenzgenerator, xknxproject-Vergleich
 ```
 

@@ -42,8 +42,24 @@
 | `invalid` | vom KNX-YAML-Schema der installierten HA-Version abgelehnt (z. B. Szene ohne Nummer) | – |
 | `duplicate` | GA schon von einer anderen Entity belegt (knx2home erzeugt z. B. Licht *und* Schalter auf derselben GA, dann gewinnt das Licht) | – |
 | `excluded` | Entity-Typ in den Einstellungen abgewählt | – |
+| `pending` | neu im Projekt (ab dem zweiten Import), wird nur im Panel angeboten | – |
+| `deselected` | im Panel abgewählt. War die Entity schon angelegt, wird sie gelöscht (unabhängig von „Behalten“) | – |
 
 Entities, die im KNX-Panel per UI angelegt wurden, haben zufällige unique_ids und werden nicht als Konflikt erkannt. Bitte nicht dieselben GAs zusätzlich über das KNX-UI anlegen.
+
+## Panel
+
+Das Panel *KNX Project Sync* in der Seitenleiste zeigt alle erkannten Entities mit ihrem Status. Die Auswahl wird pro stabilem Schlüssel (`switch:GA-1`) gespeichert und übersteht damit Umbenennen und Umadressieren in der ETS:
+
+| Wahl | Wirkung |
+|---|---|
+| anlegen ja/nein | `deselected` bzw. wieder angelegt. Neue Entities ohne Entscheidung sind `pending`. |
+| Name | Standardname in der YAML. Ein in HA vergebener Name hat weiter Vorrang. |
+| Typ Schalter ↔ Licht | Nur für reine Ein/Aus-Entities (`address`, `state_address`). Schalter-Optionen wie `respond_to_read` entfallen. Die Entity bekommt eine neue entity_id (`switch.…` → `light.…`), die alte wird gelöscht. |
+
+Alle Änderungen sind ein Entwurf. Erst *Übernehmen* schreibt die Paket-Datei und lädt KNX neu. Eine im Panel geladene Projektversion (Upload oder KNX-Panel) wird ebenfalls erst damit angewendet.
+
+**Neue Entities** aus einem geänderten Projekt werden nicht angelegt, egal ob das Projekt über das Panel, den *Konfigurieren*-Dialog oder den Service kommt. Stattdessen erscheint eine Benachrichtigung mit Link ins Panel. Nur der allererste Import legt alles an.
 
 ## Was erhalten bleibt
 

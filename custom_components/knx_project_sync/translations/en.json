@@ -36,7 +36,7 @@
       },
       "confirm": {
         "title": "Preview: {project}",
-        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
+        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\n🆕 **{pending}** newly available (add them in the *KNX Project Sync* panel) · 🚫 {deselected} deselected in the panel\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
       },
       "legacy": {
         "title": "Take over previous installation",
@@ -91,7 +91,7 @@
       },
       "confirm": {
         "title": "Preview: {project}",
-        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
+        "description": "➕ New: **{new}** · ✏️ Changed: **{changed}** · ✅ Unchanged: **{unchanged}** · 🗑️ Removed: **{removed}** · 📌 Kept: **{kept}**\n\n🆕 **{pending}** newly available (add them in the *KNX Project Sync* panel) · 🚫 {deselected} deselected in the panel\n\nNot created: {conflict} already in own KNX YAML, {invalid} invalid, {duplicate} duplicate, {excluded} deselected, {unmapped} without entity type.\n\n{details}\n\n**Submit** writes the package file and reloads KNX."
       }
     },
     "error": {

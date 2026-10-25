@@ -36,7 +36,7 @@
       },
       "confirm": {
         "title": "Vorschau: {project}",
-        "description": "➕ Neu: **{new}** · ✏️ Geändert: **{changed}** · ✅ Unverändert: **{unchanged}** · 🗑️ Entfernt: **{removed}** · 📌 Behalten: **{kept}**\n\nNicht angelegt: {conflict} schon in eigener KNX-YAML, {invalid} ungültig, {duplicate} doppelt, {excluded} abgewählt, {unmapped} ohne Entity-Typ.\n\n{details}\n\nMit **Absenden** wird die Paket-Datei geschrieben und KNX neu geladen."
+        "description": "➕ Neu: **{new}** · ✏️ Geändert: **{changed}** · ✅ Unverändert: **{unchanged}** · 🗑️ Entfernt: **{removed}** · 📌 Behalten: **{kept}**\n\n🆕 **{pending}** neu verfügbar (im Panel *KNX Project Sync* hinzufügen) · 🚫 {deselected} im Panel abgewählt\n\nNicht angelegt: {conflict} schon in eigener KNX-YAML, {invalid} ungültig, {duplicate} doppelt, {excluded} abgewählt, {unmapped} ohne Entity-Typ.\n\n{details}\n\nMit **Absenden** wird die Paket-Datei geschrieben und KNX neu geladen."
       },
       "legacy": {
         "title": "Bisherige Installation übernehmen",
@@ -91,7 +91,7 @@
       },
       "confirm": {
         "title": "Vorschau: {project}",
-        "description": "➕ Neu: **{new}** · ✏️ Geändert: **{changed}** · ✅ Unverändert: **{unchanged}** · 🗑️ Entfernt: **{removed}** · 📌 Behalten: **{kept}**\n\nNicht angelegt: {conflict} schon in eigener KNX-YAML, {invalid} ungültig, {duplicate} doppelt, {excluded} abgewählt, {unmapped} ohne Entity-Typ.\n\n{details}\n\nMit **Absenden** wird die Paket-Datei geschrieben und KNX neu geladen."
+        "description": "➕ Neu: **{new}** · ✏️ Geändert: **{changed}** · ✅ Unverändert: **{unchanged}** · 🗑️ Entfernt: **{removed}** · 📌 Behalten: **{kept}**\n\n🆕 **{pending}** neu verfügbar (im Panel *KNX Project Sync* hinzufügen) · 🚫 {deselected} im Panel abgewählt\n\nNicht angelegt: {conflict} schon in eigener KNX-YAML, {invalid} ungültig, {duplicate} doppelt, {excluded} abgewählt, {unmapped} ohne Entity-Typ.\n\n{details}\n\nMit **Absenden** wird die Paket-Datei geschrieben und KNX neu geladen."
       }
     },
     "error": {
