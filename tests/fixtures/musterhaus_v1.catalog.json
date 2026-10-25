@@ -1,0 +1,391 @@
+{
+  "project": {
+    "name": "Musterhaus"
+  },
+  "group_addresses": [
+    {
+      "ga_id": "GA-1",
+      "address": "1/0/1",
+      "name": "Wohnzimmer Licht Schalten",
+      "dpt": "1.001",
+      "links": [
+        {
+          "device": "1.1.1",
+          "text": "Kanal A",
+          "function_text": "Schalten",
+          "dpt": "1.001",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": false,
+            "update": false
+          }
+        },
+        {
+          "device": "1.1.5",
+          "text": "Taste 2",
+          "function_text": "Schalten",
+          "dpt": "1.001",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-2",
+      "address": "1/0/2",
+      "name": "Wohnzimmer Licht Status",
+      "dpt": "1.001",
+      "links": [
+        {
+          "device": "1.1.1",
+          "text": "Kanal A",
+          "function_text": "Status",
+          "dpt": "1.001",
+          "flags": {
+            "read": true,
+            "write": false,
+            "transmit": true,
+            "update": false
+          }
+        },
+        {
+          "device": "1.1.5",
+          "text": "Taste 2",
+          "function_text": "Schalten",
+          "dpt": "1.001",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-18",
+      "address": "1/0/9",
+      "name": "Reserve",
+      "dpt": "1.001",
+      "links": [
+        {
+          "device": "1.1.1",
+          "text": "Kanal B",
+          "function_text": "Schalten",
+          "dpt": "1.001",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": false,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-3",
+      "address": "1/1/1",
+      "name": "Esszimmer Licht Schalten",
+      "dpt": "1.001",
+      "links": [
+        {
+          "device": "1.1.2",
+          "text": "Kanal A",
+          "function_text": "Schalten",
+          "dpt": "1.001",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": false,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-4",
+      "address": "1/1/2",
+      "name": "Esszimmer Licht Status",
+      "dpt": "1.001",
+      "links": [
+        {
+          "device": "1.1.2",
+          "text": "Kanal A",
+          "function_text": "Status An/Aus",
+          "dpt": "1.001",
+          "flags": {
+            "read": true,
+            "write": false,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-5",
+      "address": "1/1/3",
+      "name": "Esszimmer Licht Helligkeit",
+      "dpt": "5.001",
+      "links": [
+        {
+          "device": "1.1.2",
+          "text": "Kanal A",
+          "function_text": "Helligkeitswert",
+          "dpt": "5.001",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": false,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-6",
+      "address": "1/1/4",
+      "name": "Esszimmer Licht Helligkeit Status",
+      "dpt": "5.001",
+      "links": [
+        {
+          "device": "1.1.2",
+          "text": "Kanal A",
+          "function_text": "Status Helligkeitswert",
+          "dpt": "5.001",
+          "flags": {
+            "read": true,
+            "write": false,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-7",
+      "address": "1/1/5",
+      "name": "Esszimmer Licht Dimmen",
+      "dpt": "3.007",
+      "links": [
+        {
+          "device": "1.1.2",
+          "text": "Kanal A",
+          "function_text": "Dimmen relativ",
+          "dpt": "3.007",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": false,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-8",
+      "address": "2/0/1",
+      "name": "Büro Jalousie Auf/Ab",
+      "dpt": "1.008",
+      "links": [
+        {
+          "device": "1.1.3",
+          "text": "Kanal A",
+          "function_text": "Auf/Ab",
+          "dpt": "1.008",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": false,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-9",
+      "address": "2/0/2",
+      "name": "Büro Jalousie Stop",
+      "dpt": "1.017",
+      "links": [
+        {
+          "device": "1.1.3",
+          "text": "Kanal A",
+          "function_text": "Stop",
+          "dpt": "1.017",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": false,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-10",
+      "address": "2/0/3",
+      "name": "Büro Jalousie Position",
+      "dpt": "5.001",
+      "links": [
+        {
+          "device": "1.1.3",
+          "text": "Kanal A",
+          "function_text": "Position",
+          "dpt": "5.001",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": false,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-11",
+      "address": "2/0/4",
+      "name": "Büro Jalousie Position Status",
+      "dpt": "5.001",
+      "links": [
+        {
+          "device": "1.1.3",
+          "text": "Kanal A",
+          "function_text": "Status Position",
+          "dpt": "5.001",
+          "flags": {
+            "read": true,
+            "write": false,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-12",
+      "address": "3/0/1",
+      "name": "Wohnzimmer Temperatur",
+      "dpt": "9.001",
+      "links": [
+        {
+          "device": "1.1.4",
+          "text": "Temperatur",
+          "function_text": "Messwert",
+          "dpt": "9.001",
+          "flags": {
+            "read": true,
+            "write": false,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-13",
+      "address": "3/0/2",
+      "name": "Wohnzimmer Luftfeuchte",
+      "dpt": "9.007",
+      "links": [
+        {
+          "device": "1.1.4",
+          "text": "Luftfeuchte",
+          "function_text": "Messwert",
+          "dpt": "9.007",
+          "flags": {
+            "read": true,
+            "write": false,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-14",
+      "address": "3/0/3",
+      "name": "Flur Präsenz",
+      "dpt": "1.018",
+      "links": [
+        {
+          "device": "1.1.4",
+          "text": "Präsenz",
+          "function_text": "Ausgang",
+          "dpt": "1.018",
+          "flags": {
+            "read": true,
+            "write": false,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-15",
+      "address": "4/0/1",
+      "name": "Wohnzimmer Szene",
+      "dpt": "18.001",
+      "links": [
+        {
+          "device": "1.1.5",
+          "text": "Taste 1",
+          "function_text": "Szene",
+          "dpt": "18.001",
+          "flags": {
+            "read": false,
+            "write": true,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-16",
+      "address": "5/0/1",
+      "name": "Uhrzeit",
+      "dpt": "10.001",
+      "links": [
+        {
+          "device": "1.1.6",
+          "text": "Uhrzeit",
+          "function_text": "Senden",
+          "dpt": "10.001",
+          "flags": {
+            "read": true,
+            "write": false,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    },
+    {
+      "ga_id": "GA-17",
+      "address": "5/0/2",
+      "name": "Datum",
+      "dpt": "11.001",
+      "links": [
+        {
+          "device": "1.1.6",
+          "text": "Datum",
+          "function_text": "Senden",
+          "dpt": "11.001",
+          "flags": {
+            "read": true,
+            "write": false,
+            "transmit": true,
+            "update": false
+          }
+        }
+      ]
+    }
+  ]
+}

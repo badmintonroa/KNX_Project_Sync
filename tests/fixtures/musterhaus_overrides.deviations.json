@@ -1,0 +1,9 @@
+{
+  "reason": "knx2home liest Text/FunctionText/DatapointType nur vom ComObject der Applikation und ignoriert Overrides auf ComObjectRef und ComObjectInstanceRef. xknxproject löst sie auf, so wie die ETS sie anzeigt.",
+  "fields": [
+    { "address": "1/0/1", "field": "links" },
+    { "address": "1/0/2", "field": "links" },
+    { "address": "1/1/3", "field": "links" },
+    { "address": "3/0/1", "field": "links" }
+  ]
+}

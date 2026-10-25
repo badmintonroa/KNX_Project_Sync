@@ -1,0 +1,7 @@
+# same versions as the KNX integration of the tested Home Assistant release (2026.2)
+pytest-homeassistant-custom-component==0.13.316
+xknx==3.14.0
+xknxproject==3.8.2
+knx-frontend==2026.1.28.162006
+jsonschema==4.25.1
+ruff==0.14.2

@@ -1,0 +1,73 @@
+# KNX2HOME Importer
+
+Home-Assistant-Integration (HACS), die aus einer ETS-Projektdatei (`.knxproj`) automatisch die KNX-Entities anlegt und sie beim Hochladen einer geänderten Datei aktualisiert. Dabei bleiben entity_ids, Namen, Bereiche und der Verlauf erhalten.
+
+Die Entity-Erkennung stammt aus [knx2home](https://github.com/badmintonroa/knx2home). Die Integration enthält einen Python-Port davon, der per Tests exakt gleiche Ergebnisse liefert. Die ETS-Datei wird mit [xknxproject](https://github.com/XKNX/xknxproject) gelesen, derselben Bibliothek, die die offizielle KNX-Integration verwendet. Passwortgeschützte Projekte werden unterstützt.
+
+## Installation
+
+1. HACS → *Integrationen* → ⋮ → *Benutzerdefinierte Repositories* → `https://github.com/badmintonroa/Knx-has-auto-importer`, Typ *Integration*. Danach „KNX2HOME Importer“ installieren und HA neu starten.
+2. In der `configuration.yaml` Pakete aktivieren (falls noch nicht geschehen) und HA neu starten:
+
+   ```yaml
+   homeassistant:
+     packages: !include_dir_named packages
+   ```
+
+3. *Einstellungen → Geräte & Dienste → Integration hinzufügen → KNX2HOME Importer*. Voraussetzung ist eine eingerichtete KNX-Integration.
+
+## Benutzung
+
+- **Erster Import:** `.knxproj` hochladen (oder das schon im KNX-Panel hochgeladene Projekt wählen), Entity-Typen wählen, Vorschau prüfen, absenden. Die Entities landen in `packages/knx2home_importer.yaml`, und KNX wird neu geladen.
+- **Update:** Bei der Integration auf *Konfigurieren* klicken und die neue Datei hochladen. Die Vorschau zeigt neue, geänderte, entfernte und übersprungene Entities.
+- **Eigene KNX-YAML:** Entities, die du schon von Hand angelegt hast (gleiche Gruppenadresse), werden erkannt und nicht doppelt angelegt.
+- **Automatisierbar:** Service `knx2home_importer.import_project` (mit `dry_run`).
+
+Details: [docs/import.md](docs/import.md)
+
+## Status
+
+| Schritt | Inhalt | |
+|---|---|---|
+| 0 | Machbarkeit xknxproject → [docs/spike-xknxproject.md](docs/spike-xknxproject.md) | ✅ |
+| 1 | Manifest-Vertrag + Golden-Files aus knx2home → [docs/manifest-v1.md](docs/manifest-v1.md) | ✅ |
+| 2 | Integration: HACS, Config-/Options-Flow mit Upload, Passwort, KNX-Panel-Projekt | ✅ |
+| 3 | Python-Port der Erkennung, Parity mit knx2home → [docs/port-notes.md](docs/port-notes.md) | ✅ |
+| 4 | Paket-YAML, Prüfung gegen das KNX-Schema, `knx.reload`, Konflikte mit eigener YAML | ✅ |
+| 5 | Update: Diff-Vorschau, unique_id-Migration, Löschen/Behalten, Service | ✅ |
+| 6 | Diagnose, Sensor „Letzter Import“, ETS-Räume → Bereiche, Repair-Hinweise | ✅ |
+| 7 | CI: pytest, ruff, hassfest, HACS-Validierung, knx2home-Golden-Check | ✅ |
+
+## Aufbau
+
+```
+custom_components/knx2home_importer/
+  mapping/          Port der knx2home-Erkennung (reines Python)
+  plan.py           Diff zwischen Projekt und letztem Import
+  importer.py       Parsen, Planen, Anwenden (YAML, Reload, Registry, Bereiche)
+  writer.py         Paket-Datei, unique_ids aus YAML
+  config_flow.py    Einrichtung und erneuter Import
+  sensor.py, diagnostics.py, services.yaml, strings.json, translations/
+schema/             JSON-Schema des Manifests
+docs/               Spike, Manifest, Port-Notizen, Import
+tests/              pytest (Port, Plan, HA-Integration), Fixtures + Golden-Files
+tools/              Fixture-Generator, knx2home-Referenzgenerator, xknxproject-Vergleich
+```
+
+## Entwicklung
+
+```bash
+python -m venv .venv && . .venv/bin/activate
+pip install -r requirements_test.txt
+pytest
+ruff check custom_components tests tools/spike tools/fixtures
+```
+
+Fixtures neu erzeugen: `python tools/fixtures/build_fixtures.py`. Golden-Files aus knx2home neu erzeugen (knx2home liegt in `../knx2home`):
+
+```bash
+(cd ../knx2home && npm ci)
+cd tools/reference && npm ci && npm run generate
+```
+
+Die CI erzeugt die Golden-Files bei jedem Lauf und wöchentlich mit dem aktuellen knx2home-`main` neu. Ändert knx2home sein Verhalten, schlägt sie fehl, und der Port muss nachziehen.

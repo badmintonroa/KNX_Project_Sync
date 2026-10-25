@@ -1,0 +1,128 @@
+---
+name: Testing
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+jobs:
+  pytest:
+    name: pytest + ruff
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v6.1.0
+      - name: 🏗 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: 🏗 Install dependencies
+        run: pip install -r requirements_test.txt
+      - name: 🔍 Lint
+        run: |
+          ruff check custom_components tests tools/spike tools/fixtures
+          ruff format --check custom_components tests tools/spike tools/fixtures
+      - name: 🚀 Run tests
+        run: pytest -v
+
+  hassfest:
+    name: hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v6.1.0
+      - name: 🔍 Validate integration
+        uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔍 Validate HACS repository
+        uses: hacs/action@main
+        with:
+          category: integration
+          # not in home-assistant/brands; description and topics are repository settings
+          ignore: brands description topics
+
+  reference:
+    # Regenerates the golden files with the current knx2home main branch and
+    # fails if they changed, i.e. knx2home changed behavior the port must follow.
+    name: knx2home golden files
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v6.1.0
+      - name: ⤵️ Check out knx2home
+        uses: actions/checkout@v6.1.0
+        with:
+          repository: badmintonroa/knx2home
+          path: knx2home
+      - name: 🏗 Set up Node.js
+        uses: actions/setup-node@v6.5.0
+        with:
+          node-version: 22
+      - name: 🏗 Install dependencies
+        run: |
+          npm ci --prefix knx2home
+          npm ci --prefix tools/reference
+      - name: 🚀 Regenerate golden files
+        run: npm run generate --prefix tools/reference
+        env:
+          KNX2HOME_DIR: ${{ github.workspace }}/knx2home
+      - name: 🔍 Golden files unchanged
+        # the knx2home commit in the manifest header is expected to change
+        run: git diff --exit-code -I '"commit":' -- tests/fixtures
+
+  real-projects:
+    # Port vs. knx2home on the real ETS4/5/6 test projects of xknxproject (GPL-2.0,
+    # so they are fetched here instead of being committed)
+    name: real ETS projects
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v6.1.0
+      - name: ⤵️ Check out knx2home
+        uses: actions/checkout@v6.1.0
+        with:
+          repository: badmintonroa/knx2home
+          path: knx2home
+      - name: ⤵️ Check out xknxproject test projects
+        uses: actions/checkout@v6.1.0
+        with:
+          repository: XKNX/xknxproject
+          ref: 7013d4e5eb92f971c1ac6eecfe6de72464b96498
+          path: xknxproject
+          sparse-checkout: test/resources
+      - name: 🏗 Set up Node.js
+        uses: actions/setup-node@v6.5.0
+        with:
+          node-version: 22
+      - name: 🏗 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: 🏗 Install dependencies
+        run: |
+          npm ci --prefix knx2home
+          npm ci --prefix tools/reference
+          pip install -r requirements_test.txt
+      - name: 📦 Collect projects
+        run: |
+          mkdir -p "$RUNNER_TEMP/real"
+          cp xknxproject/test/resources/*.knxproj "$RUNNER_TEMP/real/"
+          # protected with a password that is not part of the xknxproject tests
+          rm "$RUNNER_TEMP/real/testprojekt-ets6.knxproj"
+          echo '{"xknx_test_project": "test", "test_project-ets4": "test", "smart_linking": "test"}' > "$RUNNER_TEMP/real/passwords.json"
+      - name: 🚀 knx2home manifests
+        run: npm run generate --prefix tools/reference -- "$RUNNER_TEMP/real"
+        env:
+          KNX2HOME_DIR: ${{ github.workspace }}/knx2home
+      - name: 🚀 Compare with the port
+        run: pytest -v tests/test_real_projects.py
+        env:
+          REAL_PROJECTS_DIR: ${{ runner.temp }}/real

@@ -1,0 +1,14 @@
+{
+  "entity": {
+    "sensor": {
+      "last_import": {
+        "default": "mdi:file-import"
+      }
+    }
+  },
+  "services": {
+    "import_project": {
+      "service": "mdi:file-import"
+    }
+  }
+}

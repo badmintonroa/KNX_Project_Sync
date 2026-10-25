@@ -1,0 +1,22 @@
+import_project:
+  fields:
+    source:
+      default: file
+      selector:
+        select:
+          options:
+            - file
+            - knx_project
+          translation_key: service_source
+    file:
+      example: "knx/projekt.knxproj"
+      selector:
+        text:
+    password:
+      selector:
+        text:
+          type: password
+    dry_run:
+      default: false
+      selector:
+        boolean:

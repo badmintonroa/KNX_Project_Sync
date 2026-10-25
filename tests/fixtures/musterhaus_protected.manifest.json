@@ -1,0 +1,209 @@
+{
+  "format": "knx2home-ha-manifest",
+  "version": 1,
+  "generator": {
+    "name": "knx2home",
+    "version": "0.1.0",
+    "commit": "d4f06749572db373d4871bd1e554471201063d9e"
+  },
+  "project": {
+    "name": "Musterhaus"
+  },
+  "options": {
+    "drop_reserve": true
+  },
+  "entities": [
+    {
+      "key": "switch:GA-1",
+      "domain": "switch",
+      "name": "Wohnzimmer Licht Schalten",
+      "config": {
+        "name": "Wohnzimmer Licht Schalten",
+        "address": "1/0/1",
+        "state_address": "1/0/2"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/1",
+          "ga_id": "GA-1"
+        },
+        {
+          "field": "state_address",
+          "address": "1/0/2",
+          "ga_id": "GA-2"
+        }
+      ]
+    },
+    {
+      "key": "light:GA-3",
+      "domain": "light",
+      "name": "Esszimmer Licht",
+      "config": {
+        "name": "Esszimmer Licht",
+        "address": "1/1/1",
+        "state_address": "1/1/2",
+        "brightness_address": "1/1/3",
+        "brightness_state_address": "1/1/4"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/1/1",
+          "ga_id": "GA-3"
+        },
+        {
+          "field": "state_address",
+          "address": "1/1/2",
+          "ga_id": "GA-4"
+        },
+        {
+          "field": "brightness_address",
+          "address": "1/1/3",
+          "ga_id": "GA-5"
+        },
+        {
+          "field": "brightness_state_address",
+          "address": "1/1/4",
+          "ga_id": "GA-6"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-12",
+      "domain": "sensor",
+      "name": "Wohnzimmer Temperatur",
+      "config": {
+        "name": "Wohnzimmer Temperatur",
+        "state_address": "3/0/1",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "3/0/1",
+          "ga_id": "GA-12"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-13",
+      "domain": "sensor",
+      "name": "Wohnzimmer Luftfeuchte",
+      "config": {
+        "name": "Wohnzimmer Luftfeuchte",
+        "state_address": "3/0/2",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "3/0/2",
+          "ga_id": "GA-13"
+        }
+      ]
+    },
+    {
+      "key": "time:GA-16",
+      "domain": "time",
+      "name": "Uhrzeit",
+      "config": {
+        "name": "Uhrzeit",
+        "address": "5/0/1",
+        "state_address": "5/0/1"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "5/0/1",
+          "ga_id": "GA-16"
+        },
+        {
+          "field": "state_address",
+          "address": "5/0/1",
+          "ga_id": "GA-16"
+        }
+      ]
+    },
+    {
+      "key": "date:GA-17",
+      "domain": "date",
+      "name": "Datum",
+      "config": {
+        "name": "Datum",
+        "address": "5/0/2",
+        "state_address": "5/0/2"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "5/0/2",
+          "ga_id": "GA-17"
+        },
+        {
+          "field": "state_address",
+          "address": "5/0/2",
+          "ga_id": "GA-17"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-8",
+      "domain": "cover",
+      "name": "Büro Jalousie",
+      "config": {
+        "name": "Büro Jalousie",
+        "move_long_address": "2/0/1",
+        "stop_address": "2/0/2",
+        "position_address": "2/0/3",
+        "position_state_address": "2/0/4"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "2/0/1",
+          "ga_id": "GA-8"
+        },
+        {
+          "field": "stop_address",
+          "address": "2/0/2",
+          "ga_id": "GA-9"
+        },
+        {
+          "field": "position_address",
+          "address": "2/0/3",
+          "ga_id": "GA-10"
+        },
+        {
+          "field": "position_state_address",
+          "address": "2/0/4",
+          "ga_id": "GA-11"
+        }
+      ]
+    },
+    {
+      "key": "scene:GA-15",
+      "domain": "scene",
+      "name": "Wohnzimmer Szene",
+      "config": {
+        "name": "Wohnzimmer Szene",
+        "address": "4/0/1"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "4/0/1",
+          "ga_id": "GA-15"
+        }
+      ]
+    }
+  ],
+  "unmapped": [
+    {
+      "address": "3/0/3",
+      "ga_id": "GA-14",
+      "name": "Flur Präsenz",
+      "dpt": "1.018"
+    }
+  ]
+}
