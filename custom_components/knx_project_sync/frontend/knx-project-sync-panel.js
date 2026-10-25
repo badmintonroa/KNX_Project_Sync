@@ -1,115 +1,122 @@
-var M=globalThis,H=M.ShadowRoot&&(M.ShadyCSS===void 0||M.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,I=Symbol(),se=new WeakMap,k=class{constructor(t,e,s){if(this._$cssResult$=!0,s!==I)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e}get styleSheet(){let t=this.o,e=this.t;if(H&&t===void 0){let s=e!==void 0&&e.length===1;s&&(t=se.get(e)),t===void 0&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),s&&se.set(e,t))}return t}toString(){return this.cssText}},ie=r=>new k(typeof r=="string"?r:r+"",void 0,I),D=(r,...t)=>{let e=r.length===1?r[0]:t.reduce((s,i,n)=>s+(a=>{if(a._$cssResult$===!0)return a.cssText;if(typeof a=="number")return a;throw Error("Value passed to 'css' function must be a 'css' function result: "+a+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(i)+r[n+1],r[0]);return new k(e,r,I)},re=(r,t)=>{if(H)r.adoptedStyleSheets=t.map(e=>e instanceof CSSStyleSheet?e:e.styleSheet);else for(let e of t){let s=document.createElement("style"),i=M.litNonce;i!==void 0&&s.setAttribute("nonce",i),s.textContent=e.cssText,r.appendChild(s)}},F=H?r=>r:r=>r instanceof CSSStyleSheet?(t=>{let e="";for(let s of t.cssRules)e+=s.cssText;return ie(e)})(r):r;var{is:Ae,defineProperty:we,getOwnPropertyDescriptor:ke,getOwnPropertyNames:Se,getOwnPropertySymbols:Ee,getPrototypeOf:Re}=Object,O=globalThis,ne=O.trustedTypes,Ce=ne?ne.emptyScript:"",Te=O.reactiveElementPolyfillSupport,S=(r,t)=>r,B={toAttribute(r,t){switch(t){case Boolean:r=r?Ce:null;break;case Object:case Array:r=r==null?r:JSON.stringify(r)}return r},fromAttribute(r,t){let e=r;switch(t){case Boolean:e=r!==null;break;case Number:e=r===null?null:Number(r);break;case Object:case Array:try{e=JSON.parse(r)}catch{e=null}}return e}},oe=(r,t)=>!Ae(r,t),ae={attribute:!0,type:String,converter:B,reflect:!1,useDefault:!1,hasChanged:oe};Symbol.metadata??=Symbol("metadata"),O.litPropertyMetadata??=new WeakMap;var f=class extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,e=ae){if(e.state&&(e.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(t)&&((e=Object.create(e)).wrapped=!0),this.elementProperties.set(t,e),!e.noAccessor){let s=Symbol(),i=this.getPropertyDescriptor(t,s,e);i!==void 0&&we(this.prototype,t,i)}}static getPropertyDescriptor(t,e,s){let{get:i,set:n}=ke(this.prototype,t)??{get(){return this[e]},set(a){this[e]=a}};return{get:i,set(a){let c=i?.call(this);n?.call(this,a),this.requestUpdate(t,c,s)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)??ae}static _$Ei(){if(this.hasOwnProperty(S("elementProperties")))return;let t=Re(this);t.finalize(),t.l!==void 0&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties)}static finalize(){if(this.hasOwnProperty(S("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(S("properties"))){let e=this.properties,s=[...Se(e),...Ee(e)];for(let i of s)this.createProperty(i,e[i])}let t=this[Symbol.metadata];if(t!==null){let e=litPropertyMetadata.get(t);if(e!==void 0)for(let[s,i]of e)this.elementProperties.set(s,i)}this._$Eh=new Map;for(let[e,s]of this.elementProperties){let i=this._$Eu(e,s);i!==void 0&&this._$Eh.set(i,e)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(t){let e=[];if(Array.isArray(t)){let s=new Set(t.flat(1/0).reverse());for(let i of s)e.unshift(F(i))}else t!==void 0&&e.push(F(t));return e}static _$Eu(t,e){let s=e.attribute;return s===!1?void 0:typeof s=="string"?s:typeof t=="string"?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this))}addController(t){(this._$EO??=new Set).add(t),this.renderRoot!==void 0&&this.isConnected&&t.hostConnected?.()}removeController(t){this._$EO?.delete(t)}_$E_(){let t=new Map,e=this.constructor.elementProperties;for(let s of e.keys())this.hasOwnProperty(s)&&(t.set(s,this[s]),delete this[s]);t.size>0&&(this._$Ep=t)}createRenderRoot(){let t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return re(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(t=>t.hostConnected?.())}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.())}attributeChangedCallback(t,e,s){this._$AK(t,s)}_$ET(t,e){let s=this.constructor.elementProperties.get(t),i=this.constructor._$Eu(t,s);if(i!==void 0&&s.reflect===!0){let n=(s.converter?.toAttribute!==void 0?s.converter:B).toAttribute(e,s.type);this._$Em=t,n==null?this.removeAttribute(i):this.setAttribute(i,n),this._$Em=null}}_$AK(t,e){let s=this.constructor,i=s._$Eh.get(t);if(i!==void 0&&this._$Em!==i){let n=s.getPropertyOptions(i),a=typeof n.converter=="function"?{fromAttribute:n.converter}:n.converter?.fromAttribute!==void 0?n.converter:B;this._$Em=i;let c=a.fromAttribute(e,n.type);this[i]=c??this._$Ej?.get(i)??c,this._$Em=null}}requestUpdate(t,e,s,i=!1,n){if(t!==void 0){let a=this.constructor;if(i===!1&&(n=this[t]),s??=a.getPropertyOptions(t),!((s.hasChanged??oe)(n,e)||s.useDefault&&s.reflect&&n===this._$Ej?.get(t)&&!this.hasAttribute(a._$Eu(t,s))))return;this.C(t,e,s)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(t,e,{useDefault:s,reflect:i,wrapped:n},a){s&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,a??e??this[t]),n!==!0||a!==void 0)||(this._$AL.has(t)||(this.hasUpdated||s||(e=void 0),this._$AL.set(t,e)),i===!0&&this._$Em!==t&&(this._$Eq??=new Set).add(t))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(e){Promise.reject(e)}let t=this.scheduleUpdate();return t!=null&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(let[i,n]of this._$Ep)this[i]=n;this._$Ep=void 0}let s=this.constructor.elementProperties;if(s.size>0)for(let[i,n]of s){let{wrapped:a}=n,c=this[i];a!==!0||this._$AL.has(i)||c===void 0||this.C(i,void 0,n,c)}}let t=!1,e=this._$AL;try{t=this.shouldUpdate(e),t?(this.willUpdate(e),this._$EO?.forEach(s=>s.hostUpdate?.()),this.update(e)):this._$EM()}catch(s){throw t=!1,this._$EM(),s}t&&this._$AE(e)}willUpdate(t){}_$AE(t){this._$EO?.forEach(e=>e.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return!0}update(t){this._$Eq&&=this._$Eq.forEach(e=>this._$ET(e,this[e])),this._$EM()}updated(t){}firstUpdated(t){}};f.elementStyles=[],f.shadowRootOptions={mode:"open"},f[S("elementProperties")]=new Map,f[S("finalized")]=new Map,Te?.({ReactiveElement:f}),(O.reactiveElementVersions??=[]).push("2.1.2");var G=globalThis,de=r=>r,z=G.trustedTypes,le=z?z.createPolicy("lit-html",{createHTML:r=>r}):void 0,me="$lit$",_=`lit$${Math.random().toFixed(9).slice(2)}$`,fe="?"+_,Pe=`<${fe}>`,y=document,R=()=>y.createComment(""),C=r=>r===null||typeof r!="object"&&typeof r!="function",J=Array.isArray,Ne=r=>J(r)||typeof r?.[Symbol.iterator]=="function",W=`[ 	
-\f\r]`,E=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,ce=/-->/g,pe=/>/g,b=RegExp(`>|${W}(?:([^\\s"'>=/]+)(${W}*=${W}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`,"g"),he=/'/g,ue=/"/g,_e=/^(?:script|style|textarea|title)$/i,Z=r=>(t,...e)=>({_$litType$:r,strings:t,values:e}),d=Z(1),Ve=Z(2),Ye=Z(3),x=Symbol.for("lit-noChange"),p=Symbol.for("lit-nothing"),ge=new WeakMap,$=y.createTreeWalker(y,129);function ve(r,t){if(!J(r)||!r.hasOwnProperty("raw"))throw Error("invalid template strings array");return le!==void 0?le.createHTML(t):t}var je=(r,t)=>{let e=r.length-1,s=[],i,n=t===2?"<svg>":t===3?"<math>":"",a=E;for(let c=0;c<e;c++){let o=r[c],l,h,u=-1,g=0;for(;g<o.length&&(a.lastIndex=g,h=a.exec(o),h!==null);)g=a.lastIndex,a===E?h[1]==="!--"?a=ce:h[1]!==void 0?a=pe:h[2]!==void 0?(_e.test(h[2])&&(i=RegExp("</"+h[2],"g")),a=b):h[3]!==void 0&&(a=b):a===b?h[0]===">"?(a=i??E,u=-1):h[1]===void 0?u=-2:(u=a.lastIndex-h[2].length,l=h[1],a=h[3]===void 0?b:h[3]==='"'?ue:he):a===ue||a===he?a=b:a===ce||a===pe?a=E:(a=b,i=void 0);let m=a===b&&r[c+1].startsWith("/>")?" ":"";n+=a===E?o+Pe:u>=0?(s.push(l),o.slice(0,u)+me+o.slice(u)+_+m):o+_+(u===-2?c:m)}return[ve(r,n+(r[e]||"<?>")+(t===2?"</svg>":t===3?"</math>":"")),s]},T=class r{constructor({strings:t,_$litType$:e},s){let i;this.parts=[];let n=0,a=0,c=t.length-1,o=this.parts,[l,h]=je(t,e);if(this.el=r.createElement(l,s),$.currentNode=this.el.content,e===2||e===3){let u=this.el.content.firstChild;u.replaceWith(...u.childNodes)}for(;(i=$.nextNode())!==null&&o.length<c;){if(i.nodeType===1){if(i.hasAttributes())for(let u of i.getAttributeNames())if(u.endsWith(me)){let g=h[a++],m=i.getAttribute(u).split(_),L=/([.?@])?(.*)/.exec(g);o.push({type:1,index:n,name:L[2],strings:m,ctor:L[1]==="."?V:L[1]==="?"?Y:L[1]==="@"?q:w}),i.removeAttribute(u)}else u.startsWith(_)&&(o.push({type:6,index:n}),i.removeAttribute(u));if(_e.test(i.tagName)){let u=i.textContent.split(_),g=u.length-1;if(g>0){i.textContent=z?z.emptyScript:"";for(let m=0;m<g;m++)i.append(u[m],R()),$.nextNode(),o.push({type:2,index:++n});i.append(u[g],R())}}}else if(i.nodeType===8)if(i.data===fe)o.push({type:2,index:n});else{let u=-1;for(;(u=i.data.indexOf(_,u+1))!==-1;)o.push({type:7,index:n}),u+=_.length-1}n++}}static createElement(t,e){let s=y.createElement("template");return s.innerHTML=t,s}};function A(r,t,e=r,s){if(t===x)return t;let i=s!==void 0?e._$Co?.[s]:e._$Cl,n=C(t)?void 0:t._$litDirective$;return i?.constructor!==n&&(i?._$AO?.(!1),n===void 0?i=void 0:(i=new n(r),i._$AT(r,e,s)),s!==void 0?(e._$Co??=[])[s]=i:e._$Cl=i),i!==void 0&&(t=A(r,i._$AS(r,t.values),i,s)),t}var K=class{constructor(t,e){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=e}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){let{el:{content:e},parts:s}=this._$AD,i=(t?.creationScope??y).importNode(e,!0);$.currentNode=i;let n=$.nextNode(),a=0,c=0,o=s[0];for(;o!==void 0;){if(a===o.index){let l;o.type===2?l=new P(n,n.nextSibling,this,t):o.type===1?l=new o.ctor(n,o.name,o.strings,this,t):o.type===6&&(l=new X(n,this,t)),this._$AV.push(l),o=s[++c]}a!==o?.index&&(n=$.nextNode(),a++)}return $.currentNode=y,i}p(t){let e=0;for(let s of this._$AV)s!==void 0&&(s.strings!==void 0?(s._$AI(t,s,e),e+=s.strings.length-2):s._$AI(t[e])),e++}},P=class r{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,e,s,i){this.type=2,this._$AH=p,this._$AN=void 0,this._$AA=t,this._$AB=e,this._$AM=s,this.options=i,this._$Cv=i?.isConnected??!0}get parentNode(){let t=this._$AA.parentNode,e=this._$AM;return e!==void 0&&t?.nodeType===11&&(t=e.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,e=this){t=A(this,t,e),C(t)?t===p||t==null||t===""?(this._$AH!==p&&this._$AR(),this._$AH=p):t!==this._$AH&&t!==x&&this._(t):t._$litType$!==void 0?this.$(t):t.nodeType!==void 0?this.T(t):Ne(t)?this.k(t):this._(t)}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t))}_(t){this._$AH!==p&&C(this._$AH)?this._$AA.nextSibling.data=t:this.T(y.createTextNode(t)),this._$AH=t}$(t){let{values:e,_$litType$:s}=t,i=typeof s=="number"?this._$AC(t):(s.el===void 0&&(s.el=T.createElement(ve(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===i)this._$AH.p(e);else{let n=new K(i,this),a=n.u(this.options);n.p(e),this.T(a),this._$AH=n}}_$AC(t){let e=ge.get(t.strings);return e===void 0&&ge.set(t.strings,e=new T(t)),e}k(t){J(this._$AH)||(this._$AH=[],this._$AR());let e=this._$AH,s,i=0;for(let n of t)i===e.length?e.push(s=new r(this.O(R()),this.O(R()),this,this.options)):s=e[i],s._$AI(n),i++;i<e.length&&(this._$AR(s&&s._$AB.nextSibling,i),e.length=i)}_$AR(t=this._$AA.nextSibling,e){for(this._$AP?.(!1,!0,e);t!==this._$AB;){let s=de(t).nextSibling;de(t).remove(),t=s}}setConnected(t){this._$AM===void 0&&(this._$Cv=t,this._$AP?.(t))}},w=class{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,e,s,i,n){this.type=1,this._$AH=p,this._$AN=void 0,this.element=t,this.name=e,this._$AM=i,this.options=n,s.length>2||s[0]!==""||s[1]!==""?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=p}_$AI(t,e=this,s,i){let n=this.strings,a=!1;if(n===void 0)t=A(this,t,e,0),a=!C(t)||t!==this._$AH&&t!==x,a&&(this._$AH=t);else{let c=t,o,l;for(t=n[0],o=0;o<n.length-1;o++)l=A(this,c[s+o],e,o),l===x&&(l=this._$AH[o]),a||=!C(l)||l!==this._$AH[o],l===p?t=p:t!==p&&(t+=(l??"")+n[o+1]),this._$AH[o]=l}a&&!i&&this.j(t)}j(t){t===p?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"")}},V=class extends w{constructor(){super(...arguments),this.type=3}j(t){this.element[this.name]=t===p?void 0:t}},Y=class extends w{constructor(){super(...arguments),this.type=4}j(t){this.element.toggleAttribute(this.name,!!t&&t!==p)}},q=class extends w{constructor(t,e,s,i,n){super(t,e,s,i,n),this.type=5}_$AI(t,e=this){if((t=A(this,t,e,0)??p)===x)return;let s=this._$AH,i=t===p&&s!==p||t.capture!==s.capture||t.once!==s.once||t.passive!==s.passive,n=t!==p&&(s===p||i);i&&this.element.removeEventListener(this.name,this,s),n&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){typeof this._$AH=="function"?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t)}},X=class{constructor(t,e,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=e,this.options=s}get _$AU(){return this._$AM._$AU}_$AI(t){A(this,t)}};var Le=G.litHtmlPolyfillSupport;Le?.(T,P),(G.litHtmlVersions??=[]).push("3.3.3");var be=(r,t,e)=>{let s=e?.renderBefore??t,i=s._$litPart$;if(i===void 0){let n=e?.renderBefore??null;s._$litPart$=i=new P(t.insertBefore(R(),n),n,void 0,e??{})}return i._$AI(r),i};var Q=globalThis,v=class extends f{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){let t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){let e=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=be(e,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return x}};v._$litElement$=!0,v.finalized=!0,Q.litElementHydrateSupport?.({LitElement:v});var Me=Q.litElementPolyfillSupport;Me?.({LitElement:v});(Q.litElementVersions??=[]).push("4.2.2");var He={address:"Schalten / Senden",state_address:"Status",brightness_address:"Helligkeit",brightness_state_address:"Helligkeit Status",color_temperature_address:"Farbtemperatur",color_temperature_state_address:"Farbtemperatur Status",color_address:"Farbe",color_state_address:"Farbe Status",move_long_address:"Auf/Ab",move_short_address:"Schritt/Stopp",stop_address:"Stopp",position_address:"Position",position_state_address:"Position Status",angle_address:"Lamelle",angle_state_address:"Lamelle Status",temperature_address:"Ist-Temperatur",target_temperature_address:"Soll-Temperatur",target_temperature_state_address:"Soll-Temperatur Status",setpoint_shift_address:"Sollwertverschiebung",setpoint_shift_state_address:"Sollwertverschiebung Status",operation_mode_address:"Betriebsart",operation_mode_state_address:"Betriebsart Status",on_off_address:"Ein/Aus",on_off_state_address:"Ein/Aus Status",address_temperature:"Temperatur",address_brightness_south:"Helligkeit S\xFCd",address_brightness_east:"Helligkeit Ost",address_brightness_west:"Helligkeit West",address_brightness_north:"Helligkeit Nord",address_wind_speed:"Windgeschwindigkeit",address_rain_alarm:"Regenalarm",address_frost_alarm:"Frostalarm",address_wind_alarm:"Windalarm",address_day_night:"Tag/Nacht",address_air_pressure:"Luftdruck",address_humidity:"Luftfeuchte"},Oe={address:"Switch / send",state_address:"State",brightness_address:"Brightness",brightness_state_address:"Brightness state",color_temperature_address:"Color temperature",color_temperature_state_address:"Color temperature state",color_address:"Color",color_state_address:"Color state",move_long_address:"Up/down",move_short_address:"Step/stop",stop_address:"Stop",position_address:"Position",position_state_address:"Position state",angle_address:"Slat angle",angle_state_address:"Slat angle state",temperature_address:"Current temperature",target_temperature_address:"Target temperature",target_temperature_state_address:"Target temperature state",setpoint_shift_address:"Setpoint shift",setpoint_shift_state_address:"Setpoint shift state",operation_mode_address:"Operation mode",operation_mode_state_address:"Operation mode state",on_off_address:"On/off",on_off_state_address:"On/off state",address_temperature:"Temperature",address_brightness_south:"Brightness south",address_brightness_east:"Brightness east",address_brightness_west:"Brightness west",address_brightness_north:"Brightness north",address_wind_speed:"Wind speed",address_rain_alarm:"Rain alarm",address_frost_alarm:"Frost alarm",address_wind_alarm:"Wind alarm",address_day_night:"Day/night",address_air_pressure:"Air pressure",address_humidity:"Humidity"},ze={menu:"Men\xFC",loading:"Lade \u2026",noProject:"Noch kein Projekt importiert. Lade eine .knxproj-Datei hoch oder lies das Projekt aus dem KNX-Panel ein.",lastImport:r=>`Letzter Import: ${r}`,neverImported:"Noch nicht importiert",count:r=>`${r} Entities angelegt`,fromKnx:"Aus KNX-Panel einlesen",upload:"Projektdatei hochladen",staged:"Neue Projektversion geladen. Pr\xFCfe die \xC4nderungen und \xFCbernimm sie, oder verwirf sie.",discardProject:"Projektversion verwerfen",loaded:"Projekt eingelesen. Neue Entities sind unter \u201ENeu verf\xFCgbar\u201C zu finden.",passwordNeeded:"Das Projekt ist passwortgesch\xFCtzt.",password:"Projekt-Passwort",open:"\xD6ffnen",cancel:"Abbrechen",search:"Suchen nach Name, Adresse, Raum \u2026",groupBy:"Gruppieren",byRoom:"Nach Raum",byType:"Nach Typ",noRoom:"Ohne Raum",nothingFound:"Keine Entities f\xFCr diesen Filter.",selectGroup:r=>`Alle in ${r} ausw\xE4hlen`,create:r=>`${r} anlegen`,name:"Name",type:"Typ",suggestLight:"\u{1F4A1} Als Licht?",suggestLightTitle:"Der Name deutet auf eine Lampe hin. Als Licht anlegen.",unmappedHint:"F\xFCr diese Gruppenadressen wurde kein Entity-Typ erkannt. Sie werden nicht angelegt. Lege sie bei Bedarf von Hand in der KNX-YAML oder im KNX-Panel an.",willAdd:"Wird hinzugef\xFCgt",willChange:"Wird ge\xE4ndert",willRemove:"Wird entfernt",summary:(r,t,e)=>`+${r} hinzuf\xFCgen \xB7 ${t} \xE4ndern \xB7 \u2212${e} entfernen`,stillPending:r=>`${r} neu verf\xFCgbar, nicht ausgew\xE4hlt`,discard:"Verwerfen",apply:"\xDCbernehmen",applying:"\xDCbernehme \u2026",applied:r=>`\xDCbernommen: ${r.new??0} neu, ${r.changed??0} ge\xE4ndert, ${r.deleted??0} entfernt. KNX wurde neu geladen.`,willAdopt:"Wird aus deiner YAML \xFCbernommen",adoptCount:r=>`${r} \xFCbernehmen`,adopt:"In App \xFCbernehmen",undo:"R\xFCckg\xE4ngig",ownYaml:"deiner eigenen KNX-YAML",conflictInfo:(r,t,e)=>`Schon in deiner YAML: ${r} \u201E${t}\u201C (${e}). Wird nicht doppelt angelegt.`,adoptInfo:r=>`Wird mit deiner Konfiguration in die App \xFCbernommen und aus ${r} entfernt. Vorher wird eine Sicherung angelegt.`,notAdoptable:"Nicht automatisch \xFCbernehmbar, bitte in der YAML entfernen.",markExisting:"Schon vorhanden",existingTitle:"Diese Entity gibt es schon (z. B. in deiner YAML als anderer Typ). Nicht anlegen.",resetConfig:"Auf Projekt zur\xFCcksetzen",ownConfigTitle:"Nutzt deine \xFCbernommene Konfiguration. Zur\xFCcksetzen auf die Erkennung aus dem ETS-Projekt.",adoptFailed:r=>`\xDCbernahme aus deiner YAML nicht m\xF6glich: ${r}. Es wurde nichts ge\xE4ndert.`,adoptReasons:{not_a_list_item:"der Eintrag ist kein einfacher Listeneintrag (\u201E- name: \u2026\u201C)",flow_style:"der Eintrag steht in Kurzschreibweise ({ \u2026 })",outside_config:"die Datei liegt au\xDFerhalb des Konfigurationsordners",line_not_found:"die Datei hat sich ge\xE4ndert, bitte neu laden",verification:"nach dem Entfernen h\xE4tte sich mehr als dieser Eintrag ge\xE4ndert"},editAddresses:"Adressen bearbeiten",doneAddresses:"Fertig",addAddress:"Adresse hinzuf\xFCgen \u2026",removeAddress:r=>`${r} entfernen`,fromEts:"aus der ETS",etsValue:r=>`ETS: ${r||"keine"} \xB7 `,addedByHand:"von Hand hinzugef\xFCgt",reset:"zur\xFCcksetzen",invalidAddress:"Keine g\xFCltige Gruppenadresse (z. B. 1/2/3)",fixAddresses:"Ung\xFCltige Gruppenadresse korrigieren",fieldLabel:r=>He[r]??r,filters:{all:"Alle",active:"Angelegt",pending:"Neu verf\xFCgbar",off:"Abgew\xE4hlt",existing:"Schon vorhanden",issues:"Nicht m\xF6glich",gone:"Nicht mehr im Projekt",unmapped:"Ohne Typ"},status:{new:"Wird hinzugef\xFCgt",changed:"Wird ge\xE4ndert",retyped:"Typ wird ge\xE4ndert",unchanged:"Aktiv",kept:"Behalten",removed:"Wird entfernt",pending:"Neu verf\xFCgbar",deselected:"Abgew\xE4hlt",deselected_removed:"Wird entfernt",excluded:"Typ ausgeschlossen",duplicate:"Doppelt",invalid:"Ung\xFCltig",conflict:"Eigene YAML",existing:"Schon vorhanden",adopt:"Wird \xFCbernommen",own_config:"Aktiv \xB7 eigene Konfiguration"},reasons:{own_yaml:"Schon in deiner eigenen KNX-YAML definiert",light:"GA schon von einem Licht belegt",unique_id:"Gleiche Gruppenadresse wie eine andere Entity"},domains:{switch:"Schalter",light:"Licht",binary_sensor:"Bin\xE4rsensor",sensor:"Sensor",time:"Uhrzeit",date:"Datum",datetime:"Datum/Uhrzeit",cover:"Rollladen/Jalousie",scene:"Szene",climate:"Klima",weather:"Wetter"},errors:{invalid_password:"Falsches oder fehlendes Projekt-Passwort.",invalid_project:"Keine lesbare ETS-Projektdatei.",no_knx_project:"Im KNX-Panel ist kein Projekt hochgeladen.",not_set_up:"KNX Project Sync ist nicht eingerichtet.",no_project:"Es wurde noch kein Projekt importiert."}},Ue={menu:"Menu",loading:"Loading \u2026",noProject:"No project imported yet. Upload a .knxproj file or read the project from the KNX panel.",lastImport:r=>`Last import: ${r}`,neverImported:"Not imported yet",count:r=>`${r} entities created`,fromKnx:"Read from KNX panel",upload:"Upload project file",staged:"New project version loaded. Review the changes and apply them, or discard them.",discardProject:"Discard project version",loaded:"Project loaded. New entities are listed under \u201CNewly available\u201D.",passwordNeeded:"The project is password protected.",password:"Project password",open:"Open",cancel:"Cancel",search:"Search name, address, room \u2026",groupBy:"Group by",byRoom:"By room",byType:"By type",noRoom:"No room",nothingFound:"No entities for this filter.",selectGroup:r=>`Select all in ${r}`,create:r=>`Create ${r}`,name:"Name",type:"Type",suggestLight:"\u{1F4A1} A light?",suggestLightTitle:"The name suggests a lamp. Create it as a light.",unmappedHint:"No entity type was detected for these group addresses, so they are not created. Add them by hand in the KNX YAML or the KNX panel if needed.",willAdd:"Will be added",willChange:"Will be changed",willRemove:"Will be removed",summary:(r,t,e)=>`+${r} add \xB7 ${t} change \xB7 \u2212${e} remove`,stillPending:r=>`${r} newly available, not selected`,discard:"Discard",apply:"Apply",applying:"Applying \u2026",applied:r=>`Applied: ${r.new??0} new, ${r.changed??0} changed, ${r.deleted??0} removed. KNX was reloaded.`,willAdopt:"Taken over from your YAML",adoptCount:r=>`${r} take over`,adopt:"Take over into the app",undo:"Undo",ownYaml:"your own KNX YAML",conflictInfo:(r,t,e)=>`Already in your YAML: ${r} \u201C${t}\u201D (${e}). Not created twice.`,adoptInfo:r=>`Taken over into the app with your configuration and removed from ${r}. A backup is made first.`,notAdoptable:"Cannot be taken over automatically, please remove it from the YAML.",markExisting:"Already exists",existingTitle:"This entity already exists (e.g. in your YAML as another type). Do not create it.",resetConfig:"Reset to project",ownConfigTitle:"Uses your taken-over configuration. Reset to what the ETS project detects.",adoptFailed:r=>`Could not take over from your YAML: ${r}. Nothing was changed.`,adoptReasons:{not_a_list_item:"the entry is not a plain list item (\u201C- name: \u2026\u201D)",flow_style:"the entry uses the short flow style ({ \u2026 })",outside_config:"the file is outside the configuration folder",line_not_found:"the file has changed, please reload",verification:"removing it would have changed more than this entry"},editAddresses:"Edit addresses",doneAddresses:"Done",addAddress:"Add address \u2026",removeAddress:r=>`Remove ${r}`,fromEts:"from ETS",etsValue:r=>`ETS: ${r||"none"} \xB7 `,addedByHand:"added by hand",reset:"reset",invalidAddress:"Not a valid group address (e.g. 1/2/3)",fixAddresses:"Fix the invalid group address",fieldLabel:r=>Oe[r]??r,filters:{all:"All",active:"Created",pending:"Newly available",off:"Deselected",existing:"Already exists",issues:"Not possible",gone:"No longer in project",unmapped:"No type"},status:{new:"Will be added",changed:"Will change",retyped:"Type changes",unchanged:"Active",kept:"Kept",removed:"Will be removed",pending:"Newly available",deselected:"Deselected",deselected_removed:"Will be removed",excluded:"Type excluded",duplicate:"Duplicate",invalid:"Invalid",conflict:"Own YAML",existing:"Already exists",adopt:"Will be taken over",own_config:"Active \xB7 own configuration"},reasons:{own_yaml:"Already defined in your own KNX YAML",light:"GA already used by a light",unique_id:"Same group address as another entity"},domains:{switch:"Switch",light:"Light",binary_sensor:"Binary sensor",sensor:"Sensor",time:"Time",date:"Date",datetime:"Date/time",cover:"Cover",scene:"Scene",climate:"Climate",weather:"Weather"},errors:{invalid_password:"Wrong or missing project password.",invalid_project:"Not a readable ETS project file.",no_knx_project:"No project is uploaded in the KNX panel.",not_set_up:"KNX Project Sync is not set up.",no_project:"No project has been imported yet."}},ee={de:ze,en:Ue};var $e=/^(\d{1,2}\/\d{1,2}\/\d{1,3}|\d{1,2}\/\d{1,4}|\d{1,5})$/,te=new Set(["new","changed","unchanged","kept"]),N=new Set(["excluded","duplicate","invalid","conflict","removed","existing"]),Ie=["all","active","pending","off","existing","issues","gone","unmapped"],ye=(r,t)=>{switch(t){case"all":return!0;case"active":return te.has(r.status);case"pending":return r.status==="pending";case"existing":return r.status==="existing";case"off":return r.status==="deselected";case"issues":return["excluded","duplicate","invalid","conflict"].includes(r.status);case"gone":return!r.in_project;default:return!1}},U=r=>{let t={};for(let[e,s]of Object.entries(r)){let i={};(s.enabled===!0||s.enabled===!1)&&(i.enabled=s.enabled),s.domain&&(i.domain=s.domain),s.name&&s.name.trim()&&(i.name=s.name.trim()),s.existing&&(i.existing=!0),s.adopt&&(i.adopt=!0),s.config&&(i.config=s.config),s.addresses&&Object.keys(s.addresses).length&&(i.addresses=s.addresses),Object.keys(i).length&&(t[e]=i)}return t},De=(r,t)=>JSON.stringify(xe(U(r)))===JSON.stringify(xe(U(t))),xe=r=>Object.fromEntries(Object.entries(r).sort(([t],[e])=>t.localeCompare(e))),j=class extends v{constructor(){super(...arguments);this.narrow=!1;this._data=null;this._draft={};this._search="";this._filter="all";this._group="room";this._busy=null;this._error=null;this._message=null;this._passwordFor=null;this._showChanges=!1;this._loaded=!1;this._request=0;this._editing=new Set}get t(){let e=(this.hass?.locale?.language||this.hass?.language||"en").slice(0,2);return ee[e]??ee.en}updated(e){if(e.has("hass")&&this.hass&&!this._loaded){this._loaded=!0,this._refresh(void 0,!0);try{let s=JSON.parse(localStorage.getItem("knx-project-sync-view")??"{}");(s.group==="room"||s.group==="domain")&&(this._group=s.group)}catch{}}}async _refresh(e,s=!1){let i=++this._request;try{let n={type:"knx_project_sync/plan"};e&&(n.selection=U(e));let a=await this.hass.callWS(n);if(i!==this._request)return;this._data=a,s&&(this._draft=structuredClone(a.stored_selection??{})),this._error=null}catch(n){i===this._request&&(this._error=this._errorText(n))}}_scheduleRefresh(){window.clearTimeout(this._timer),this._timer=window.setTimeout(()=>this._refresh(this._draft),250)}_errorText(e){let s=e;return s.code==="adopt_failed"?this.t.adoptFailed(this.t.adoptReasons[s.message??""]??s.message??""):s.code&&this.t.errors[s.code]||s.message||String(e)}async _loadKnxProject(){await this._run("load",async()=>{await this.hass.callWS({type:"knx_project_sync/load_project",source:"knx_project"}),await this._refresh(this._draft),this._message=this.t.loaded})}async _upload(e,s){await this._run("load",async()=>{let i=new FormData;i.append("file",e);let n=await this.hass.fetchWithAuth("/api/file_upload",{method:"POST",body:i});if(!n.ok)throw new Error(`${n.status} ${await n.text()}`);let{file_id:a}=await n.json();try{await this.hass.callWS({type:"knx_project_sync/load_project",source:"upload",file_id:a,...s?{password:s}:{}})}catch(c){throw c.code==="invalid_password"&&(this._passwordFor=e),c}this._passwordFor=null,await this._refresh(this._draft),this._message=this.t.loaded})}async _discard(){await this._run("discard",async()=>{this._data?.staged&&await this.hass.callWS({type:"knx_project_sync/discard"}),this._showChanges=!1,await this._refresh(void 0,!0)})}async _apply(){await this._run("apply",async()=>{let e=await this.hass.callWS({type:"knx_project_sync/apply",selection:U(this._draft)});this._showChanges=!1,await this._refresh(void 0,!0),this._message=this.t.applied(e)})}async _run(e,s){this._busy=e,this._error=null,this._message=null;try{await s()}catch(i){this._error=this._errorText(i)}finally{this._busy=null}}_choose(e,s){let i={...this._draft[e]??{},...s};this._draft={...this._draft,[e]:i},this._scheduleRefresh()}_checked(e){let s=this._draft[e.key]?.enabled;return s===!0||s===!1?s&&!N.has(e.status):te.has(e.status)}_toggleMany(e,s){let i={...this._draft};for(let n of e)N.has(n.status)||(i[n.key]={...i[n.key]??{},enabled:s});this._draft=i,this._scheduleRefresh()}get _dirty(){return this._data?this._data.staged||!De(this._draft,this._data.stored_selection??{})||!!this._data.has_changes:!1}_visible(){let e=this._search.trim().toLowerCase();return(this._data?.entities??[]).filter(s=>ye(s,this._filter)?e?[s.name,s.ets_name,s.room,s.key,s.entity_id,s.domain,...s.addresses.map(n=>n.address)].filter(Boolean).join(" ").toLowerCase().includes(e):!0:!1)}render(){let e=this.t,s=this._data;return d`
-      <div class="toolbar">
-        ${this.narrow?d`<button class="icon" title=${e.menu} @click=${this._toggleMenu}>
-              <svg viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>
-            </button>`:p}
-        <div class="title">KNX Project Sync</div>
-      </div>
-      <div class="content">
-        ${this._renderHeader()} ${this._error?d`<div class="alert error">${this._error}</div>`:p}
-        ${this._message?d`<div class="alert info">${this._message}</div>`:p}
-        ${this._passwordFor?this._renderPassword():p}
-        ${s?s.project?d`${this._renderFilters()} ${this._filter==="unmapped"?this._renderUnmapped():this._renderGroups()}`:d`<div class="empty">${e.noProject}</div>`:d`<div class="empty">${e.loading}</div>`}
-      </div>
-      ${s?.project&&this._dirty?this._renderBar():p}
-    `}_renderHeader(){let e=this.t,s=this._data,i=s?.last_import;return d`
-      <div class="header">
-        <div>
-          <div class="project">${s?.project??"\u2013"}</div>
-          <div class="sub">
-            ${i?e.lastImport(new Date(i.time).toLocaleString(this.hass.language)):e.neverImported}
-            ${s?d` · ${e.count(s.entities.filter(n=>te.has(n.status)).length)}`:p}
-          </div>
-        </div>
-        <div class="actions">
-          ${s?.has_knx_project?d`<button ?disabled=${!!this._busy} @click=${this._loadKnxProject}>${e.fromKnx}</button>`:p}
-          <label class="button ${this._busy?"disabled":""}">
-            ${e.upload}
-            <input
-              type="file"
-              accept=".knxproj"
-              hidden
+var O=globalThis,H=O.ShadowRoot&&(O.ShadyCSS===void 0||O.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,F=Symbol(),ie=new WeakMap,E=class{constructor(t,e,s){if(this._$cssResult$=!0,s!==F)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e}get styleSheet(){let t=this.o,e=this.t;if(H&&t===void 0){let s=e!==void 0&&e.length===1;s&&(t=ie.get(e)),t===void 0&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),s&&ie.set(e,t))}return t}toString(){return this.cssText}},re=r=>new E(typeof r=="string"?r:r+"",void 0,F),B=(r,...t)=>{let e=r.length===1?r[0]:t.reduce((s,i,n)=>s+(a=>{if(a._$cssResult$===!0)return a.cssText;if(typeof a=="number")return a;throw Error("Value passed to 'css' function must be a 'css' function result: "+a+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(i)+r[n+1],r[0]);return new E(e,r,F)},ne=(r,t)=>{if(H)r.adoptedStyleSheets=t.map(e=>e instanceof CSSStyleSheet?e:e.styleSheet);else for(let e of t){let s=document.createElement("style"),i=O.litNonce;i!==void 0&&s.setAttribute("nonce",i),s.textContent=e.cssText,r.appendChild(s)}},K=H?r=>r:r=>r instanceof CSSStyleSheet?(t=>{let e="";for(let s of t.cssRules)e+=s.cssText;return re(e)})(r):r;var{is:Ae,defineProperty:Se,getOwnPropertyDescriptor:Ee,getOwnPropertyNames:Ce,getOwnPropertySymbols:Re,getPrototypeOf:Te}=Object,D=globalThis,ae=D.trustedTypes,je=ae?ae.emptyScript:"",Me=D.reactiveElementPolyfillSupport,C=(r,t)=>r,W={toAttribute(r,t){switch(t){case Boolean:r=r?je:null;break;case Object:case Array:r=r==null?r:JSON.stringify(r)}return r},fromAttribute(r,t){let e=r;switch(t){case Boolean:e=r!==null;break;case Number:e=r===null?null:Number(r);break;case Object:case Array:try{e=JSON.parse(r)}catch{e=null}}return e}},de=(r,t)=>!Ae(r,t),oe={attribute:!0,type:String,converter:W,reflect:!1,useDefault:!1,hasChanged:de};Symbol.metadata??=Symbol("metadata"),D.litPropertyMetadata??=new WeakMap;var v=class extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t)}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,e=oe){if(e.state&&(e.attribute=!1),this._$Ei(),this.prototype.hasOwnProperty(t)&&((e=Object.create(e)).wrapped=!0),this.elementProperties.set(t,e),!e.noAccessor){let s=Symbol(),i=this.getPropertyDescriptor(t,s,e);i!==void 0&&Se(this.prototype,t,i)}}static getPropertyDescriptor(t,e,s){let{get:i,set:n}=Ee(this.prototype,t)??{get(){return this[e]},set(a){this[e]=a}};return{get:i,set(a){let l=i?.call(this);n?.call(this,a),this.requestUpdate(t,l,s)},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)??oe}static _$Ei(){if(this.hasOwnProperty(C("elementProperties")))return;let t=Te(this);t.finalize(),t.l!==void 0&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties)}static finalize(){if(this.hasOwnProperty(C("finalized")))return;if(this.finalized=!0,this._$Ei(),this.hasOwnProperty(C("properties"))){let e=this.properties,s=[...Ce(e),...Re(e)];for(let i of s)this.createProperty(i,e[i])}let t=this[Symbol.metadata];if(t!==null){let e=litPropertyMetadata.get(t);if(e!==void 0)for(let[s,i]of e)this.elementProperties.set(s,i)}this._$Eh=new Map;for(let[e,s]of this.elementProperties){let i=this._$Eu(e,s);i!==void 0&&this._$Eh.set(i,e)}this.elementStyles=this.finalizeStyles(this.styles)}static finalizeStyles(t){let e=[];if(Array.isArray(t)){let s=new Set(t.flat(1/0).reverse());for(let i of s)e.unshift(K(i))}else t!==void 0&&e.push(K(t));return e}static _$Eu(t,e){let s=e.attribute;return s===!1?void 0:typeof s=="string"?s:typeof t=="string"?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=!1,this.hasUpdated=!1,this._$Em=null,this._$Ev()}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this))}addController(t){(this._$EO??=new Set).add(t),this.renderRoot!==void 0&&this.isConnected&&t.hostConnected?.()}removeController(t){this._$EO?.delete(t)}_$E_(){let t=new Map,e=this.constructor.elementProperties;for(let s of e.keys())this.hasOwnProperty(s)&&(t.set(s,this[s]),delete this[s]);t.size>0&&(this._$Ep=t)}createRenderRoot(){let t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return ne(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(!0),this._$EO?.forEach(t=>t.hostConnected?.())}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.())}attributeChangedCallback(t,e,s){this._$AK(t,s)}_$ET(t,e){let s=this.constructor.elementProperties.get(t),i=this.constructor._$Eu(t,s);if(i!==void 0&&s.reflect===!0){let n=(s.converter?.toAttribute!==void 0?s.converter:W).toAttribute(e,s.type);this._$Em=t,n==null?this.removeAttribute(i):this.setAttribute(i,n),this._$Em=null}}_$AK(t,e){let s=this.constructor,i=s._$Eh.get(t);if(i!==void 0&&this._$Em!==i){let n=s.getPropertyOptions(i),a=typeof n.converter=="function"?{fromAttribute:n.converter}:n.converter?.fromAttribute!==void 0?n.converter:W;this._$Em=i;let l=a.fromAttribute(e,n.type);this[i]=l??this._$Ej?.get(i)??l,this._$Em=null}}requestUpdate(t,e,s,i=!1,n){if(t!==void 0){let a=this.constructor;if(i===!1&&(n=this[t]),s??=a.getPropertyOptions(t),!((s.hasChanged??de)(n,e)||s.useDefault&&s.reflect&&n===this._$Ej?.get(t)&&!this.hasAttribute(a._$Eu(t,s))))return;this.C(t,e,s)}this.isUpdatePending===!1&&(this._$ES=this._$EP())}C(t,e,{useDefault:s,reflect:i,wrapped:n},a){s&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,a??e??this[t]),n!==!0||a!==void 0)||(this._$AL.has(t)||(this.hasUpdated||s||(e=void 0),this._$AL.set(t,e)),i===!0&&this._$Em!==t&&(this._$Eq??=new Set).add(t))}async _$EP(){this.isUpdatePending=!0;try{await this._$ES}catch(e){Promise.reject(e)}let t=this.scheduleUpdate();return t!=null&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(let[i,n]of this._$Ep)this[i]=n;this._$Ep=void 0}let s=this.constructor.elementProperties;if(s.size>0)for(let[i,n]of s){let{wrapped:a}=n,l=this[i];a!==!0||this._$AL.has(i)||l===void 0||this.C(i,void 0,n,l)}}let t=!1,e=this._$AL;try{t=this.shouldUpdate(e),t?(this.willUpdate(e),this._$EO?.forEach(s=>s.hostUpdate?.()),this.update(e)):this._$EM()}catch(s){throw t=!1,this._$EM(),s}t&&this._$AE(e)}willUpdate(t){}_$AE(t){this._$EO?.forEach(e=>e.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t)}_$EM(){this._$AL=new Map,this.isUpdatePending=!1}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return!0}update(t){this._$Eq&&=this._$Eq.forEach(e=>this._$ET(e,this[e])),this._$EM()}updated(t){}firstUpdated(t){}};v.elementStyles=[],v.shadowRootOptions={mode:"open"},v[C("elementProperties")]=new Map,v[C("finalized")]=new Map,Me?.({ReactiveElement:v}),(D.reactiveElementVersions??=[]).push("2.1.2");var Z=globalThis,le=r=>r,I=Z.trustedTypes,pe=I?I.createPolicy("lit-html",{createHTML:r=>r}):void 0,fe="$lit$",b=`lit$${Math.random().toFixed(9).slice(2)}$`,_e="?"+b,Ne=`<${_e}>`,k=document,T=()=>k.createComment(""),j=r=>r===null||typeof r!="object"&&typeof r!="function",Q=Array.isArray,Pe=r=>Q(r)||typeof r?.[Symbol.iterator]=="function",V=`[ 	
+\f\r]`,R=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,ce=/-->/g,he=/>/g,$=RegExp(`>|${V}(?:([^\\s"'>=/]+)(${V}*=${V}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`,"g"),ue=/'/g,ge=/"/g,ve=/^(?:script|style|textarea|title)$/i,ee=r=>(t,...e)=>({_$litType$:r,strings:t,values:e}),d=ee(1),qe=ee(2),Ge=ee(3),w=Symbol.for("lit-noChange"),h=Symbol.for("lit-nothing"),me=new WeakMap,y=k.createTreeWalker(k,129);function be(r,t){if(!Q(r)||!r.hasOwnProperty("raw"))throw Error("invalid template strings array");return pe!==void 0?pe.createHTML(t):t}var Le=(r,t)=>{let e=r.length-1,s=[],i,n=t===2?"<svg>":t===3?"<math>":"",a=R;for(let l=0;l<e;l++){let o=r[l],p,c,u=-1,m=0;for(;m<o.length&&(a.lastIndex=m,c=a.exec(o),c!==null);)m=a.lastIndex,a===R?c[1]==="!--"?a=ce:c[1]!==void 0?a=he:c[2]!==void 0?(ve.test(c[2])&&(i=RegExp("</"+c[2],"g")),a=$):c[3]!==void 0&&(a=$):a===$?c[0]===">"?(a=i??R,u=-1):c[1]===void 0?u=-2:(u=a.lastIndex-c[2].length,p=c[1],a=c[3]===void 0?$:c[3]==='"'?ge:ue):a===ge||a===ue?a=$:a===ce||a===he?a=R:(a=$,i=void 0);let f=a===$&&r[l+1].startsWith("/>")?" ":"";n+=a===R?o+Ne:u>=0?(s.push(p),o.slice(0,u)+fe+o.slice(u)+b+f):o+b+(u===-2?l:f)}return[be(r,n+(r[e]||"<?>")+(t===2?"</svg>":t===3?"</math>":"")),s]},M=class r{constructor({strings:t,_$litType$:e},s){let i;this.parts=[];let n=0,a=0,l=t.length-1,o=this.parts,[p,c]=Le(t,e);if(this.el=r.createElement(p,s),y.currentNode=this.el.content,e===2||e===3){let u=this.el.content.firstChild;u.replaceWith(...u.childNodes)}for(;(i=y.nextNode())!==null&&o.length<l;){if(i.nodeType===1){if(i.hasAttributes())for(let u of i.getAttributeNames())if(u.endsWith(fe)){let m=c[a++],f=i.getAttribute(u).split(b),z=/([.?@])?(.*)/.exec(m);o.push({type:1,index:n,name:z[2],strings:f,ctor:z[1]==="."?Y:z[1]==="?"?q:z[1]==="@"?G:S}),i.removeAttribute(u)}else u.startsWith(b)&&(o.push({type:6,index:n}),i.removeAttribute(u));if(ve.test(i.tagName)){let u=i.textContent.split(b),m=u.length-1;if(m>0){i.textContent=I?I.emptyScript:"";for(let f=0;f<m;f++)i.append(u[f],T()),y.nextNode(),o.push({type:2,index:++n});i.append(u[m],T())}}}else if(i.nodeType===8)if(i.data===_e)o.push({type:2,index:n});else{let u=-1;for(;(u=i.data.indexOf(b,u+1))!==-1;)o.push({type:7,index:n}),u+=b.length-1}n++}}static createElement(t,e){let s=k.createElement("template");return s.innerHTML=t,s}};function A(r,t,e=r,s){if(t===w)return t;let i=s!==void 0?e._$Co?.[s]:e._$Cl,n=j(t)?void 0:t._$litDirective$;return i?.constructor!==n&&(i?._$AO?.(!1),n===void 0?i=void 0:(i=new n(r),i._$AT(r,e,s)),s!==void 0?(e._$Co??=[])[s]=i:e._$Cl=i),i!==void 0&&(t=A(r,i._$AS(r,t.values),i,s)),t}var X=class{constructor(t,e){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=e}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){let{el:{content:e},parts:s}=this._$AD,i=(t?.creationScope??k).importNode(e,!0);y.currentNode=i;let n=y.nextNode(),a=0,l=0,o=s[0];for(;o!==void 0;){if(a===o.index){let p;o.type===2?p=new N(n,n.nextSibling,this,t):o.type===1?p=new o.ctor(n,o.name,o.strings,this,t):o.type===6&&(p=new J(n,this,t)),this._$AV.push(p),o=s[++l]}a!==o?.index&&(n=y.nextNode(),a++)}return y.currentNode=k,i}p(t){let e=0;for(let s of this._$AV)s!==void 0&&(s.strings!==void 0?(s._$AI(t,s,e),e+=s.strings.length-2):s._$AI(t[e])),e++}},N=class r{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,e,s,i){this.type=2,this._$AH=h,this._$AN=void 0,this._$AA=t,this._$AB=e,this._$AM=s,this.options=i,this._$Cv=i?.isConnected??!0}get parentNode(){let t=this._$AA.parentNode,e=this._$AM;return e!==void 0&&t?.nodeType===11&&(t=e.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,e=this){t=A(this,t,e),j(t)?t===h||t==null||t===""?(this._$AH!==h&&this._$AR(),this._$AH=h):t!==this._$AH&&t!==w&&this._(t):t._$litType$!==void 0?this.$(t):t.nodeType!==void 0?this.T(t):Pe(t)?this.k(t):this._(t)}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t))}_(t){this._$AH!==h&&j(this._$AH)?this._$AA.nextSibling.data=t:this.T(k.createTextNode(t)),this._$AH=t}$(t){let{values:e,_$litType$:s}=t,i=typeof s=="number"?this._$AC(t):(s.el===void 0&&(s.el=M.createElement(be(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===i)this._$AH.p(e);else{let n=new X(i,this),a=n.u(this.options);n.p(e),this.T(a),this._$AH=n}}_$AC(t){let e=me.get(t.strings);return e===void 0&&me.set(t.strings,e=new M(t)),e}k(t){Q(this._$AH)||(this._$AH=[],this._$AR());let e=this._$AH,s,i=0;for(let n of t)i===e.length?e.push(s=new r(this.O(T()),this.O(T()),this,this.options)):s=e[i],s._$AI(n),i++;i<e.length&&(this._$AR(s&&s._$AB.nextSibling,i),e.length=i)}_$AR(t=this._$AA.nextSibling,e){for(this._$AP?.(!1,!0,e);t!==this._$AB;){let s=le(t).nextSibling;le(t).remove(),t=s}}setConnected(t){this._$AM===void 0&&(this._$Cv=t,this._$AP?.(t))}},S=class{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,e,s,i,n){this.type=1,this._$AH=h,this._$AN=void 0,this.element=t,this.name=e,this._$AM=i,this.options=n,s.length>2||s[0]!==""||s[1]!==""?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=h}_$AI(t,e=this,s,i){let n=this.strings,a=!1;if(n===void 0)t=A(this,t,e,0),a=!j(t)||t!==this._$AH&&t!==w,a&&(this._$AH=t);else{let l=t,o,p;for(t=n[0],o=0;o<n.length-1;o++)p=A(this,l[s+o],e,o),p===w&&(p=this._$AH[o]),a||=!j(p)||p!==this._$AH[o],p===h?t=h:t!==h&&(t+=(p??"")+n[o+1]),this._$AH[o]=p}a&&!i&&this.j(t)}j(t){t===h?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"")}},Y=class extends S{constructor(){super(...arguments),this.type=3}j(t){this.element[this.name]=t===h?void 0:t}},q=class extends S{constructor(){super(...arguments),this.type=4}j(t){this.element.toggleAttribute(this.name,!!t&&t!==h)}},G=class extends S{constructor(t,e,s,i,n){super(t,e,s,i,n),this.type=5}_$AI(t,e=this){if((t=A(this,t,e,0)??h)===w)return;let s=this._$AH,i=t===h&&s!==h||t.capture!==s.capture||t.once!==s.once||t.passive!==s.passive,n=t!==h&&(s===h||i);i&&this.element.removeEventListener(this.name,this,s),n&&this.element.addEventListener(this.name,this,t),this._$AH=t}handleEvent(t){typeof this._$AH=="function"?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t)}},J=class{constructor(t,e,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=e,this.options=s}get _$AU(){return this._$AM._$AU}_$AI(t){A(this,t)}};var ze=Z.litHtmlPolyfillSupport;ze?.(M,N),(Z.litHtmlVersions??=[]).push("3.3.3");var xe=(r,t,e)=>{let s=e?.renderBefore??t,i=s._$litPart$;if(i===void 0){let n=e?.renderBefore??null;s._$litPart$=i=new N(t.insertBefore(T(),n),n,void 0,e??{})}return i._$AI(r),i};var te=globalThis,x=class extends v{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0}createRenderRoot(){let t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){let e=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=xe(e,this.renderRoot,this.renderOptions)}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(!0)}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(!1)}render(){return w}};x._$litElement$=!0,x.finalized=!0,te.litElementHydrateSupport?.({LitElement:x});var Oe=te.litElementPolyfillSupport;Oe?.({LitElement:x});(te.litElementVersions??=[]).push("4.2.2");var He={address:"Schalten / Senden",state_address:"Status",brightness_address:"Helligkeit",brightness_state_address:"Helligkeit Status",color_temperature_address:"Farbtemperatur",color_temperature_state_address:"Farbtemperatur Status",color_address:"Farbe",color_state_address:"Farbe Status",move_long_address:"Auf/Ab",move_short_address:"Schritt/Stopp",stop_address:"Stopp",position_address:"Position",position_state_address:"Position Status",angle_address:"Lamelle",angle_state_address:"Lamelle Status",temperature_address:"Ist-Temperatur",target_temperature_address:"Soll-Temperatur",target_temperature_state_address:"Soll-Temperatur Status",setpoint_shift_address:"Sollwertverschiebung",setpoint_shift_state_address:"Sollwertverschiebung Status",operation_mode_address:"Betriebsart",operation_mode_state_address:"Betriebsart Status",on_off_address:"Ein/Aus",on_off_state_address:"Ein/Aus Status",address_temperature:"Temperatur",address_brightness_south:"Helligkeit S\xFCd",address_brightness_east:"Helligkeit Ost",address_brightness_west:"Helligkeit West",address_brightness_north:"Helligkeit Nord",address_wind_speed:"Windgeschwindigkeit",address_rain_alarm:"Regenalarm",address_frost_alarm:"Frostalarm",address_wind_alarm:"Windalarm",address_day_night:"Tag/Nacht",address_air_pressure:"Luftdruck",address_humidity:"Luftfeuchte"},De={address:"Switch / send",state_address:"State",brightness_address:"Brightness",brightness_state_address:"Brightness state",color_temperature_address:"Color temperature",color_temperature_state_address:"Color temperature state",color_address:"Color",color_state_address:"Color state",move_long_address:"Up/down",move_short_address:"Step/stop",stop_address:"Stop",position_address:"Position",position_state_address:"Position state",angle_address:"Slat angle",angle_state_address:"Slat angle state",temperature_address:"Current temperature",target_temperature_address:"Target temperature",target_temperature_state_address:"Target temperature state",setpoint_shift_address:"Setpoint shift",setpoint_shift_state_address:"Setpoint shift state",operation_mode_address:"Operation mode",operation_mode_state_address:"Operation mode state",on_off_address:"On/off",on_off_state_address:"On/off state",address_temperature:"Temperature",address_brightness_south:"Brightness south",address_brightness_east:"Brightness east",address_brightness_west:"Brightness west",address_brightness_north:"Brightness north",address_wind_speed:"Wind speed",address_rain_alarm:"Rain alarm",address_frost_alarm:"Frost alarm",address_wind_alarm:"Wind alarm",address_day_night:"Day/night",address_air_pressure:"Air pressure",address_humidity:"Humidity"},Ie={menu:"Men\xFC",loading:"Lade \u2026",noProject:"Noch kein Projekt importiert. Lade eine .knxproj-Datei hoch oder lies das Projekt aus dem KNX-Panel ein.",lastImport:r=>`Letzter Import: ${r}`,neverImported:"Noch nicht importiert",count:r=>`${r} Entities angelegt`,fromKnx:"Aus KNX-Panel einlesen",upload:"Projektdatei hochladen",staged:"Neue Projektversion geladen. Pr\xFCfe die \xC4nderungen und \xFCbernimm sie, oder verwirf sie.",discardProject:"Projektversion verwerfen",loaded:"Projekt eingelesen. Neue Entities sind unter \u201ENeu verf\xFCgbar\u201C zu finden.",passwordNeeded:"Das Projekt ist passwortgesch\xFCtzt.",password:"Projekt-Passwort",open:"\xD6ffnen",cancel:"Abbrechen",search:"Suchen nach Name, Adresse, Raum \u2026",groupBy:"Gruppieren",byRoom:"Nach Raum",byType:"Nach Typ",noRoom:"Ohne Raum",nothingFound:"Keine Entities f\xFCr diesen Filter.",selectGroup:r=>`Alle in ${r} ausw\xE4hlen`,create:r=>`${r} anlegen`,name:"Name",type:"Typ",suggestLight:"Klingt nach Licht",suggestLightTitle:"Der Name deutet auf eine Lampe hin. Als Licht anlegen.",unmappedHint:"F\xFCr diese Gruppenadressen wurde kein Entity-Typ erkannt. Sie werden nicht angelegt. Lege sie bei Bedarf von Hand in der KNX-YAML oder im KNX-Panel an.",willAdd:"Wird hinzugef\xFCgt",willChange:"Wird ge\xE4ndert",willRemove:"Wird entfernt",summary:(r,t,e)=>`+${r} hinzuf\xFCgen \xB7 ${t} \xE4ndern \xB7 \u2212${e} entfernen`,stillPending:r=>`${r} neu verf\xFCgbar, nicht ausgew\xE4hlt`,discard:"Verwerfen",apply:"\xDCbernehmen",applying:"\xDCbernehme \u2026",applied:r=>`\xDCbernommen: ${r.new??0} neu, ${r.changed??0} ge\xE4ndert, ${r.deleted??0} entfernt. KNX wurde neu geladen.`,willAdopt:"Wird aus deiner YAML \xFCbernommen",adoptCount:r=>`${r} \xFCbernehmen`,adopt:"In App \xFCbernehmen",undo:"R\xFCckg\xE4ngig",ownYaml:"deiner eigenen KNX-YAML",conflictInfo:(r,t,e)=>`Schon in deiner YAML: ${r} \u201E${t}\u201C (${e}). Wird nicht doppelt angelegt.`,adoptInfo:r=>`Wird mit deiner Konfiguration in die App \xFCbernommen und aus ${r} entfernt. Vorher wird eine Sicherung angelegt.`,notAdoptable:"Nicht automatisch \xFCbernehmbar, bitte in der YAML entfernen.",markExisting:"Schon vorhanden",existingTitle:"Diese Entity gibt es schon (z. B. in deiner YAML als anderer Typ). Nicht anlegen.",resetConfig:"Auf Projekt zur\xFCcksetzen",ownConfigTitle:"Nutzt deine \xFCbernommene Konfiguration. Zur\xFCcksetzen auf die Erkennung aus dem ETS-Projekt.",adoptFailed:r=>`\xDCbernahme aus deiner YAML nicht m\xF6glich: ${r}. Es wurde nichts ge\xE4ndert.`,adoptReasons:{not_a_list_item:"der Eintrag ist kein einfacher Listeneintrag (\u201E- name: \u2026\u201C)",flow_style:"der Eintrag steht in Kurzschreibweise ({ \u2026 })",outside_config:"die Datei liegt au\xDFerhalb des Konfigurationsordners",line_not_found:"die Datei hat sich ge\xE4ndert, bitte neu laden",verification:"nach dem Entfernen h\xE4tte sich mehr als dieser Eintrag ge\xE4ndert"},editAddresses:"Adressen bearbeiten",doneAddresses:"Fertig",addAddress:"Adresse hinzuf\xFCgen \u2026",removeAddress:r=>`${r} entfernen`,fromEts:"aus der ETS",etsValue:r=>`ETS: ${r||"keine"} \xB7 `,addedByHand:"von Hand hinzugef\xFCgt",reset:"zur\xFCcksetzen",invalidAddress:"Keine g\xFCltige Gruppenadresse (z. B. 1/2/3)",fixAddresses:"Ung\xFCltige Gruppenadresse korrigieren",fieldLabel:r=>He[r]??r,eyebrow:"ETS-Projekt",sources:{upload:"Datei-Upload",knx_project:"KNX-Panel",file:"Datei"},lastImportLine:(r,t)=>`Letzter Import ${r} \xB7 Quelle: ${t}`,stagedTitle:"Neue Projektversion geladen",stagedDetail:(r,t,e)=>`${r} neue ${r===1?"Entity":"Entities"} gefunden, ${t} ge\xE4ndert, ${e} nicht mehr im Projekt. Noch nichts \xFCbernommen.`,discardVersion:"Version verwerfen",stats:{active:["Angelegt","Entities"],pending:["Neu verf\xFCgbar","zum Hinzuf\xFCgen"],off:["Abgew\xE4hlt","nicht angelegt"],unmapped:["Ohne Typ","Gruppenadressen"]},moreFilters:"Weitere",roomCount:(r,t)=>`${r} von ${t} angelegt`,allOn:"Alle anlegen",allOff:"Alle abw\xE4hlen",barCounts:{add:"hinzuf\xFCgen",change:"\xE4ndern",remove:"entfernen",adopt:"\xFCbernehmen"},showDetails:"Details anzeigen",hideDetails:"Details ausblenden",applyLong:"\xDCbernehmen und KNX neu laden",filters:{all:"Alle",active:"Angelegt",pending:"Neu verf\xFCgbar",off:"Abgew\xE4hlt",existing:"Schon vorhanden",issues:"Nicht m\xF6glich",gone:"Nicht mehr im Projekt",unmapped:"Ohne Typ"},status:{new:"Wird hinzugef\xFCgt",changed:"Wird ge\xE4ndert",retyped:"Typ wird ge\xE4ndert",unchanged:"Aktiv",kept:"Behalten",removed:"Wird entfernt",pending:"Neu verf\xFCgbar",deselected:"Abgew\xE4hlt",deselected_removed:"Wird entfernt",excluded:"Typ ausgeschlossen",duplicate:"Doppelt",invalid:"Ung\xFCltig",conflict:"Eigene YAML",existing:"Schon vorhanden",adopt:"Wird \xFCbernommen",own_config:"Aktiv \xB7 eigene Konfiguration"},reasons:{own_yaml:"Schon in deiner eigenen KNX-YAML definiert",light:"GA schon von einem Licht belegt",unique_id:"Gleiche Gruppenadresse wie eine andere Entity"},domains:{switch:"Schalter",light:"Licht",binary_sensor:"Bin\xE4rsensor",sensor:"Sensor",time:"Uhrzeit",date:"Datum",datetime:"Datum/Uhrzeit",cover:"Rollladen/Jalousie",scene:"Szene",climate:"Klima",weather:"Wetter"},errors:{invalid_password:"Falsches oder fehlendes Projekt-Passwort.",invalid_project:"Keine lesbare ETS-Projektdatei.",no_knx_project:"Im KNX-Panel ist kein Projekt hochgeladen.",not_set_up:"KNX Project Sync ist nicht eingerichtet.",no_project:"Es wurde noch kein Projekt importiert."}},Ue={menu:"Menu",loading:"Loading \u2026",noProject:"No project imported yet. Upload a .knxproj file or read the project from the KNX panel.",lastImport:r=>`Last import: ${r}`,neverImported:"Not imported yet",count:r=>`${r} entities created`,fromKnx:"Read from KNX panel",upload:"Upload project file",staged:"New project version loaded. Review the changes and apply them, or discard them.",discardProject:"Discard project version",loaded:"Project loaded. New entities are listed under \u201CNewly available\u201D.",passwordNeeded:"The project is password protected.",password:"Project password",open:"Open",cancel:"Cancel",search:"Search name, address, room \u2026",groupBy:"Group by",byRoom:"By room",byType:"By type",noRoom:"No room",nothingFound:"No entities for this filter.",selectGroup:r=>`Select all in ${r}`,create:r=>`Create ${r}`,name:"Name",type:"Type",suggestLight:"Sounds like a light",suggestLightTitle:"The name suggests a lamp. Create it as a light.",unmappedHint:"No entity type was detected for these group addresses, so they are not created. Add them by hand in the KNX YAML or the KNX panel if needed.",willAdd:"Will be added",willChange:"Will be changed",willRemove:"Will be removed",summary:(r,t,e)=>`+${r} add \xB7 ${t} change \xB7 \u2212${e} remove`,stillPending:r=>`${r} newly available, not selected`,discard:"Discard",apply:"Apply",applying:"Applying \u2026",applied:r=>`Applied: ${r.new??0} new, ${r.changed??0} changed, ${r.deleted??0} removed. KNX was reloaded.`,willAdopt:"Taken over from your YAML",adoptCount:r=>`${r} take over`,adopt:"Take over into the app",undo:"Undo",ownYaml:"your own KNX YAML",conflictInfo:(r,t,e)=>`Already in your YAML: ${r} \u201C${t}\u201D (${e}). Not created twice.`,adoptInfo:r=>`Taken over into the app with your configuration and removed from ${r}. A backup is made first.`,notAdoptable:"Cannot be taken over automatically, please remove it from the YAML.",markExisting:"Already exists",existingTitle:"This entity already exists (e.g. in your YAML as another type). Do not create it.",resetConfig:"Reset to project",ownConfigTitle:"Uses your taken-over configuration. Reset to what the ETS project detects.",adoptFailed:r=>`Could not take over from your YAML: ${r}. Nothing was changed.`,adoptReasons:{not_a_list_item:"the entry is not a plain list item (\u201C- name: \u2026\u201D)",flow_style:"the entry uses the short flow style ({ \u2026 })",outside_config:"the file is outside the configuration folder",line_not_found:"the file has changed, please reload",verification:"removing it would have changed more than this entry"},editAddresses:"Edit addresses",doneAddresses:"Done",addAddress:"Add address \u2026",removeAddress:r=>`Remove ${r}`,fromEts:"from ETS",etsValue:r=>`ETS: ${r||"none"} \xB7 `,addedByHand:"added by hand",reset:"reset",invalidAddress:"Not a valid group address (e.g. 1/2/3)",fixAddresses:"Fix the invalid group address",fieldLabel:r=>De[r]??r,eyebrow:"ETS project",sources:{upload:"file upload",knx_project:"KNX panel",file:"file"},lastImportLine:(r,t)=>`Last import ${r} \xB7 Source: ${t}`,stagedTitle:"New project version loaded",stagedDetail:(r,t,e)=>`${r} new ${r===1?"entity":"entities"} found, ${t} changed, ${e} no longer in the project. Nothing applied yet.`,discardVersion:"Discard version",stats:{active:["Created","entities"],pending:["Newly available","to add"],off:["Deselected","not created"],unmapped:["No type","group addresses"]},moreFilters:"More",roomCount:(r,t)=>`${r} of ${t} created`,allOn:"Create all",allOff:"Deselect all",barCounts:{add:"add",change:"change",remove:"remove",adopt:"take over"},showDetails:"Show details",hideDetails:"Hide details",applyLong:"Apply and reload KNX",filters:{all:"All",active:"Created",pending:"Newly available",off:"Deselected",existing:"Already exists",issues:"Not possible",gone:"No longer in project",unmapped:"No type"},status:{new:"Will be added",changed:"Will change",retyped:"Type changes",unchanged:"Active",kept:"Kept",removed:"Will be removed",pending:"Newly available",deselected:"Deselected",deselected_removed:"Will be removed",excluded:"Type excluded",duplicate:"Duplicate",invalid:"Invalid",conflict:"Own YAML",existing:"Already exists",adopt:"Will be taken over",own_config:"Active \xB7 own configuration"},reasons:{own_yaml:"Already defined in your own KNX YAML",light:"GA already used by a light",unique_id:"Same group address as another entity"},domains:{switch:"Switch",light:"Light",binary_sensor:"Binary sensor",sensor:"Sensor",time:"Time",date:"Date",datetime:"Date/time",cover:"Cover",scene:"Scene",climate:"Climate",weather:"Weather"},errors:{invalid_password:"Wrong or missing project password.",invalid_project:"Not a readable ETS project file.",no_knx_project:"No project is uploaded in the KNX panel.",not_set_up:"KNX Project Sync is not set up.",no_project:"No project has been imported yet."}},se={de:Ie,en:Ue};var $e=/^(\d{1,2}\/\d{1,2}\/\d{1,3}|\d{1,2}\/\d{1,4}|\d{1,5})$/,we=new Set(["new","changed","unchanged","kept"]),P=new Set(["excluded","duplicate","invalid","conflict","removed","existing"]);var ye=(r,t)=>{switch(t){case"all":return!0;case"active":return we.has(r.status);case"pending":return r.status==="pending";case"existing":return r.status==="existing";case"off":return r.status==="deselected";case"issues":return["excluded","duplicate","invalid","conflict"].includes(r.status);case"gone":return!r.in_project;default:return!1}},U=r=>{let t={};for(let[e,s]of Object.entries(r)){let i={};(s.enabled===!0||s.enabled===!1)&&(i.enabled=s.enabled),s.domain&&(i.domain=s.domain),s.name&&s.name.trim()&&(i.name=s.name.trim()),s.existing&&(i.existing=!0),s.adopt&&(i.adopt=!0),s.config&&(i.config=s.config),s.addresses&&Object.keys(s.addresses).length&&(i.addresses=s.addresses),Object.keys(i).length&&(t[e]=i)}return t},Fe=(r,t)=>JSON.stringify(ke(U(r)))===JSON.stringify(ke(U(t))),ke=r=>Object.fromEntries(Object.entries(r).sort(([t],[e])=>t.localeCompare(e))),L=class extends x{constructor(){super(...arguments);this.narrow=!1;this._data=null;this._draft={};this._search="";this._filter="all";this._group="room";this._busy=null;this._error=null;this._message=null;this._passwordFor=null;this._showChanges=!1;this._loaded=!1;this._request=0;this._editing=new Set}get t(){let e=(this.hass?.locale?.language||this.hass?.language||"en").slice(0,2);return se[e]??se.en}updated(e){if(e.has("hass")&&this.hass&&!this._loaded){this._loaded=!0,this._refresh(void 0,!0);try{let s=JSON.parse(localStorage.getItem("knx-project-sync-view")??"{}");(s.group==="room"||s.group==="domain")&&(this._group=s.group)}catch{}}}async _refresh(e,s=!1){let i=++this._request;try{let n={type:"knx_project_sync/plan"};e&&(n.selection=U(e));let a=await this.hass.callWS(n);if(i!==this._request)return;this._data=a,s&&(this._draft=structuredClone(a.stored_selection??{})),this._error=null}catch(n){i===this._request&&(this._error=this._errorText(n))}}_scheduleRefresh(){window.clearTimeout(this._timer),this._timer=window.setTimeout(()=>this._refresh(this._draft),250)}_errorText(e){let s=e;return s.code==="adopt_failed"?this.t.adoptFailed(this.t.adoptReasons[s.message??""]??s.message??""):s.code&&this.t.errors[s.code]||s.message||String(e)}async _loadKnxProject(){await this._run("load",async()=>{await this.hass.callWS({type:"knx_project_sync/load_project",source:"knx_project"}),await this._refresh(this._draft),this._message=this.t.loaded})}async _upload(e,s){await this._run("load",async()=>{let i=new FormData;i.append("file",e);let n=await this.hass.fetchWithAuth("/api/file_upload",{method:"POST",body:i});if(!n.ok)throw new Error(`${n.status} ${await n.text()}`);let{file_id:a}=await n.json();try{await this.hass.callWS({type:"knx_project_sync/load_project",source:"upload",file_id:a,...s?{password:s}:{}})}catch(l){throw l.code==="invalid_password"&&(this._passwordFor=e),l}this._passwordFor=null,await this._refresh(this._draft),this._message=this.t.loaded})}async _discard(){await this._run("discard",async()=>{this._data?.staged&&await this.hass.callWS({type:"knx_project_sync/discard"}),this._showChanges=!1,await this._refresh(void 0,!0)})}async _apply(){await this._run("apply",async()=>{let e=await this.hass.callWS({type:"knx_project_sync/apply",selection:U(this._draft)});this._showChanges=!1,await this._refresh(void 0,!0),this._message=this.t.applied(e)})}async _run(e,s){this._busy=e,this._error=null,this._message=null;try{await s()}catch(i){this._error=this._errorText(i)}finally{this._busy=null}}_choose(e,s){let i={...this._draft[e]??{},...s};this._draft={...this._draft,[e]:i},this._scheduleRefresh()}_checked(e){let s=this._draft[e.key]?.enabled;return s===!0||s===!1?s&&!P.has(e.status):we.has(e.status)}_toggleMany(e,s){let i={...this._draft};for(let n of e)P.has(n.status)||(i[n.key]={...i[n.key]??{},enabled:s});this._draft=i,this._scheduleRefresh()}get _dirty(){return this._data?this._data.staged||!Fe(this._draft,this._data.stored_selection??{})||!!this._data.has_changes:!1}_visible(){let e=this._search.trim().toLowerCase();return(this._data?.entities??[]).filter(s=>ye(s,this._filter)?e?[s.name,s.ets_name,s.room,s.key,s.entity_id,s.domain,...s.addresses.map(n=>n.address)].filter(Boolean).join(" ").toLowerCase().includes(e):!0:!1)}render(){let e=this.t,s=this._data;return d`
+      <header class="toolbar">
+        ${this.narrow?d`<button class="icon-button" aria-label=${e.menu} @click=${this._toggleMenu}>${_(g.menu)}</button>`:d`<div class="app-icon">${_(g.home,20)}</div>`}
+        <h1 class="app-title">KNX Project Sync</h1>
+        <span class="grow"></span>
+        ${s?.has_knx_project?d`<button
+              class="secondary tool"
+              aria-label=${e.fromKnx}
+              title=${e.fromKnx}
               ?disabled=${!!this._busy}
-              @change=${n=>{let a=n.target,c=a.files?.[0];a.value="",c&&this._upload(c)}}
-            />
-          </label>
-        </div>
+              @click=${this._loadKnxProject}
+            >
+              ${_(g.refresh,18)}<span class="btn-label">${e.fromKnx}</span>
+            </button>`:h}
+        <label
+          class="button primary tool ${this._busy?"disabled":""}"
+          title=${e.upload}
+        >
+          ${_(g.upload,18)}<span class="btn-label">${e.upload}</span>
+          <input
+            type="file"
+            accept=".knxproj"
+            class="visually-hidden"
+            ?disabled=${!!this._busy}
+            @change=${i=>{let n=i.target,a=n.files?.[0];n.value="",a&&this._upload(a)}}
+          />
+        </label>
+      </header>
+      <main class="content">
+        ${this._renderProject()}
+        ${this._error?d`<div class="alert error" role="alert">${this._error}</div>`:h}
+        ${this._message?d`<div class="alert info" role="status">${this._message}</div>`:h}
+        ${this._passwordFor?this._renderPassword():h}
+        ${s?s.project?d`${this._renderStaged()} ${this._renderStats()} ${this._renderSearch()}
+              ${this._filter==="unmapped"?this._renderUnmapped():this._renderGroups()}`:d`<div class="empty">${e.noProject}</div>`:d`<div class="empty">${e.loading}</div>`}
+      </main>
+      ${s?.project&&this._dirty?this._renderBar():h}
+    `}_renderProject(){let e=this.t,s=this._data,i=s?.last_import,n=i?new Date(i.time).toLocaleString(this.hass.language,{dateStyle:"medium",timeStyle:"short"}):null;return d`<section class="project">
+      <div class="eyebrow">${e.eyebrow}</div>
+      <h2>${s?.project??"\u2013"}</h2>
+      <div class="sub">${n?e.lastImportLine(n,e.sources[i.source]??i.source):e.neverImported}</div>
+    </section>`}_renderStaged(){let e=this.t;if(!this._data?.staged)return h;let s=this._data.entities,i=s.filter(l=>l.status==="pending").length,n=s.filter(l=>l.status==="changed").length,a=s.filter(l=>!l.in_project).length;return d`<section class="staged">
+      <div class="staged-icon">${_(g.file,20)}</div>
+      <div class="grow">
+        <div class="staged-title">${e.stagedTitle}</div>
+        <div>${e.stagedDetail(i,n,a)}</div>
       </div>
-      ${s?.staged?d`<div class="alert warn">
-            <span>${e.staged}</span>
-            <button class="text" @click=${this._discard}>${e.discardProject}</button>
-          </div>`:p}
-    `}_renderPassword(){let e=this.t;return d`<form class="alert warn" @submit=${i=>{i.preventDefault();let n=this.renderRoot.querySelector("#password");this._passwordFor&&n&&this._upload(this._passwordFor,n.value)}}>
-      <span>${e.passwordNeeded}</span>
-      <input id="password" type="password" autocomplete="off" placeholder=${e.password} />
-      <button type="submit" ?disabled=${!!this._busy}>${e.open}</button>
-      <button type="button" class="text" @click=${()=>this._passwordFor=null}>${e.cancel}</button>
-    </form>`}_renderFilters(){let e=this.t,s=this._data?.entities??[],i=n=>n==="unmapped"?this._data?.unmapped.length??0:s.filter(a=>ye(a,n)).length;return d`
-      <div class="filters">
+      <button class="text" ?disabled=${!!this._busy} @click=${this._discard}>${e.discardVersion}</button>
+    </section>`}_count(e){return e==="unmapped"?this._data?.unmapped.length??0:(this._data?.entities??[]).filter(s=>ye(s,e)).length}_setFilter(e){this._filter=this._filter===e?"all":e}_renderStats(){let e=this.t,s=["active","pending","off","unmapped"],i=["existing","issues","gone"].filter(n=>this._count(n)>0||this._filter===n);return d`<section class="stats">
+        ${s.map(n=>{let[a,l]=e.stats[n],o=this._count(n);return d`<button
+            class="stat ${this._filter===n?"active":""} ${n==="pending"&&o?"accent":""}"
+            aria-pressed=${this._filter===n}
+            @click=${()=>this._setFilter(n)}
+          >
+            <span class="stat-label">${a}</span>
+            <span class="stat-value"><strong>${o}</strong><span>${l}</span></span>
+          </button>`})}
+      </section>
+      ${i.length?d`<div class="chips" role="group" aria-label=${e.moreFilters}>
+            ${i.map(n=>d`<button class="chip ${this._filter===n?"active":""}" aria-pressed=${this._filter===n} @click=${()=>this._setFilter(n)}>
+                ${e.filters[n]} <span class="n">${this._count(n)}</span>
+              </button>`)}
+          </div>`:h}`}_renderSearch(){let e=this.t,s=i=>{this._group=i;try{localStorage.setItem("knx-project-sync-view",JSON.stringify({group:i}))}catch{}};return d`<section class="search-row">
+      <label class="search">
+        ${_(g.search,18)}
         <input
-          class="search"
           type="search"
+          aria-label=${e.search}
           placeholder=${e.search}
           .value=${this._search}
-          @input=${n=>this._search=n.target.value}
+          @input=${i=>this._search=i.target.value}
         />
-        <select
-          aria-label=${e.groupBy}
-          .value=${this._group}
-          @change=${n=>{this._group=n.target.value;try{localStorage.setItem("knx-project-sync-view",JSON.stringify({group:this._group}))}catch{}}}
-        >
-          <option value="room">${e.byRoom}</option>
-          <option value="domain">${e.byType}</option>
-        </select>
+      </label>
+      <div class="segmented" role="group" aria-label=${e.groupBy}>
+        ${["room","domain"].map(i=>d`<button aria-pressed=${this._group===i} class=${this._group===i?"on":""} @click=${()=>s(i)}>
+            ${i==="room"?e.byRoom:e.byType}
+          </button>`)}
       </div>
-      <div class="chips" role="tablist">
-        ${Ie.map(n=>{let a=i(n);return a===0&&n!=="all"&&n!==this._filter?p:d`<button
-            role="tab"
-            class="chip ${n===this._filter?"active":""} ${n==="pending"?"accent":""}"
-            aria-selected=${n===this._filter}
-            @click=${()=>this._filter=n}
-          >
-            ${e.filters[n]} <span class="n">${a}</span>
-          </button>`})}
-      </div>
-    `}_renderGroups(){let e=this.t,s=this._visible();if(!s.length)return d`<div class="empty">${e.nothingFound}</div>`;let i=new Map;for(let a of s){let c=this._group==="room"?a.room||e.noRoom:e.domains[a.domain]??a.domain;i.set(c,[...i.get(c)??[],a])}let n=[...i.entries()].sort(([a],[c])=>a===e.noRoom?1:c===e.noRoom?-1:a.localeCompare(c,this.hass.language));return d`${n.map(([a,c])=>{let o=c.filter(h=>!N.has(h.status)),l=o.filter(h=>this._checked(h)).length;return d`<section class="group">
-        <div class="group-head">
-          <input
-            type="checkbox"
-            aria-label=${e.selectGroup(a)}
-            .checked=${o.length>0&&l===o.length}
-            .indeterminate=${l>0&&l<o.length}
-            ?disabled=${!o.length}
-            @change=${h=>this._toggleMany(o,h.target.checked)}
-          />
-          <h2>${a}</h2>
-          <span class="n">${l}/${c.length}</span>
+    </section>`}_renderGroups(){let e=this.t,s=this._visible();if(!s.length)return d`<div class="empty">${e.nothingFound}</div>`;let i=new Map;for(let a of s){let l=this._group==="room"?a.room||e.noRoom:e.domains[a.domain]??a.domain;i.set(l,[...i.get(l)??[],a])}let n=[...i.entries()].sort(([a],[l])=>a===e.noRoom?1:l===e.noRoom?-1:a.localeCompare(l,this.hass.language));return d`${n.map(([a,l])=>{let o=l.filter(m=>!P.has(m.status)),p=l.filter(m=>this._checked(m)).length,c=o.length>0&&o.every(m=>this._checked(m)),u=l.length?Math.round(p/l.length*100):0;return d`<section class="room">
+        <div class="room-head">
+          <h3>${a}</h3>
+          <span class="sub">${e.roomCount(p,l.length)}</span>
+          <div class="progress" role="progressbar" aria-valuenow=${u} aria-valuemin="0" aria-valuemax="100" aria-label=${e.roomCount(p,l.length)}>
+            <div style="width: ${u}%"></div>
+          </div>
+          <button class="secondary small" ?disabled=${!o.length} @click=${()=>this._toggleMany(o,!c)}>
+            ${c?e.allOff:e.allOn}
+          </button>
         </div>
-        <div class="rows">${c.map(h=>this._renderRow(h))}</div>
-      </section>`})}`}_renderRow(e){let s=this.t,i=this._draft[e.key]??{},n=N.has(e.status),a=this._checked(e),c=i.domain||e.detected_domain;return d`<div class="row ${a?"":"off"} ${n?"blocked":""}">
-      <input
-        type="checkbox"
-        class="check"
-        aria-label=${s.create(e.ets_name??e.key)}
-        .checked=${a}
+        ${l.map(m=>this._renderRow(m))}
+      </section>`})}`}_renderRow(e){let s=this.t,i=this._draft[e.key]??{},n=P.has(e.status),a=this._checked(e),l=i.domain||e.detected_domain,o=e.adopt?"adopt":e.status,p=e.ets_name??e.key;return d`<div class="row ${a?"":"off"} ${e.status==="pending"?"pending":""}">
+      <button
+        class="toggle ${a?"on":""}"
+        role="switch"
+        aria-checked=${a}
+        aria-label=${s.create(p)}
         ?disabled=${n}
-        @change=${o=>this._choose(e.key,{enabled:o.target.checked})}
-      />
+        @click=${()=>this._choose(e.key,{enabled:!a})}
+      >
+        <span></span>
+      </button>
+      <div class="tile ${Ke(e.domain)}">${_(Be[e.domain]??g.generic,20)}</div>
       <div class="main">
-        <input
-          class="name"
-          type="text"
-          .value=${i.name??""}
-          placeholder=${e.ets_name??e.key}
-          aria-label=${s.name}
-          ?disabled=${!e.in_project}
-          @change=${o=>this._choose(e.key,{name:o.target.value})}
-        />
+        <label class="name">
+          <input
+            type="text"
+            .value=${i.name??""}
+            placeholder=${p}
+            aria-label=${s.name}
+            ?disabled=${!e.in_project}
+            @change=${c=>this._choose(e.key,{name:c.target.value})}
+          />
+          ${e.in_project?_(g.pencil,15):h}
+        </label>
         <div class="meta">
-          ${e.addresses.map(o=>d`<code class=${e.project_addresses?.[o.field]===o.address?"":"edited"} title=${s.fieldLabel(o.field)}
-                >${o.address}</code
+          ${e.addresses.map(c=>d`<code class=${e.project_addresses?.[c.field]===c.address?"":"edited"} title=${s.fieldLabel(c.field)}
+                >${c.address}</code
               >`)}
           ${e.in_project&&e.address_fields?.length?d`<button
                 class="link edit ${this._editing.has(e.key)?"":"mark"}"
@@ -117,438 +124,697 @@ var M=globalThis,H=M.ShadowRoot&&(M.ShadyCSS===void 0||M.ShadyCSS.nativeShadow)&
                 @click=${()=>this._toggleEditing(e.key)}
               >
                 ${this._editing.has(e.key)?s.doneAddresses:s.editAddresses}
-              </button>`:p}
-          ${this._group==="domain"&&e.room?d`<span>${e.room}</span>`:p}
-          ${e.entity_id?d`<a href="#" @click=${o=>this._moreInfo(o,e.entity_id)}>${e.entity_id}</a>`:p}
+              </button>`:h}
+          ${this._group==="domain"&&e.room?d`<span>${e.room}</span>`:h}
+          ${e.entity_id?d`<a href="#" @click=${c=>this._moreInfo(c,e.entity_id)}>${e.entity_id}</a>`:h}
         </div>
       </div>
       <div class="type">
-        ${e.domains.length>1?d`<select
-              aria-label=${s.type}
-              ?disabled=${n}
-              .value=${c}
-              @change=${o=>this._choose(e.key,{domain:o.target.value})}
-            >
-              ${e.domains.map(o=>d`<option value=${o} ?selected=${o===c}>${s.domains[o]??o}</option>`)}
-            </select>`:d`<span class="domain">${s.domains[e.domain]??e.domain}</span>`}
-        ${e.suggest_light&&c==="switch"&&!n?d`<button class="hint" title=${s.suggestLightTitle} @click=${()=>this._choose(e.key,{domain:"light"})}>
-              ${s.suggestLight}
-            </button>`:p}
+        ${e.domains.length>1?d`<div class="segmented small" role="group" aria-label=${s.type}>
+              ${e.domains.map(c=>d`<button
+                  class=${c===l?"on":""}
+                  aria-pressed=${c===l}
+                  ?disabled=${n}
+                  @click=${()=>this._choose(e.key,{domain:c})}
+                >
+                  ${s.domains[c]??c}
+                </button>`)}
+            </div>`:d`<span class="domain">${s.domains[e.domain]??e.domain}</span>`}
+        ${e.suggest_light&&l==="switch"&&!n?d`<button class="hint" title=${s.suggestLightTitle} @click=${()=>this._choose(e.key,{domain:"light"})}>
+              ${_(g.light,14)} ${s.suggestLight}
+            </button>`:h}
       </div>
       <div class="status">
-        <span class="badge ${e.adopt?"adopt":e.status}">${this._statusLabel(e)}</span>
-        ${e.reason&&n&&!e.conflict_with?d`<div class="reason" title=${e.reason}>${this._reasonLabel(e)}</div>`:p}
+        <span class="pill ${o}">${this._statusLabel(e)}</span>
+        ${e.reason&&n&&!e.conflict_with?d`<span class="reason" title=${e.reason}>${this._reasonLabel(e)}</span>`:h}
         ${this._renderActions(e,i)}
       </div>
-      ${e.conflict_with?this._renderConflict(e,i):p}
-      ${this._editing.has(e.key)?this._renderAddresses(e,i):p}
-    </div>`}_toggleEditing(e){let s=new Set(this._editing);s.has(e)?s.delete(e):s.add(e),this._editing=s}_address(e,s,i){let n=s.addresses??{};return i in n?n[i]??null:e.addresses.find(a=>a.field===i)?.address??null}_setAddress(e,s,i){let n={...this._draft[e.key]?.addresses??{}};i===void 0?delete n[s]:n[s]=i,this._choose(e.key,{addresses:Object.keys(n).length?n:null})}_renderAddresses(e,s){let i=this.t,n=s.addresses??{},a=e.address_fields.filter(o=>this._address(e,s,o)!==null||o in n),c=e.address_fields.filter(o=>!a.includes(o));return d`<div class="addr-box">
-      ${a.map(o=>{let l=this._address(e,s,o)??"",h=e.project_addresses[o],u=l===""||$e.test(l),g=`ga-${e.key}-${o}`;return d`<div class="addr">
-          <label for=${g}>${i.fieldLabel(o)}</label>
+      ${e.conflict_with?this._renderConflict(e,i):h}
+      ${this._editing.has(e.key)?this._renderAddresses(e,i):h}
+    </div>`}_toggleEditing(e){let s=new Set(this._editing);s.has(e)?s.delete(e):s.add(e),this._editing=s}_address(e,s,i){let n=s.addresses??{};return i in n?n[i]??null:e.addresses.find(a=>a.field===i)?.address??null}_setAddress(e,s,i){let n={...this._draft[e.key]?.addresses??{}};i===void 0?delete n[s]:n[s]=i,this._choose(e.key,{addresses:Object.keys(n).length?n:null})}_renderAddresses(e,s){let i=this.t,n=s.addresses??{},a=e.address_fields.filter(o=>this._address(e,s,o)!==null||o in n),l=e.address_fields.filter(o=>!a.includes(o));return d`<div class="drawer">
+      ${a.map(o=>{let p=this._address(e,s,o)??"",c=e.project_addresses[o],u=p===""||$e.test(p),m=`ga-${e.key}-${o}`;return d`<div class="addr">
+          <label for=${m}>${i.fieldLabel(o)}</label>
           <input
-            id=${g}
+            id=${m}
             type="text"
             inputmode="numeric"
             autocomplete="off"
             spellcheck="false"
             class=${u?"":"invalid"}
             aria-invalid=${!u}
-            .value=${l}
-            placeholder=${h??"1/2/3"}
-            @change=${m=>this._setAddress(e,o,m.target.value.trim())}
+            .value=${p}
+            placeholder=${c??"1/2/3"}
+            @change=${f=>this._setAddress(e,o,f.target.value.trim())}
           />
           <span class="addr-note">
-            ${u?h===void 0?i.addedByHand:l===h?i.fromEts:d`${i.etsValue(h)}
+            ${u?c===void 0?i.addedByHand:p===c?i.fromEts:d`${i.etsValue(c)}
                       <button class="link" @click=${()=>this._setAddress(e,o,void 0)}>${i.reset}</button>`:d`<span class="error-text">${i.invalidAddress}</span>`}
           </span>
           <button
-            class="link remove"
+            class="icon-button small"
             aria-label=${i.removeAddress(i.fieldLabel(o))}
             title=${i.removeAddress(i.fieldLabel(o))}
-            @click=${()=>this._setAddress(e,o,h===void 0?void 0:null)}
+            @click=${()=>this._setAddress(e,o,c===void 0?void 0:null)}
           >
-            ✕
+            ${_(g.close,16)}
           </button>
         </div>`})}
-      ${c.length?d`<select
+      ${l.length?d`<select
             aria-label=${i.addAddress}
-            @change=${o=>{let l=o.target;l.value&&this._setAddress(e,l.value,""),l.value=""}}
+            @change=${o=>{let p=o.target;p.value&&this._setAddress(e,p.value,""),p.value=""}}
           >
             <option value="">${i.addAddress}</option>
-            ${c.map(o=>d`<option value=${o}>${i.fieldLabel(o)}</option>`)}
-          </select>`:p}
-    </div>`}get _invalidAddresses(){return Object.values(this._draft).some(e=>Object.values(e.addresses??{}).some(s=>s!==null&&s!==""&&!$e.test(s)))}_renderConflict(e,s){let i=this.t,n=e.conflict_with,a=n.file?`${n.file}${n.line?`:${n.line}`:""}`:i.ownYaml;return d`<div class="conflict-box">
-      <span>
+            ${l.map(o=>d`<option value=${o}>${i.fieldLabel(o)}</option>`)}
+          </select>`:h}
+    </div>`}get _invalidAddresses(){return Object.values(this._draft).some(e=>Object.values(e.addresses??{}).some(s=>s!==null&&s!==""&&!$e.test(s)))}_renderConflict(e,s){let i=this.t,n=e.conflict_with,a=n.file?`${n.file}${n.line?`:${n.line}`:""}`:i.ownYaml;return d`<div class="drawer conflict-box">
+      <span class="grow">
         ${e.adopt?i.adoptInfo(a):i.conflictInfo(i.domains[n.domain]??n.domain,n.name??"",a)}
       </span>
-      ${s.adopt?d`<button class="text" @click=${()=>this._choose(e.key,{adopt:null})}>${i.undo}</button>`:n.adoptable?d`<button @click=${()=>this._choose(e.key,{adopt:!0})}>${i.adopt}</button>`:d`<span class="sub">${i.notAdoptable}</span>`}
+      ${s.adopt?d`<button class="text" @click=${()=>this._choose(e.key,{adopt:null})}>${i.undo}</button>`:n.adoptable?d`<button class="secondary small" @click=${()=>this._choose(e.key,{adopt:!0})}>${i.adopt}</button>`:d`<span class="sub">${i.notAdoptable}</span>`}
     </div>`}_renderActions(e,s){let i=this.t;return e.in_project?e.status==="existing"||s.existing?d`<button class="link" @click=${()=>this._choose(e.key,{existing:null})}>${i.undo}</button>`:e.own_config&&s.config?d`<button class="link" title=${i.ownConfigTitle} @click=${()=>this._choose(e.key,{config:null,domain:null})}>
         ${i.resetConfig}
-      </button>`:e.status==="conflict"||N.has(e.status)||e.adopt?p:d`<button class="link mark" title=${i.existingTitle} @click=${()=>this._choose(e.key,{existing:!0})}>
+      </button>`:P.has(e.status)||e.adopt?h:d`<button class="link mark" title=${i.existingTitle} @click=${()=>this._choose(e.key,{existing:!0})}>
       ${i.markExisting}
-    </button>`:p}_statusLabel(e){let s=this.t;return e.adopt?s.status.adopt:e.own_config&&e.status==="unchanged"?s.status.own_config:e.status==="deselected"&&e.entity_id?s.status.deselected_removed:e.status==="changed"&&e.previous_domain&&e.previous_domain!==e.domain?s.status.retyped:s.status[e.status]??e.status}_reasonLabel(e){let s=this.t;return e.status==="conflict"?s.reasons.own_yaml:e.status==="duplicate"?e.reason==="light"?s.reasons.light:s.reasons.unique_id:e.reason??""}_renderUnmapped(){let e=this.t,s=this._search.trim().toLowerCase(),i=(this._data?.unmapped??[]).filter(n=>!s||`${n.address} ${n.name} ${n.dpt??""}`.toLowerCase().includes(s));return d`<p class="sub">${e.unmappedHint}</p>
-      <div class="rows">
-        ${i.map(n=>d`<div class="row off unmapped">
+    </button>`:h}_statusLabel(e){let s=this.t;return e.adopt?s.status.adopt:e.own_config&&e.status==="unchanged"?s.status.own_config:e.status==="deselected"&&e.entity_id?s.status.deselected_removed:e.status==="changed"&&e.previous_domain&&e.previous_domain!==e.domain?s.status.retyped:s.status[e.status]??e.status}_reasonLabel(e){let s=this.t;return e.status==="conflict"?s.reasons.own_yaml:e.status==="duplicate"?e.reason==="light"?s.reasons.light:s.reasons.unique_id:e.reason??""}_renderPassword(){let e=this.t;return d`<form class="alert warn" @submit=${i=>{i.preventDefault();let n=this.renderRoot.querySelector("#password");this._passwordFor&&n&&this._upload(this._passwordFor,n.value)}}>
+      <label for="password" class="grow">${e.passwordNeeded}</label>
+      <input id="password" type="password" autocomplete="off" placeholder=${e.password} />
+      <button type="submit" class="primary" ?disabled=${!!this._busy}>${e.open}</button>
+      <button type="button" class="text" @click=${()=>this._passwordFor=null}>${e.cancel}</button>
+    </form>`}_renderUnmapped(){let e=this.t,s=this._search.trim().toLowerCase(),i=(this._data?.unmapped??[]).filter(n=>!s||`${n.address} ${n.name} ${n.dpt??""}`.toLowerCase().includes(s));return d`<p class="sub">${e.unmappedHint}</p>
+      <section class="room">
+        ${i.map(n=>d`<div class="row unmapped">
             <code>${n.address}</code>
             <div class="main">${n.name}</div>
             <span class="domain">${n.dpt?`DPT ${n.dpt}`:"\u2013"}</span>
           </div>`)}
-      </div>`}_renderBar(){let e=this.t,s=this._data?.summary??{},i=this._data?.entities??[],n=i.filter(l=>l.status==="new"&&!l.adopt),a=i.filter(l=>l.adopt),c=i.filter(l=>l.status==="changed"),o=i.filter(l=>l.status==="removed"||(l.status==="deselected"||l.status==="existing")&&l.entity_id);return d`<div class="bar">
-      ${this._showChanges?d`<div class="changes">
-            ${[[e.willAdd,n],[e.willChange,c],[e.willRemove,o],[e.willAdopt,a]].map(([l,h])=>h.length?d`<div>
-                    <strong>${l}</strong>
-                    <ul>
-                      ${h.map(u=>d`<li>${u.name??u.key} <span class="sub">(${e.domains[u.domain]??u.domain})</span></li>`)}
-                    </ul>
-                  </div>`:p)}
-          </div>`:p}
-      <div class="bar-main">
-        <div class="bar-info">
-          <button
-            class="text summary"
-            aria-expanded=${this._showChanges}
-            @click=${()=>this._showChanges=!this._showChanges}
-          >
-            ${e.summary(n.length,c.length,o.length)}${a.length?` \xB7 ${e.adoptCount(a.length)}`:""} ${this._showChanges?"\u25BE":"\u25B4"}
-          </button>
-          ${s.pending?d`<span class="sub">${e.stillPending(s.pending)}</span>`:p}
-        </div>
-        <div class="bar-actions">
-          <button class="text" ?disabled=${!!this._busy} @click=${this._discard}>${e.discard}</button>
-          ${this._invalidAddresses?d`<span class="error-text">${e.fixAddresses}</span>`:p}
-          <button class="primary" ?disabled=${!!this._busy||this._invalidAddresses} @click=${this._apply}>
-            ${this._busy==="apply"?e.applying:e.apply}
-          </button>
+      </section>`}_renderBar(){let e=this.t,s=this._data?.entities??[],i=s.filter(p=>p.status==="new"&&!p.adopt),n=s.filter(p=>p.adopt),a=s.filter(p=>p.status==="changed"),l=s.filter(p=>p.status==="removed"||(p.status==="deselected"||p.status==="existing")&&p.entity_id),o=[["add",e.willAdd,i],["change",e.willChange,a],["remove",e.willRemove,l],["adopt",e.willAdopt,n]];return d`<div class="bar-wrap">
+      <div class="bar">
+        ${this._showChanges?d`<div class="changes">
+              ${o.map(([,p,c])=>c.length?d`<div>
+                      <strong>${p}</strong>
+                      <ul>
+                        ${c.map(u=>d`<li>${u.name??u.key} <span class="dim">(${e.domains[u.domain]??u.domain})</span></li>`)}
+                      </ul>
+                    </div>`:h)}
+            </div>`:h}
+        <div class="bar-main">
+          <div class="counts">
+            ${o.map(([p,,c])=>p==="adopt"&&!c.length?h:d`<span class="count"><i class="dot ${p}"></i><strong>${c.length}</strong> ${e.barCounts[p]}</span>`)}
+            <button class="link light" aria-expanded=${this._showChanges} @click=${()=>this._showChanges=!this._showChanges}>
+              ${this._showChanges?e.hideDetails:e.showDetails}
+            </button>
+          </div>
+          <div class="bar-actions">
+            ${this._invalidAddresses?d`<span class="error-text">${e.fixAddresses}</span>`:h}
+            <button class="outline" ?disabled=${!!this._busy} @click=${this._discard}>${e.discard}</button>
+            <button class="primary" ?disabled=${!!this._busy||this._invalidAddresses} @click=${this._apply}>
+              ${this._busy==="apply"?e.applying:d`<span class="long">${e.applyLong}</span><span class="short">${e.apply}</span>`}
+            </button>
+          </div>
         </div>
       </div>
-    </div>`}_toggleMenu(){this.dispatchEvent(new CustomEvent("hass-toggle-menu",{bubbles:!0,composed:!0}))}_moreInfo(e,s){e.preventDefault(),this.dispatchEvent(new CustomEvent("hass-more-info",{detail:{entityId:s},bubbles:!0,composed:!0}))}};j.properties={hass:{attribute:!1},narrow:{type:Boolean},_data:{state:!0},_draft:{state:!0},_search:{state:!0},_filter:{state:!0},_group:{state:!0},_busy:{state:!0},_error:{state:!0},_message:{state:!0},_passwordFor:{state:!0},_showChanges:{state:!0},_editing:{state:!0}},j.styles=D`
+    </div>`}_toggleMenu(){this.dispatchEvent(new CustomEvent("hass-toggle-menu",{bubbles:!0,composed:!0}))}_moreInfo(e,s){e.preventDefault(),this.dispatchEvent(new CustomEvent("hass-more-info",{detail:{entityId:s},bubbles:!0,composed:!0}))}};L.properties={hass:{attribute:!1},narrow:{type:Boolean},_data:{state:!0},_draft:{state:!0},_search:{state:!0},_filter:{state:!0},_group:{state:!0},_busy:{state:!0},_error:{state:!0},_message:{state:!0},_passwordFor:{state:!0},_showChanges:{state:!0},_editing:{state:!0}},L.styles=B`
     :host {
+      --kps-accent: var(--primary-color, #0a6cdb);
+      --kps-on-accent: var(--text-primary-color, #fff);
+      --kps-ground: var(--primary-background-color, #f4f5f7);
+      --kps-surface: var(--card-background-color, #fff);
+      --kps-text: var(--primary-text-color, #15171a);
+      --kps-muted: var(--secondary-text-color, #5b6270);
+      --kps-line: var(--divider-color, rgba(0, 0, 0, 0.12));
+      --kps-soft: color-mix(in srgb, var(--kps-text) 6%, transparent);
+      --kps-radius: var(--ha-card-border-radius, 16px);
+      --kps-success: var(--success-color, #1e9e56);
+      --kps-warning: var(--warning-color, #e08600);
+      --kps-error: var(--error-color, #d93025);
+      --kps-amber: #e8a200;
+      --kps-purple: #7b5cd6;
       display: block;
       min-height: 100vh;
-      background: var(--primary-background-color, #fafafa);
-      color: var(--primary-text-color, #212121);
-      font-family: var(--ha-font-family-body, Roboto, system-ui, sans-serif);
-      --radius: var(--ha-card-border-radius, 12px);
-      --line: var(--divider-color, rgba(0, 0, 0, 0.12));
-      --muted: var(--secondary-text-color, #727272);
-      --surface: var(--card-background-color, #fff);
-      --accent: var(--primary-color, #03a9f4);
+      background: var(--kps-ground);
+      color: var(--kps-text);
+      font-family: var(--ha-font-family-body, Inter, Roboto, system-ui, sans-serif);
+      -webkit-font-smoothing: antialiased;
     }
-    .toolbar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: var(--header-height, 56px);
-      padding: 0 16px;
-      background: var(--app-header-background-color, var(--primary-color, #03a9f4));
-      color: var(--app-header-text-color, #fff);
-      position: sticky;
-      top: 0;
-      z-index: 3;
+    * {
+      box-sizing: border-box;
     }
-    .toolbar .title {
-      font-size: 20px;
-      font-weight: 400;
+    h1,
+    h2,
+    h3 {
+      margin: 0;
     }
-    .icon {
-      background: none;
-      border: none;
-      color: inherit;
-      padding: 8px;
-      margin-left: -8px;
-      cursor: pointer;
+    .grow {
+      flex: 1 1 auto;
+      min-width: 0;
     }
-    .icon svg {
-      width: 24px;
-      height: 24px;
-      fill: currentColor;
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
-    .content {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 16px 16px 24px;
+    svg {
+      flex: none;
     }
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .project {
-      font-size: 22px;
-    }
-    .sub {
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+
+    /* ---------- controls */
     button,
     .button {
       font: inherit;
       font-size: 14px;
       font-weight: 500;
-      border-radius: 18px;
-      padding: 7px 16px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      color: var(--accent);
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: none;
+      color: var(--kps-text);
+      cursor: pointer;
+      white-space: nowrap;
     }
     button:disabled,
     .button.disabled {
-      opacity: 0.5;
+      opacity: 0.45;
       cursor: default;
     }
-    button.primary {
-      background: var(--accent);
-      color: var(--text-primary-color, #fff);
-      border-color: var(--accent);
+    button.primary,
+    .button.primary {
+      background: var(--kps-accent);
+      color: var(--kps-on-accent);
+      font-weight: 600;
+    }
+    button.secondary {
+      background: var(--kps-surface);
+      border-color: var(--kps-line);
+    }
+    button.small {
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+      border-radius: 8px;
     }
     button.text {
-      border-color: transparent;
-      background: none;
+      color: inherit;
+      padding: 0 12px;
+    }
+    .short {
+      display: none;
+    }
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border-radius: 10px;
+    }
+    .icon-button.small {
+      width: 32px;
+      height: 32px;
+      color: var(--kps-muted);
+    }
+    button.link {
+      height: auto;
+      padding: 2px 0;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--kps-accent);
+    }
+    input[type="text"],
+    input[type="password"],
+    select {
+      font: inherit;
+      font-size: 14px;
+      color: var(--kps-text);
+      background: var(--kps-surface);
+      border: 1px solid var(--kps-line);
+      border-radius: 8px;
+      height: 36px;
+      padding: 0 10px;
+      min-width: 0;
+    }
+    :focus-visible {
+      outline: 2px solid var(--kps-accent);
+      outline-offset: 2px;
+    }
+    .sub {
+      color: var(--kps-muted);
+      font-size: 14px;
+    }
+    code {
+      font-family: var(--ha-font-family-code, "JetBrains Mono", ui-monospace, monospace);
+      font-size: 12px;
+      background: var(--kps-soft);
+      border-radius: 6px;
+      padding: 2px 7px;
+    }
+    code.edited {
+      background: color-mix(in srgb, var(--kps-warning) 18%, transparent);
+      box-shadow: inset 0 0 0 1px var(--kps-warning);
+    }
+
+    /* ---------- toolbar */
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: var(--header-height, 64px);
+      padding: 0 24px;
+      background: var(--kps-surface);
+      border-bottom: 1px solid var(--kps-line);
+    }
+    .app-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--kps-accent);
+      color: var(--kps-on-accent);
+    }
+    .app-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    /* ---------- content */
+    .content {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .project {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--kps-muted);
+    }
+    .project h2 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
     .alert {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: var(--radius);
-      margin-bottom: 12px;
-      background: var(--surface);
-      border-left: 4px solid var(--accent);
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: var(--kps-surface);
+      border: 1px solid var(--kps-line);
     }
     .alert.error {
-      border-color: var(--error-color, #db4437);
+      border-color: var(--kps-error);
+      color: var(--kps-error);
     }
-    .alert.warn {
-      border-color: var(--warning-color, #ffa600);
+    .alert.info {
+      border-color: var(--kps-accent);
     }
-    .alert span {
-      flex: 1 1 240px;
-    }
-    input[type="text"],
-    input[type="search"],
-    input[type="password"],
-    select {
-      font: inherit;
-      font-size: 14px;
-      color: var(--primary-text-color);
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 7px 10px;
-      min-width: 0;
-    }
-    input:focus-visible,
-    select:focus-visible,
-    button:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
-    .filters {
+    .staged {
       display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--kps-warning) 12%, var(--kps-surface));
+      border: 1px solid color-mix(in srgb, var(--kps-warning) 40%, transparent);
+      font-size: 14px;
+      flex-wrap: wrap;
     }
-    .search {
-      flex: 1;
+    .staged-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: color-mix(in srgb, var(--kps-warning) 22%, transparent);
+      color: var(--kps-warning);
+    }
+    .staged-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .stat {
+      height: auto;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 6px;
+      padding: 16px 18px;
+      background: var(--kps-surface);
+      border: 1px solid var(--kps-line);
+      border-radius: 14px;
+      text-align: left;
+      white-space: normal;
+    }
+    .stat.accent {
+      border-color: var(--kps-accent);
+    }
+    .stat.active {
+      box-shadow: inset 0 0 0 2px var(--kps-accent);
+      border-color: var(--kps-accent);
+    }
+    .stat-label {
+      font-size: 13px;
+      color: var(--kps-muted);
+    }
+    .stat-value {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--kps-muted);
+    }
+    .stat-value strong {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--kps-text);
+    }
+    .stat.accent strong {
+      color: var(--kps-accent);
     }
     .chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 16px;
+      gap: 8px;
+      margin-top: -8px;
     }
     .chip {
-      color: var(--primary-text-color);
-      padding: 4px 12px;
-      font-weight: 400;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 16px;
+      border-color: var(--kps-line);
+      background: var(--kps-surface);
+      font-size: 13px;
     }
     .chip.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: var(--text-primary-color, #fff);
-    }
-    .chip.accent:not(.active) {
-      border-color: var(--accent);
+      background: var(--kps-text);
+      color: var(--kps-surface);
     }
     .chip .n {
-      color: inherit;
       opacity: 0.7;
-      margin-left: 4px;
     }
-    .group {
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--ha-card-box-shadow, none);
-      border: 1px solid var(--ha-card-border-color, var(--line));
-      margin-bottom: 16px;
-      overflow: hidden;
+    .search-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .group-head {
+    .search {
+      flex: 1 1 200px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 16px;
-      border-bottom: 1px solid var(--line);
+      gap: 10px;
+      height: 44px;
+      padding: 0 14px;
+      background: var(--kps-surface);
+      border: 1px solid var(--kps-line);
+      border-radius: 12px;
+      color: var(--kps-muted);
     }
-    .group-head h2 {
-      font-size: 16px;
-      font-weight: 500;
-      margin: 0;
+    .search:focus-within {
+      border-color: var(--kps-accent);
+    }
+    .search input {
+      font: inherit;
+      font-size: 15px;
       flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--kps-text);
     }
-    .n {
-      color: var(--muted);
+    .segmented {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 12px;
+      background: var(--kps-soft);
+    }
+    .segmented button {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 9px;
+      color: var(--kps-muted);
+    }
+    .segmented button.on {
+      background: var(--kps-surface);
+      color: var(--kps-text);
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.12);
+    }
+    .segmented.small {
+      padding: 3px;
+      gap: 3px;
+      border-radius: 10px;
+    }
+    .segmented.small button {
+      height: 32px;
+      padding: 0 12px;
       font-size: 13px;
+      border-radius: 8px;
+    }
+
+    /* ---------- rooms and rows */
+    .room {
+      background: var(--kps-surface);
+      border: 1px solid var(--ha-card-border-color, var(--kps-line));
+      border-radius: var(--kps-radius);
+      box-shadow: var(--ha-card-box-shadow, 0 1px 2px rgba(16, 24, 40, 0.04));
+      overflow: hidden;
+    }
+    .room-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      flex-wrap: wrap;
+    }
+    .room-head h3 {
+      font-size: 17px;
+      font-weight: 600;
+      flex: 1 1 auto;
+    }
+    .room-head .sub {
+      font-size: 13px;
+    }
+    .progress {
+      width: 96px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--kps-soft);
+      overflow: hidden;
+    }
+    .progress div {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--kps-accent);
+      transition: width 0.2s;
     }
     .row {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr) 150px 150px;
-      gap: 12px;
+      grid-template-columns: 48px 40px minmax(0, 1fr) 210px 170px;
       align-items: center;
-      padding: 8px 16px;
-      border-bottom: 1px solid var(--line);
+      gap: 10px 16px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--kps-line);
     }
-    .rows > .row:last-child {
-      border-bottom: none;
+    .row.pending {
+      background: color-mix(in srgb, var(--kps-accent) 5%, transparent);
     }
-    .row.off .name,
-    .row.off .meta {
+    .row.off .tile,
+    .row.off .main {
       opacity: 0.6;
     }
     .row.unmapped {
-      grid-template-columns: 80px minmax(0, 1fr) auto;
+      grid-template-columns: 90px minmax(0, 1fr) auto;
     }
-    .check {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent);
+    .toggle {
+      width: 44px;
+      height: 26px;
+      padding: 3px;
+      border-radius: 13px;
+      background: color-mix(in srgb, var(--kps-text) 24%, transparent);
+      justify-content: flex-start;
+      transition: background 0.15s;
+    }
+    .toggle span {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      transition: transform 0.15s;
+    }
+    .toggle.on {
+      background: var(--kps-accent);
+    }
+    .toggle.on span {
+      transform: translateX(18px);
+    }
+    .tile {
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--kps-tile);
+      background: color-mix(in srgb, var(--kps-tile) 15%, transparent);
+    }
+    .tile.light {
+      --kps-tile: var(--kps-amber);
+    }
+    .tile.switch {
+      --kps-tile: var(--kps-accent);
+    }
+    .tile.sensor {
+      --kps-tile: var(--kps-success);
+    }
+    .tile.cover {
+      --kps-tile: var(--kps-purple);
+    }
+    .tile.other {
+      --kps-tile: var(--kps-muted);
     }
     .main {
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
-    input.name {
-      width: 100%;
-      box-sizing: border-box;
-      border-color: transparent;
-      border-bottom: 1px dashed var(--line);
-      border-radius: 4px 4px 0 0;
+    .name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--kps-muted);
+    }
+    .name input {
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--kps-text);
       background: transparent;
-      padding: 4px 6px;
-      margin-left: -6px;
+      border: none;
+      border-bottom: 1px dashed var(--kps-line);
+      border-radius: 0;
+      padding: 2px 0;
+      flex: 1;
+      min-width: 0;
     }
-    input.name:hover,
-    input.name:focus {
-      border-color: var(--line);
-      background: var(--surface);
-    }
-    input.name::placeholder {
-      color: var(--primary-text-color);
+    .name input::placeholder {
+      color: var(--kps-text);
       opacity: 1;
+    }
+    .name input:focus {
+      outline: none;
+      border-bottom: 1px solid var(--kps-accent);
     }
     .meta {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: 6px;
       font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
+      color: var(--kps-muted);
     }
     .meta a {
-      color: var(--accent);
+      color: var(--kps-accent);
       text-decoration: none;
-    }
-    code {
-      font-family: var(--ha-font-family-code, ui-monospace, monospace);
-      font-size: 12px;
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.05));
-      border-radius: 4px;
-      padding: 1px 5px;
     }
     .type {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 4px;
-    }
-    .type select {
-      width: 100%;
+      gap: 6px;
     }
     .domain {
       font-size: 14px;
+      font-weight: 500;
     }
     .hint {
+      height: 28px;
+      padding: 0 10px;
       font-size: 12px;
-      padding: 2px 10px;
-      border-style: dashed;
+      font-weight: 600;
+      border-radius: 8px;
+      gap: 6px;
+      color: color-mix(in srgb, var(--kps-amber) 65%, var(--kps-text));
+      background: color-mix(in srgb, var(--kps-amber) 16%, transparent);
     }
     .status {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
       text-align: right;
       min-width: 0;
     }
-    .badge {
-      display: inline-block;
+    .pill {
+      --kps-tone: var(--kps-muted);
       font-size: 12px;
-      border-radius: 10px;
-      padding: 2px 10px;
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.06));
-      color: var(--primary-text-color);
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
       white-space: nowrap;
+      color: color-mix(in srgb, var(--kps-tone) 75%, var(--kps-text));
+      background: color-mix(in srgb, var(--kps-tone) 16%, transparent);
     }
-    .badge.new,
-    .badge.pending {
-      background: var(--accent);
-      color: var(--text-primary-color, #fff);
+    .pill.unchanged,
+    .pill.kept {
+      --kps-tone: var(--kps-success);
     }
-    .badge.changed {
-      background: var(--warning-color, #ffa600);
-      color: #000;
+    .pill.new,
+    .pill.adopt {
+      --kps-tone: var(--kps-accent);
     }
-    .badge.unchanged {
-      background: var(--success-color, #43a047);
-      color: #fff;
+    .pill.pending {
+      background: var(--kps-accent);
+      color: var(--kps-on-accent);
     }
-    .badge.removed,
-    .badge.invalid {
-      background: var(--error-color, #db4437);
-      color: #fff;
+    .pill.changed {
+      --kps-tone: var(--kps-warning);
+    }
+    .pill.removed,
+    .pill.invalid {
+      --kps-tone: var(--kps-error);
     }
     .reason {
       font-size: 12px;
-      color: var(--muted);
+      color: var(--kps-muted);
+      max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-top: 2px;
     }
-    .badge.adopt {
-      background: var(--accent);
-      color: var(--text-primary-color, #fff);
-    }
-    .badge.existing {
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.06));
-    }
-    button.link {
-      border: none;
-      background: none;
-      padding: 2px 0;
-      margin-top: 4px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 4px;
-    }
-    /* "already exists" only on hover/focus, it is rarely needed */
     @media (hover: hover) {
       .row .mark {
         opacity: 0;
@@ -558,147 +824,214 @@ var M=globalThis,H=M.ShadowRoot&&(M.ShadyCSS===void 0||M.ShadyCSS.nativeShadow)&
         opacity: 1;
       }
     }
-    code.edited {
-      outline: 1px solid var(--warning-color, #ffa600);
-    }
-    .addr-box {
-      grid-column: 2 / -1;
+    .drawer {
+      grid-column: 3 / -1;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.04));
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--kps-soft);
+      font-size: 13px;
+    }
+    .conflict-box {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
     }
     .addr {
       display: grid;
-      grid-template-columns: 180px 130px minmax(0, 1fr) auto;
+      grid-template-columns: 170px 130px minmax(0, 1fr) auto;
       align-items: center;
-      gap: 8px 12px;
-      font-size: 13px;
+      gap: 6px 12px;
     }
     .addr input {
       font-family: var(--ha-font-family-code, ui-monospace, monospace);
     }
     .addr input.invalid {
-      border-color: var(--error-color, #db4437);
+      border-color: var(--kps-error);
     }
     .addr-note {
-      color: var(--muted);
+      color: var(--kps-muted);
       font-size: 12px;
     }
-    .error-text {
-      color: var(--error-color, #db4437);
-      font-size: 12px;
-    }
-    .addr-box select {
+    .drawer select {
       align-self: flex-start;
     }
-    button.link.edit {
-      margin-top: 0;
-    }
-    button.link.remove {
-      font-size: 14px;
-      padding: 2px 6px;
-      margin: 0;
-    }
-    .conflict-box {
-      grid-column: 2 / -1;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px 12px;
-      font-size: 13px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.04));
-    }
-    .conflict-box span:first-child {
-      flex: 1 1 260px;
-    }
-    .conflict-box button {
-      padding: 4px 12px;
-      font-size: 13px;
+    .error-text {
+      color: var(--kps-error);
+      font-size: 12px;
     }
     .empty {
       padding: 48px 16px;
       text-align: center;
-      color: var(--muted);
+      color: var(--kps-muted);
+    }
+
+    /* ---------- apply bar (inverted colours, also in dark themes) */
+    .bar-wrap {
+      position: sticky;
+      bottom: 16px;
+      z-index: 4;
+      max-width: 1120px;
+      margin: 0 auto 16px;
+      padding: 0 24px;
     }
     .bar {
-      position: sticky;
-      bottom: 0;
-      background: var(--surface);
-      border-top: 1px solid var(--line);
-      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.12);
-      z-index: 4;
+      --kps-bar-text: var(--kps-surface);
+      background: var(--kps-text);
+      color: var(--kps-bar-text);
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(16, 24, 40, 0.24);
     }
     .bar-main {
-      max-width: 1100px;
-      margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
+      gap: 12px 18px;
+      padding: 12px 14px 12px 22px;
     }
-    .bar-info {
+    .counts {
       flex: 1 1 auto;
-      min-width: 0;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      column-gap: 12px;
+      gap: 6px 18px;
+      font-size: 14px;
     }
-    .bar .summary {
-      color: var(--primary-text-color);
-      padding-left: 0;
+    .count {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--kps-accent);
+    }
+    .dot.change {
+      background: var(--kps-warning);
+    }
+    .dot.remove {
+      background: var(--kps-error);
+    }
+    .dim {
+      opacity: 0.7;
+    }
+    .bar button.link.light {
+      color: inherit;
+      opacity: 0.8;
+      text-decoration: underline;
+      font-size: 14px;
     }
     .bar-actions {
       display: flex;
+      align-items: center;
       gap: 8px;
       margin-left: auto;
     }
+    .bar button.outline {
+      color: inherit;
+      border-color: color-mix(in srgb, var(--kps-bar-text) 30%, transparent);
+      height: 44px;
+    }
+    .bar button.primary {
+      height: 44px;
+      padding: 0 20px;
+    }
+    .bar .error-text {
+      color: inherit;
+    }
     .changes {
-      max-width: 1100px;
-      margin: 0 auto;
-      max-height: 40vh;
-      overflow: auto;
-      padding: 12px 16px 0;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 12px;
+      max-height: 40vh;
+      overflow: auto;
+      padding: 16px 22px 0;
       font-size: 14px;
     }
     .changes ul {
       margin: 4px 0 0;
       padding-left: 18px;
     }
-    @media (max-width: 700px) {
-      .row {
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        grid-template-areas: "check main main" ". type status";
-        row-gap: 6px;
+
+    /* ---------- phone */
+    @media (max-width: 760px) {
+      .btn-label,
+      .long,
+      .app-icon {
+        display: none;
       }
-      .check {
-        grid-area: check;
+      .short {
+        display: inline;
+      }
+      .tool {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+      }
+      .app-title {
+        font-size: 17px;
+      }
+      .toolbar {
+        padding: 0 8px 0 4px;
+        gap: 4px;
+      }
+      .content {
+        padding: 16px 16px 16px;
+        gap: 14px;
+      }
+      .project h2 {
+        font-size: 22px;
+      }
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .stat {
+        padding: 12px 14px;
+      }
+      .stat-value strong {
+        font-size: 22px;
+      }
+      .room-head {
+        padding: 12px 14px;
+      }
+      .progress {
+        width: 56px;
+      }
+      .row {
+        grid-template-columns: 36px minmax(0, 1fr) auto 48px;
+        grid-template-areas:
+          "tile main main toggle"
+          ". type status status";
+        padding: 12px 14px;
+        gap: 10px 12px;
+      }
+      .tile {
+        grid-area: tile;
+        width: 36px;
+        height: 36px;
       }
       .main {
         grid-area: main;
       }
+      .toggle {
+        grid-area: toggle;
+        justify-self: end;
+      }
       .type {
         grid-area: type;
         flex-direction: row;
+        flex-wrap: wrap;
         align-items: center;
-      }
-      .type select {
-        width: auto;
       }
       .status {
         grid-area: status;
       }
-      .conflict-box,
-      .addr-box {
+      .drawer {
         grid-column: 1 / -1;
       }
       .addr {
@@ -707,8 +1040,25 @@ var M=globalThis,H=M.ShadowRoot&&(M.ShadyCSS===void 0||M.ShadyCSS.nativeShadow)&
       .addr label {
         grid-column: 1 / -1;
       }
+      .addr-note {
+        grid-column: 1 / -1;
+      }
+      .bar-wrap {
+        padding: 0 12px;
+      }
+      .bar-main {
+        padding: 12px;
+      }
+      .counts {
+        gap: 4px 12px;
+        font-size: 13px;
+      }
+      .segmented button {
+        padding: 0 10px;
+      }
     }
-  `;customElements.define("knx-project-sync-panel",j);
+  `;var g={menu:"M4 6h16M4 12h16M4 18h16",home:"M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",refresh:"M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5",upload:"M12 16V4M7 9l5-5 5 5M4 20h16",search:"M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-4.35-4.35",file:"M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M12 18v-6M9 15l3 3 3-3",pencil:"M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z",close:"M6 6l12 12M18 6 6 18",light:"M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z",switch:"M8 7h8a5 5 0 0 1 0 10H8A5 5 0 0 1 8 7zM8 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z",sensor:"M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z",cover:"M4 3h16M5 3v14M19 3v14M5 7h14M5 11h14M5 15h14M12 17v4",binary:"M6 3h9v18H6zM15 5h3v16M12 12h.01",scene:"M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z",climate:"M12 3v18M5.6 6.6l12.8 10.8M18.4 6.6 5.6 17.4M3 12h18",weather:"M12 3v2M5.6 5.6 7 7M3 12h2M17 7l1.4-1.4M16 12a4 4 0 1 0-6.9 2.8M8 19h9a3 3 0 0 0 0-6 4.5 4.5 0 0 0-8.6 1.4A2.4 2.4 0 0 0 8 19z",clock:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2",generic:"M4 4h16v16H4zM9 9h6v6H9z"},Be={light:g.light,switch:g.switch,sensor:g.sensor,binary_sensor:g.binary,cover:g.cover,scene:g.scene,climate:g.climate,weather:g.weather,time:g.clock,date:g.clock,datetime:g.clock},Ke=r=>r==="light"||r==="switch"||r==="cover"?r:r==="sensor"||r==="climate"||r==="weather"?"sensor":"other",_=(r,t=22)=>d`<svg width=${t} height=${t} viewBox="0 0 24 24" fill="none"
+  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${r}></path></svg>`;customElements.define("knx-project-sync-panel",L);
 /*! Bundled license information:
 
 @lit/reactive-element/css-tag.js:

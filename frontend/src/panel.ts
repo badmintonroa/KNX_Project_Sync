@@ -1,6 +1,6 @@
 /**
  * Sidebar panel of KNX Project Sync: choose which detected entities are created,
- * rename them and switch between switch and light. Changes are a draft until
+ * rename them, correct group addresses and switch between switch and light. Changes are a draft until
  * "Apply"; the backend computes the status of every entity for the draft.
  */
 import { LitElement, css, html, nothing, type PropertyValues, type TemplateResult } from "lit";
@@ -304,130 +304,154 @@ class KnxProjectSyncPanel extends LitElement {
     const t = this.t;
     const data = this._data;
     return html`
-      <div class="toolbar">
+      <header class="toolbar">
         ${this.narrow
-          ? html`<button class="icon" title=${t.menu} @click=${this._toggleMenu}>
-              <svg viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>
+          ? html`<button class="icon-button" aria-label=${t.menu} @click=${this._toggleMenu}>${icon(ICONS.menu)}</button>`
+          : html`<div class="app-icon">${icon(ICONS.home, 20)}</div>`}
+        <h1 class="app-title">KNX Project Sync</h1>
+        <span class="grow"></span>
+        ${data?.has_knx_project
+          ? html`<button
+              class="secondary tool"
+              aria-label=${t.fromKnx}
+              title=${t.fromKnx}
+              ?disabled=${!!this._busy}
+              @click=${this._loadKnxProject}
+            >
+              ${icon(ICONS.refresh, 18)}<span class="btn-label">${t.fromKnx}</span>
             </button>`
           : nothing}
-        <div class="title">KNX Project Sync</div>
-      </div>
-      <div class="content">
-        ${this._renderHeader()} ${this._error ? html`<div class="alert error">${this._error}</div>` : nothing}
-        ${this._message ? html`<div class="alert info">${this._message}</div>` : nothing}
+        <label
+          class="button primary tool ${this._busy ? "disabled" : ""}"
+          title=${t.upload}
+        >
+          ${icon(ICONS.upload, 18)}<span class="btn-label">${t.upload}</span>
+          <input
+            type="file"
+            accept=".knxproj"
+            class="visually-hidden"
+            ?disabled=${!!this._busy}
+            @change=${(ev: Event) => {
+              const input = ev.target as HTMLInputElement;
+              const file = input.files?.[0];
+              input.value = "";
+              if (file) this._upload(file);
+            }}
+          />
+        </label>
+      </header>
+      <main class="content">
+        ${this._renderProject()}
+        ${this._error ? html`<div class="alert error" role="alert">${this._error}</div>` : nothing}
+        ${this._message ? html`<div class="alert info" role="status">${this._message}</div>` : nothing}
         ${this._passwordFor ? this._renderPassword() : nothing}
         ${!data
           ? html`<div class="empty">${t.loading}</div>`
           : !data.project
             ? html`<div class="empty">${t.noProject}</div>`
-            : html`${this._renderFilters()} ${this._filter === "unmapped" ? this._renderUnmapped() : this._renderGroups()}`}
-      </div>
+            : html`${this._renderStaged()} ${this._renderStats()} ${this._renderSearch()}
+              ${this._filter === "unmapped" ? this._renderUnmapped() : this._renderGroups()}`}
+      </main>
       ${data?.project && this._dirty ? this._renderBar() : nothing}
     `;
   }
 
-  private _renderHeader(): TemplateResult {
+  private _renderProject(): TemplateResult {
     const t = this.t;
     const data = this._data;
     const last = data?.last_import;
-    return html`
-      <div class="header">
-        <div>
-          <div class="project">${data?.project ?? "–"}</div>
-          <div class="sub">
-            ${last ? t.lastImport(new Date(last.time).toLocaleString(this.hass.language)) : t.neverImported}
-            ${data ? html` · ${t.count(data.entities.filter((r) => WRITTEN.has(r.status)).length)}` : nothing}
-          </div>
-        </div>
-        <div class="actions">
-          ${data?.has_knx_project
-            ? html`<button ?disabled=${!!this._busy} @click=${this._loadKnxProject}>${t.fromKnx}</button>`
-            : nothing}
-          <label class="button ${this._busy ? "disabled" : ""}">
-            ${t.upload}
-            <input
-              type="file"
-              accept=".knxproj"
-              hidden
-              ?disabled=${!!this._busy}
-              @change=${(ev: Event) => {
-                const input = ev.target as HTMLInputElement;
-                const file = input.files?.[0];
-                input.value = "";
-                if (file) this._upload(file);
-              }}
-            />
-          </label>
-        </div>
+    const time = last ? new Date(last.time).toLocaleString(this.hass.language, { dateStyle: "medium", timeStyle: "short" }) : null;
+    return html`<section class="project">
+      <div class="eyebrow">${t.eyebrow}</div>
+      <h2>${data?.project ?? "–"}</h2>
+      <div class="sub">${time ? t.lastImportLine(time, t.sources[last!.source] ?? last!.source) : t.neverImported}</div>
+    </section>`;
+  }
+
+  private _renderStaged(): TemplateResult | typeof nothing {
+    const t = this.t;
+    if (!this._data?.staged) return nothing;
+    const rows = this._data.entities;
+    const pending = rows.filter((r) => r.status === "pending").length;
+    const changed = rows.filter((r) => r.status === "changed").length;
+    const gone = rows.filter((r) => !r.in_project).length;
+    return html`<section class="staged">
+      <div class="staged-icon">${icon(ICONS.file, 20)}</div>
+      <div class="grow">
+        <div class="staged-title">${t.stagedTitle}</div>
+        <div>${t.stagedDetail(pending, changed, gone)}</div>
       </div>
-      ${data?.staged
-        ? html`<div class="alert warn">
-            <span>${t.staged}</span>
-            <button class="text" @click=${this._discard}>${t.discardProject}</button>
+      <button class="text" ?disabled=${!!this._busy} @click=${this._discard}>${t.discardVersion}</button>
+    </section>`;
+  }
+
+  private _count(f: Filter): number {
+    if (f === "unmapped") return this._data?.unmapped.length ?? 0;
+    return (this._data?.entities ?? []).filter((r) => inFilter(r, f)).length;
+  }
+
+  private _setFilter(f: Filter): void {
+    this._filter = this._filter === f ? "all" : f;
+  }
+
+  private _renderStats(): TemplateResult {
+    const t = this.t;
+    const tiles = ["active", "pending", "off", "unmapped"] as const;
+    const more = (["existing", "issues", "gone"] as const).filter((f) => this._count(f) > 0 || this._filter === f);
+    return html`<section class="stats">
+        ${tiles.map((f) => {
+          const [label, hint] = t.stats[f];
+          const n = this._count(f);
+          return html`<button
+            class="stat ${this._filter === f ? "active" : ""} ${f === "pending" && n ? "accent" : ""}"
+            aria-pressed=${this._filter === f}
+            @click=${() => this._setFilter(f)}
+          >
+            <span class="stat-label">${label}</span>
+            <span class="stat-value"><strong>${n}</strong><span>${hint}</span></span>
+          </button>`;
+        })}
+      </section>
+      ${more.length
+        ? html`<div class="chips" role="group" aria-label=${t.moreFilters}>
+            ${more.map(
+              (f) => html`<button class="chip ${this._filter === f ? "active" : ""}" aria-pressed=${this._filter === f} @click=${() => this._setFilter(f)}>
+                ${t.filters[f]} <span class="n">${this._count(f)}</span>
+              </button>`
+            )}
           </div>`
-        : nothing}
-    `;
+        : nothing}`;
   }
 
-  private _renderPassword(): TemplateResult {
+  private _renderSearch(): TemplateResult {
     const t = this.t;
-    const submit = (ev: Event) => {
-      ev.preventDefault();
-      const input = this.renderRoot.querySelector<HTMLInputElement>("#password");
-      if (this._passwordFor && input) this._upload(this._passwordFor, input.value);
+    const setGroup = (group: "room" | "domain") => {
+      this._group = group;
+      try {
+        localStorage.setItem("knx-project-sync-view", JSON.stringify({ group }));
+      } catch {
+        /* storage unavailable */
+      }
     };
-    return html`<form class="alert warn" @submit=${submit}>
-      <span>${t.passwordNeeded}</span>
-      <input id="password" type="password" autocomplete="off" placeholder=${t.password} />
-      <button type="submit" ?disabled=${!!this._busy}>${t.open}</button>
-      <button type="button" class="text" @click=${() => (this._passwordFor = null)}>${t.cancel}</button>
-    </form>`;
-  }
-
-  private _renderFilters(): TemplateResult {
-    const t = this.t;
-    const rows = this._data?.entities ?? [];
-    const count = (f: Filter) => (f === "unmapped" ? this._data?.unmapped.length ?? 0 : rows.filter((r) => inFilter(r, f)).length);
-    return html`
-      <div class="filters">
+    return html`<section class="search-row">
+      <label class="search">
+        ${icon(ICONS.search, 18)}
         <input
-          class="search"
           type="search"
+          aria-label=${t.search}
           placeholder=${t.search}
           .value=${this._search}
           @input=${(ev: Event) => (this._search = (ev.target as HTMLInputElement).value)}
         />
-        <select
-          aria-label=${t.groupBy}
-          .value=${this._group}
-          @change=${(ev: Event) => {
-            this._group = (ev.target as HTMLSelectElement).value as "room" | "domain";
-            try {
-              localStorage.setItem("knx-project-sync-view", JSON.stringify({ group: this._group }));
-            } catch {
-              /* storage unavailable */
-            }
-          }}
-        >
-          <option value="room">${t.byRoom}</option>
-          <option value="domain">${t.byType}</option>
-        </select>
+      </label>
+      <div class="segmented" role="group" aria-label=${t.groupBy}>
+        ${(["room", "domain"] as const).map(
+          (g) => html`<button aria-pressed=${this._group === g} class=${this._group === g ? "on" : ""} @click=${() => setGroup(g)}>
+            ${g === "room" ? t.byRoom : t.byType}
+          </button>`
+        )}
       </div>
-      <div class="chips" role="tablist">
-        ${FILTERS.map((f) => {
-          const n = count(f);
-          if (n === 0 && f !== "all" && f !== this._filter) return nothing;
-          return html`<button
-            role="tab"
-            class="chip ${f === this._filter ? "active" : ""} ${f === "pending" ? "accent" : ""}"
-            aria-selected=${f === this._filter}
-            @click=${() => (this._filter = f)}
-          >
-            ${t.filters[f]} <span class="n">${n}</span>
-          </button>`;
-        })}
-      </div>
-    `;
+    </section>`;
   }
 
   private _renderGroups(): TemplateResult {
@@ -444,21 +468,21 @@ class KnxProjectSyncPanel extends LitElement {
     );
     return html`${sorted.map(([name, items]) => {
       const choosable = items.filter((r) => !BLOCKED.has(r.status));
-      const on = choosable.filter((r) => this._checked(r)).length;
-      return html`<section class="group">
-        <div class="group-head">
-          <input
-            type="checkbox"
-            aria-label=${t.selectGroup(name)}
-            .checked=${choosable.length > 0 && on === choosable.length}
-            .indeterminate=${on > 0 && on < choosable.length}
-            ?disabled=${!choosable.length}
-            @change=${(ev: Event) => this._toggleMany(choosable, (ev.target as HTMLInputElement).checked)}
-          />
-          <h2>${name}</h2>
-          <span class="n">${on}/${items.length}</span>
+      const on = items.filter((r) => this._checked(r)).length;
+      const all = choosable.length > 0 && choosable.every((r) => this._checked(r));
+      const progress = items.length ? Math.round((on / items.length) * 100) : 0;
+      return html`<section class="room">
+        <div class="room-head">
+          <h3>${name}</h3>
+          <span class="sub">${t.roomCount(on, items.length)}</span>
+          <div class="progress" role="progressbar" aria-valuenow=${progress} aria-valuemin="0" aria-valuemax="100" aria-label=${t.roomCount(on, items.length)}>
+            <div style="width: ${progress}%"></div>
+          </div>
+          <button class="secondary small" ?disabled=${!choosable.length} @click=${() => this._toggleMany(choosable, !all)}>
+            ${all ? t.allOff : t.allOn}
+          </button>
         </div>
-        <div class="rows">${items.map((row) => this._renderRow(row))}</div>
+        ${items.map((row) => this._renderRow(row))}
       </section>`;
     })}`;
   }
@@ -469,25 +493,32 @@ class KnxProjectSyncPanel extends LitElement {
     const blocked = BLOCKED.has(row.status);
     const checked = this._checked(row);
     const domain = choice.domain || row.detected_domain;
-    return html`<div class="row ${checked ? "" : "off"} ${blocked ? "blocked" : ""}">
-      <input
-        type="checkbox"
-        class="check"
-        aria-label=${t.create(row.ets_name ?? row.key)}
-        .checked=${checked}
+    const tone = row.adopt ? "adopt" : row.status;
+    const label = row.ets_name ?? row.key;
+    return html`<div class="row ${checked ? "" : "off"} ${row.status === "pending" ? "pending" : ""}">
+      <button
+        class="toggle ${checked ? "on" : ""}"
+        role="switch"
+        aria-checked=${checked}
+        aria-label=${t.create(label)}
         ?disabled=${blocked}
-        @change=${(ev: Event) => this._choose(row.key, { enabled: (ev.target as HTMLInputElement).checked })}
-      />
+        @click=${() => this._choose(row.key, { enabled: !checked })}
+      >
+        <span></span>
+      </button>
+      <div class="tile ${tileClass(row.domain)}">${icon(DOMAIN_ICONS[row.domain] ?? ICONS.generic, 20)}</div>
       <div class="main">
-        <input
-          class="name"
-          type="text"
-          .value=${choice.name ?? ""}
-          placeholder=${row.ets_name ?? row.key}
-          aria-label=${t.name}
-          ?disabled=${!row.in_project}
-          @change=${(ev: Event) => this._choose(row.key, { name: (ev.target as HTMLInputElement).value })}
-        />
+        <label class="name">
+          <input
+            type="text"
+            .value=${choice.name ?? ""}
+            placeholder=${label}
+            aria-label=${t.name}
+            ?disabled=${!row.in_project}
+            @change=${(ev: Event) => this._choose(row.key, { name: (ev.target as HTMLInputElement).value })}
+          />
+          ${row.in_project ? icon(ICONS.pencil, 15) : nothing}
+        </label>
         <div class="meta">
           ${row.addresses.map(
             (a) =>
@@ -512,25 +543,29 @@ class KnxProjectSyncPanel extends LitElement {
       </div>
       <div class="type">
         ${row.domains.length > 1
-          ? html`<select
-              aria-label=${t.type}
-              ?disabled=${blocked}
-              .value=${domain}
-              @change=${(ev: Event) => this._choose(row.key, { domain: (ev.target as HTMLSelectElement).value })}
-            >
-              ${row.domains.map((d) => html`<option value=${d} ?selected=${d === domain}>${t.domains[d] ?? d}</option>`)}
-            </select>`
+          ? html`<div class="segmented small" role="group" aria-label=${t.type}>
+              ${row.domains.map(
+                (d) => html`<button
+                  class=${d === domain ? "on" : ""}
+                  aria-pressed=${d === domain}
+                  ?disabled=${blocked}
+                  @click=${() => this._choose(row.key, { domain: d })}
+                >
+                  ${t.domains[d] ?? d}
+                </button>`
+              )}
+            </div>`
           : html`<span class="domain">${t.domains[row.domain] ?? row.domain}</span>`}
         ${row.suggest_light && domain === "switch" && !blocked
           ? html`<button class="hint" title=${t.suggestLightTitle} @click=${() => this._choose(row.key, { domain: "light" })}>
-              ${t.suggestLight}
+              ${icon(ICONS.light, 14)} ${t.suggestLight}
             </button>`
           : nothing}
       </div>
       <div class="status">
-        <span class="badge ${row.adopt ? "adopt" : row.status}">${this._statusLabel(row)}</span>
+        <span class="pill ${tone}">${this._statusLabel(row)}</span>
         ${row.reason && blocked && !row.conflict_with
-          ? html`<div class="reason" title=${row.reason}>${this._reasonLabel(row)}</div>`
+          ? html`<span class="reason" title=${row.reason}>${this._reasonLabel(row)}</span>`
           : nothing}
         ${this._renderActions(row, choice)}
       </div>
@@ -566,7 +601,7 @@ class KnxProjectSyncPanel extends LitElement {
     const draft = choice.addresses ?? {};
     const shown = row.address_fields.filter((f) => this._address(row, choice, f) !== null || f in draft);
     const more = row.address_fields.filter((f) => !shown.includes(f));
-    return html`<div class="addr-box">
+    return html`<div class="drawer">
       ${shown.map((field) => {
         const value = this._address(row, choice, field) ?? "";
         const project = row.project_addresses[field];
@@ -597,12 +632,12 @@ class KnxProjectSyncPanel extends LitElement {
                       <button class="link" @click=${() => this._setAddress(row, field, undefined)}>${t.reset}</button>`}
           </span>
           <button
-            class="link remove"
+            class="icon-button small"
             aria-label=${t.removeAddress(t.fieldLabel(field))}
             title=${t.removeAddress(t.fieldLabel(field))}
             @click=${() => this._setAddress(row, field, project === undefined ? undefined : null)}
           >
-            ✕
+            ${icon(ICONS.close, 16)}
           </button>
         </div>`;
       })}
@@ -633,14 +668,14 @@ class KnxProjectSyncPanel extends LitElement {
     const t = this.t;
     const c = row.conflict_with!;
     const where = c.file ? `${c.file}${c.line ? `:${c.line}` : ""}` : t.ownYaml;
-    return html`<div class="conflict-box">
-      <span>
+    return html`<div class="drawer conflict-box">
+      <span class="grow">
         ${row.adopt ? t.adoptInfo(where) : t.conflictInfo(t.domains[c.domain] ?? c.domain, c.name ?? "", where)}
       </span>
       ${choice.adopt
         ? html`<button class="text" @click=${() => this._choose(row.key, { adopt: null })}>${t.undo}</button>`
         : c.adoptable
-          ? html`<button @click=${() => this._choose(row.key, { adopt: true })}>${t.adopt}</button>`
+          ? html`<button class="secondary small" @click=${() => this._choose(row.key, { adopt: true })}>${t.adopt}</button>`
           : html`<span class="sub">${t.notAdoptable}</span>`}
     </div>`;
   }
@@ -657,7 +692,7 @@ class KnxProjectSyncPanel extends LitElement {
         ${t.resetConfig}
       </button>`;
     }
-    if (row.status === "conflict" || BLOCKED.has(row.status) || row.adopt) return nothing;
+    if (BLOCKED.has(row.status) || row.adopt) return nothing;
     return html`<button class="link mark" title=${t.existingTitle} @click=${() => this._choose(row.key, { existing: true })}>
       ${t.markExisting}
     </button>`;
@@ -679,6 +714,21 @@ class KnxProjectSyncPanel extends LitElement {
     return row.reason ?? "";
   }
 
+  private _renderPassword(): TemplateResult {
+    const t = this.t;
+    const submit = (ev: Event) => {
+      ev.preventDefault();
+      const input = this.renderRoot.querySelector<HTMLInputElement>("#password");
+      if (this._passwordFor && input) this._upload(this._passwordFor, input.value);
+    };
+    return html`<form class="alert warn" @submit=${submit}>
+      <label for="password" class="grow">${t.passwordNeeded}</label>
+      <input id="password" type="password" autocomplete="off" placeholder=${t.password} />
+      <button type="submit" class="primary" ?disabled=${!!this._busy}>${t.open}</button>
+      <button type="button" class="text" @click=${() => (this._passwordFor = null)}>${t.cancel}</button>
+    </form>`;
+  }
+
   private _renderUnmapped(): TemplateResult {
     const t = this.t;
     const q = this._search.trim().toLowerCase();
@@ -686,20 +736,19 @@ class KnxProjectSyncPanel extends LitElement {
       (u) => !q || `${u.address} ${u.name} ${u.dpt ?? ""}`.toLowerCase().includes(q)
     );
     return html`<p class="sub">${t.unmappedHint}</p>
-      <div class="rows">
+      <section class="room">
         ${items.map(
-          (u) => html`<div class="row off unmapped">
+          (u) => html`<div class="row unmapped">
             <code>${u.address}</code>
             <div class="main">${u.name}</div>
             <span class="domain">${u.dpt ? `DPT ${u.dpt}` : "–"}</span>
           </div>`
         )}
-      </div>`;
+      </section>`;
   }
 
   private _renderBar(): TemplateResult {
     const t = this.t;
-    const s = this._data?.summary ?? {};
     const rows = this._data?.entities ?? [];
     const added = rows.filter((r) => r.status === "new" && !r.adopt);
     const adopted = rows.filter((r) => r.adopt);
@@ -707,43 +756,48 @@ class KnxProjectSyncPanel extends LitElement {
     const removed = rows.filter(
       (r) => r.status === "removed" || ((r.status === "deselected" || r.status === "existing") && r.entity_id)
     );
-    return html`<div class="bar">
-      ${this._showChanges
-        ? html`<div class="changes">
-            ${[
-              [t.willAdd, added],
-              [t.willChange, changed],
-              [t.willRemove, removed],
-              [t.willAdopt, adopted],
-            ].map(([label, list]) =>
-              (list as Row[]).length
-                ? html`<div>
-                    <strong>${label as string}</strong>
-                    <ul>
-                      ${(list as Row[]).map((r) => html`<li>${r.name ?? r.key} <span class="sub">(${t.domains[r.domain] ?? r.domain})</span></li>`)}
-                    </ul>
-                  </div>`
-                : nothing
+    const groups: [string, string, Row[]][] = [
+      ["add", t.willAdd, added],
+      ["change", t.willChange, changed],
+      ["remove", t.willRemove, removed],
+      ["adopt", t.willAdopt, adopted],
+    ];
+    return html`<div class="bar-wrap">
+      <div class="bar">
+        ${this._showChanges
+          ? html`<div class="changes">
+              ${groups.map(([, label, list]) =>
+                list.length
+                  ? html`<div>
+                      <strong>${label}</strong>
+                      <ul>
+                        ${list.map((r) => html`<li>${r.name ?? r.key} <span class="dim">(${t.domains[r.domain] ?? r.domain})</span></li>`)}
+                      </ul>
+                    </div>`
+                  : nothing
+              )}
+            </div>`
+          : nothing}
+        <div class="bar-main">
+          <div class="counts">
+            ${groups.map(([kind, , list]) =>
+              kind === "adopt" && !list.length
+                ? nothing
+                : html`<span class="count"><i class="dot ${kind}"></i><strong>${list.length}</strong> ${t.barCounts[kind as "add"]}</span>`
             )}
-          </div>`
-        : nothing}
-      <div class="bar-main">
-        <div class="bar-info">
-          <button
-            class="text summary"
-            aria-expanded=${this._showChanges}
-            @click=${() => (this._showChanges = !this._showChanges)}
-          >
-            ${t.summary(added.length, changed.length, removed.length)}${adopted.length ? ` · ${t.adoptCount(adopted.length)}` : ""} ${this._showChanges ? "▾" : "▴"}
-          </button>
-          ${s.pending ? html`<span class="sub">${t.stillPending(s.pending)}</span>` : nothing}
-        </div>
-        <div class="bar-actions">
-          <button class="text" ?disabled=${!!this._busy} @click=${this._discard}>${t.discard}</button>
-          ${this._invalidAddresses ? html`<span class="error-text">${t.fixAddresses}</span>` : nothing}
-          <button class="primary" ?disabled=${!!this._busy || this._invalidAddresses} @click=${this._apply}>
-            ${this._busy === "apply" ? t.applying : t.apply}
-          </button>
+            <button class="link light" aria-expanded=${this._showChanges} @click=${() => (this._showChanges = !this._showChanges)}>
+              ${this._showChanges ? t.hideDetails : t.showDetails}
+            </button>
+          </div>
+          <div class="bar-actions">
+            ${this._invalidAddresses ? html`<span class="error-text">${t.fixAddresses}</span>` : nothing}
+            <button class="outline" ?disabled=${!!this._busy} @click=${this._discard}>${t.discard}</button>
+            <button class="primary" ?disabled=${!!this._busy || this._invalidAddresses} @click=${this._apply}>
+              ${this._busy === "apply"
+                ? t.applying
+                : html`<span class="long">${t.applyLong}</span><span class="short">${t.apply}</span>`}
+            </button>
+          </div>
         </div>
       </div>
     </div>`;
@@ -760,332 +814,586 @@ class KnxProjectSyncPanel extends LitElement {
 
   static styles = css`
     :host {
+      --kps-accent: var(--primary-color, #0a6cdb);
+      --kps-on-accent: var(--text-primary-color, #fff);
+      --kps-ground: var(--primary-background-color, #f4f5f7);
+      --kps-surface: var(--card-background-color, #fff);
+      --kps-text: var(--primary-text-color, #15171a);
+      --kps-muted: var(--secondary-text-color, #5b6270);
+      --kps-line: var(--divider-color, rgba(0, 0, 0, 0.12));
+      --kps-soft: color-mix(in srgb, var(--kps-text) 6%, transparent);
+      --kps-radius: var(--ha-card-border-radius, 16px);
+      --kps-success: var(--success-color, #1e9e56);
+      --kps-warning: var(--warning-color, #e08600);
+      --kps-error: var(--error-color, #d93025);
+      --kps-amber: #e8a200;
+      --kps-purple: #7b5cd6;
       display: block;
       min-height: 100vh;
-      background: var(--primary-background-color, #fafafa);
-      color: var(--primary-text-color, #212121);
-      font-family: var(--ha-font-family-body, Roboto, system-ui, sans-serif);
-      --radius: var(--ha-card-border-radius, 12px);
-      --line: var(--divider-color, rgba(0, 0, 0, 0.12));
-      --muted: var(--secondary-text-color, #727272);
-      --surface: var(--card-background-color, #fff);
-      --accent: var(--primary-color, #03a9f4);
+      background: var(--kps-ground);
+      color: var(--kps-text);
+      font-family: var(--ha-font-family-body, Inter, Roboto, system-ui, sans-serif);
+      -webkit-font-smoothing: antialiased;
     }
-    .toolbar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      height: var(--header-height, 56px);
-      padding: 0 16px;
-      background: var(--app-header-background-color, var(--primary-color, #03a9f4));
-      color: var(--app-header-text-color, #fff);
-      position: sticky;
-      top: 0;
-      z-index: 3;
+    * {
+      box-sizing: border-box;
     }
-    .toolbar .title {
-      font-size: 20px;
-      font-weight: 400;
+    h1,
+    h2,
+    h3 {
+      margin: 0;
     }
-    .icon {
-      background: none;
-      border: none;
-      color: inherit;
-      padding: 8px;
-      margin-left: -8px;
-      cursor: pointer;
+    .grow {
+      flex: 1 1 auto;
+      min-width: 0;
     }
-    .icon svg {
-      width: 24px;
-      height: 24px;
-      fill: currentColor;
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
-    .content {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 16px 16px 24px;
+    svg {
+      flex: none;
     }
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .project {
-      font-size: 22px;
-    }
-    .sub {
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+
+    /* ---------- controls */
     button,
     .button {
       font: inherit;
       font-size: 14px;
       font-weight: 500;
-      border-radius: 18px;
-      padding: 7px 16px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      color: var(--accent);
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: none;
+      color: var(--kps-text);
+      cursor: pointer;
+      white-space: nowrap;
     }
     button:disabled,
     .button.disabled {
-      opacity: 0.5;
+      opacity: 0.45;
       cursor: default;
     }
-    button.primary {
-      background: var(--accent);
-      color: var(--text-primary-color, #fff);
-      border-color: var(--accent);
+    button.primary,
+    .button.primary {
+      background: var(--kps-accent);
+      color: var(--kps-on-accent);
+      font-weight: 600;
+    }
+    button.secondary {
+      background: var(--kps-surface);
+      border-color: var(--kps-line);
+    }
+    button.small {
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+      border-radius: 8px;
     }
     button.text {
-      border-color: transparent;
-      background: none;
+      color: inherit;
+      padding: 0 12px;
+    }
+    .short {
+      display: none;
+    }
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border-radius: 10px;
+    }
+    .icon-button.small {
+      width: 32px;
+      height: 32px;
+      color: var(--kps-muted);
+    }
+    button.link {
+      height: auto;
+      padding: 2px 0;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--kps-accent);
+    }
+    input[type="text"],
+    input[type="password"],
+    select {
+      font: inherit;
+      font-size: 14px;
+      color: var(--kps-text);
+      background: var(--kps-surface);
+      border: 1px solid var(--kps-line);
+      border-radius: 8px;
+      height: 36px;
+      padding: 0 10px;
+      min-width: 0;
+    }
+    :focus-visible {
+      outline: 2px solid var(--kps-accent);
+      outline-offset: 2px;
+    }
+    .sub {
+      color: var(--kps-muted);
+      font-size: 14px;
+    }
+    code {
+      font-family: var(--ha-font-family-code, "JetBrains Mono", ui-monospace, monospace);
+      font-size: 12px;
+      background: var(--kps-soft);
+      border-radius: 6px;
+      padding: 2px 7px;
+    }
+    code.edited {
+      background: color-mix(in srgb, var(--kps-warning) 18%, transparent);
+      box-shadow: inset 0 0 0 1px var(--kps-warning);
+    }
+
+    /* ---------- toolbar */
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: var(--header-height, 64px);
+      padding: 0 24px;
+      background: var(--kps-surface);
+      border-bottom: 1px solid var(--kps-line);
+    }
+    .app-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--kps-accent);
+      color: var(--kps-on-accent);
+    }
+    .app-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    /* ---------- content */
+    .content {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .project {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--kps-muted);
+    }
+    .project h2 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
     .alert {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: var(--radius);
-      margin-bottom: 12px;
-      background: var(--surface);
-      border-left: 4px solid var(--accent);
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: var(--kps-surface);
+      border: 1px solid var(--kps-line);
     }
     .alert.error {
-      border-color: var(--error-color, #db4437);
+      border-color: var(--kps-error);
+      color: var(--kps-error);
     }
-    .alert.warn {
-      border-color: var(--warning-color, #ffa600);
+    .alert.info {
+      border-color: var(--kps-accent);
     }
-    .alert span {
-      flex: 1 1 240px;
-    }
-    input[type="text"],
-    input[type="search"],
-    input[type="password"],
-    select {
-      font: inherit;
-      font-size: 14px;
-      color: var(--primary-text-color);
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 7px 10px;
-      min-width: 0;
-    }
-    input:focus-visible,
-    select:focus-visible,
-    button:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
-    .filters {
+    .staged {
       display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--kps-warning) 12%, var(--kps-surface));
+      border: 1px solid color-mix(in srgb, var(--kps-warning) 40%, transparent);
+      font-size: 14px;
+      flex-wrap: wrap;
     }
-    .search {
-      flex: 1;
+    .staged-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: color-mix(in srgb, var(--kps-warning) 22%, transparent);
+      color: var(--kps-warning);
+    }
+    .staged-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .stat {
+      height: auto;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 6px;
+      padding: 16px 18px;
+      background: var(--kps-surface);
+      border: 1px solid var(--kps-line);
+      border-radius: 14px;
+      text-align: left;
+      white-space: normal;
+    }
+    .stat.accent {
+      border-color: var(--kps-accent);
+    }
+    .stat.active {
+      box-shadow: inset 0 0 0 2px var(--kps-accent);
+      border-color: var(--kps-accent);
+    }
+    .stat-label {
+      font-size: 13px;
+      color: var(--kps-muted);
+    }
+    .stat-value {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--kps-muted);
+    }
+    .stat-value strong {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--kps-text);
+    }
+    .stat.accent strong {
+      color: var(--kps-accent);
     }
     .chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 16px;
+      gap: 8px;
+      margin-top: -8px;
     }
     .chip {
-      color: var(--primary-text-color);
-      padding: 4px 12px;
-      font-weight: 400;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 16px;
+      border-color: var(--kps-line);
+      background: var(--kps-surface);
+      font-size: 13px;
     }
     .chip.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: var(--text-primary-color, #fff);
-    }
-    .chip.accent:not(.active) {
-      border-color: var(--accent);
+      background: var(--kps-text);
+      color: var(--kps-surface);
     }
     .chip .n {
-      color: inherit;
       opacity: 0.7;
-      margin-left: 4px;
     }
-    .group {
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--ha-card-box-shadow, none);
-      border: 1px solid var(--ha-card-border-color, var(--line));
-      margin-bottom: 16px;
-      overflow: hidden;
+    .search-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .group-head {
+    .search {
+      flex: 1 1 200px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 16px;
-      border-bottom: 1px solid var(--line);
+      gap: 10px;
+      height: 44px;
+      padding: 0 14px;
+      background: var(--kps-surface);
+      border: 1px solid var(--kps-line);
+      border-radius: 12px;
+      color: var(--kps-muted);
     }
-    .group-head h2 {
-      font-size: 16px;
-      font-weight: 500;
-      margin: 0;
+    .search:focus-within {
+      border-color: var(--kps-accent);
+    }
+    .search input {
+      font: inherit;
+      font-size: 15px;
       flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--kps-text);
     }
-    .n {
-      color: var(--muted);
+    .segmented {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 12px;
+      background: var(--kps-soft);
+    }
+    .segmented button {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 9px;
+      color: var(--kps-muted);
+    }
+    .segmented button.on {
+      background: var(--kps-surface);
+      color: var(--kps-text);
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.12);
+    }
+    .segmented.small {
+      padding: 3px;
+      gap: 3px;
+      border-radius: 10px;
+    }
+    .segmented.small button {
+      height: 32px;
+      padding: 0 12px;
       font-size: 13px;
+      border-radius: 8px;
+    }
+
+    /* ---------- rooms and rows */
+    .room {
+      background: var(--kps-surface);
+      border: 1px solid var(--ha-card-border-color, var(--kps-line));
+      border-radius: var(--kps-radius);
+      box-shadow: var(--ha-card-box-shadow, 0 1px 2px rgba(16, 24, 40, 0.04));
+      overflow: hidden;
+    }
+    .room-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      flex-wrap: wrap;
+    }
+    .room-head h3 {
+      font-size: 17px;
+      font-weight: 600;
+      flex: 1 1 auto;
+    }
+    .room-head .sub {
+      font-size: 13px;
+    }
+    .progress {
+      width: 96px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--kps-soft);
+      overflow: hidden;
+    }
+    .progress div {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--kps-accent);
+      transition: width 0.2s;
     }
     .row {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr) 150px 150px;
-      gap: 12px;
+      grid-template-columns: 48px 40px minmax(0, 1fr) 210px 170px;
       align-items: center;
-      padding: 8px 16px;
-      border-bottom: 1px solid var(--line);
+      gap: 10px 16px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--kps-line);
     }
-    .rows > .row:last-child {
-      border-bottom: none;
+    .row.pending {
+      background: color-mix(in srgb, var(--kps-accent) 5%, transparent);
     }
-    .row.off .name,
-    .row.off .meta {
+    .row.off .tile,
+    .row.off .main {
       opacity: 0.6;
     }
     .row.unmapped {
-      grid-template-columns: 80px minmax(0, 1fr) auto;
+      grid-template-columns: 90px minmax(0, 1fr) auto;
     }
-    .check {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent);
+    .toggle {
+      width: 44px;
+      height: 26px;
+      padding: 3px;
+      border-radius: 13px;
+      background: color-mix(in srgb, var(--kps-text) 24%, transparent);
+      justify-content: flex-start;
+      transition: background 0.15s;
+    }
+    .toggle span {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      transition: transform 0.15s;
+    }
+    .toggle.on {
+      background: var(--kps-accent);
+    }
+    .toggle.on span {
+      transform: translateX(18px);
+    }
+    .tile {
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--kps-tile);
+      background: color-mix(in srgb, var(--kps-tile) 15%, transparent);
+    }
+    .tile.light {
+      --kps-tile: var(--kps-amber);
+    }
+    .tile.switch {
+      --kps-tile: var(--kps-accent);
+    }
+    .tile.sensor {
+      --kps-tile: var(--kps-success);
+    }
+    .tile.cover {
+      --kps-tile: var(--kps-purple);
+    }
+    .tile.other {
+      --kps-tile: var(--kps-muted);
     }
     .main {
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
-    input.name {
-      width: 100%;
-      box-sizing: border-box;
-      border-color: transparent;
-      border-bottom: 1px dashed var(--line);
-      border-radius: 4px 4px 0 0;
+    .name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--kps-muted);
+    }
+    .name input {
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--kps-text);
       background: transparent;
-      padding: 4px 6px;
-      margin-left: -6px;
+      border: none;
+      border-bottom: 1px dashed var(--kps-line);
+      border-radius: 0;
+      padding: 2px 0;
+      flex: 1;
+      min-width: 0;
     }
-    input.name:hover,
-    input.name:focus {
-      border-color: var(--line);
-      background: var(--surface);
-    }
-    input.name::placeholder {
-      color: var(--primary-text-color);
+    .name input::placeholder {
+      color: var(--kps-text);
       opacity: 1;
+    }
+    .name input:focus {
+      outline: none;
+      border-bottom: 1px solid var(--kps-accent);
     }
     .meta {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: 6px;
       font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
+      color: var(--kps-muted);
     }
     .meta a {
-      color: var(--accent);
+      color: var(--kps-accent);
       text-decoration: none;
-    }
-    code {
-      font-family: var(--ha-font-family-code, ui-monospace, monospace);
-      font-size: 12px;
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.05));
-      border-radius: 4px;
-      padding: 1px 5px;
     }
     .type {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 4px;
-    }
-    .type select {
-      width: 100%;
+      gap: 6px;
     }
     .domain {
       font-size: 14px;
+      font-weight: 500;
     }
     .hint {
+      height: 28px;
+      padding: 0 10px;
       font-size: 12px;
-      padding: 2px 10px;
-      border-style: dashed;
+      font-weight: 600;
+      border-radius: 8px;
+      gap: 6px;
+      color: color-mix(in srgb, var(--kps-amber) 65%, var(--kps-text));
+      background: color-mix(in srgb, var(--kps-amber) 16%, transparent);
     }
     .status {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
       text-align: right;
       min-width: 0;
     }
-    .badge {
-      display: inline-block;
+    .pill {
+      --kps-tone: var(--kps-muted);
       font-size: 12px;
-      border-radius: 10px;
-      padding: 2px 10px;
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.06));
-      color: var(--primary-text-color);
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
       white-space: nowrap;
+      color: color-mix(in srgb, var(--kps-tone) 75%, var(--kps-text));
+      background: color-mix(in srgb, var(--kps-tone) 16%, transparent);
     }
-    .badge.new,
-    .badge.pending {
-      background: var(--accent);
-      color: var(--text-primary-color, #fff);
+    .pill.unchanged,
+    .pill.kept {
+      --kps-tone: var(--kps-success);
     }
-    .badge.changed {
-      background: var(--warning-color, #ffa600);
-      color: #000;
+    .pill.new,
+    .pill.adopt {
+      --kps-tone: var(--kps-accent);
     }
-    .badge.unchanged {
-      background: var(--success-color, #43a047);
-      color: #fff;
+    .pill.pending {
+      background: var(--kps-accent);
+      color: var(--kps-on-accent);
     }
-    .badge.removed,
-    .badge.invalid {
-      background: var(--error-color, #db4437);
-      color: #fff;
+    .pill.changed {
+      --kps-tone: var(--kps-warning);
+    }
+    .pill.removed,
+    .pill.invalid {
+      --kps-tone: var(--kps-error);
     }
     .reason {
       font-size: 12px;
-      color: var(--muted);
+      color: var(--kps-muted);
+      max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-top: 2px;
     }
-    .badge.adopt {
-      background: var(--accent);
-      color: var(--text-primary-color, #fff);
-    }
-    .badge.existing {
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.06));
-    }
-    button.link {
-      border: none;
-      background: none;
-      padding: 2px 0;
-      margin-top: 4px;
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 4px;
-    }
-    /* "already exists" only on hover/focus, it is rarely needed */
     @media (hover: hover) {
       .row .mark {
         opacity: 0;
@@ -1095,147 +1403,214 @@ class KnxProjectSyncPanel extends LitElement {
         opacity: 1;
       }
     }
-    code.edited {
-      outline: 1px solid var(--warning-color, #ffa600);
-    }
-    .addr-box {
-      grid-column: 2 / -1;
+    .drawer {
+      grid-column: 3 / -1;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.04));
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--kps-soft);
+      font-size: 13px;
+    }
+    .conflict-box {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
     }
     .addr {
       display: grid;
-      grid-template-columns: 180px 130px minmax(0, 1fr) auto;
+      grid-template-columns: 170px 130px minmax(0, 1fr) auto;
       align-items: center;
-      gap: 8px 12px;
-      font-size: 13px;
+      gap: 6px 12px;
     }
     .addr input {
       font-family: var(--ha-font-family-code, ui-monospace, monospace);
     }
     .addr input.invalid {
-      border-color: var(--error-color, #db4437);
+      border-color: var(--kps-error);
     }
     .addr-note {
-      color: var(--muted);
+      color: var(--kps-muted);
       font-size: 12px;
     }
-    .error-text {
-      color: var(--error-color, #db4437);
-      font-size: 12px;
-    }
-    .addr-box select {
+    .drawer select {
       align-self: flex-start;
     }
-    button.link.edit {
-      margin-top: 0;
-    }
-    button.link.remove {
-      font-size: 14px;
-      padding: 2px 6px;
-      margin: 0;
-    }
-    .conflict-box {
-      grid-column: 2 / -1;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px 12px;
-      font-size: 13px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: var(--secondary-background-color, rgba(0, 0, 0, 0.04));
-    }
-    .conflict-box span:first-child {
-      flex: 1 1 260px;
-    }
-    .conflict-box button {
-      padding: 4px 12px;
-      font-size: 13px;
+    .error-text {
+      color: var(--kps-error);
+      font-size: 12px;
     }
     .empty {
       padding: 48px 16px;
       text-align: center;
-      color: var(--muted);
+      color: var(--kps-muted);
+    }
+
+    /* ---------- apply bar (inverted colours, also in dark themes) */
+    .bar-wrap {
+      position: sticky;
+      bottom: 16px;
+      z-index: 4;
+      max-width: 1120px;
+      margin: 0 auto 16px;
+      padding: 0 24px;
     }
     .bar {
-      position: sticky;
-      bottom: 0;
-      background: var(--surface);
-      border-top: 1px solid var(--line);
-      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.12);
-      z-index: 4;
+      --kps-bar-text: var(--kps-surface);
+      background: var(--kps-text);
+      color: var(--kps-bar-text);
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(16, 24, 40, 0.24);
     }
     .bar-main {
-      max-width: 1100px;
-      margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
+      gap: 12px 18px;
+      padding: 12px 14px 12px 22px;
     }
-    .bar-info {
+    .counts {
       flex: 1 1 auto;
-      min-width: 0;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      column-gap: 12px;
+      gap: 6px 18px;
+      font-size: 14px;
     }
-    .bar .summary {
-      color: var(--primary-text-color);
-      padding-left: 0;
+    .count {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--kps-accent);
+    }
+    .dot.change {
+      background: var(--kps-warning);
+    }
+    .dot.remove {
+      background: var(--kps-error);
+    }
+    .dim {
+      opacity: 0.7;
+    }
+    .bar button.link.light {
+      color: inherit;
+      opacity: 0.8;
+      text-decoration: underline;
+      font-size: 14px;
     }
     .bar-actions {
       display: flex;
+      align-items: center;
       gap: 8px;
       margin-left: auto;
     }
+    .bar button.outline {
+      color: inherit;
+      border-color: color-mix(in srgb, var(--kps-bar-text) 30%, transparent);
+      height: 44px;
+    }
+    .bar button.primary {
+      height: 44px;
+      padding: 0 20px;
+    }
+    .bar .error-text {
+      color: inherit;
+    }
     .changes {
-      max-width: 1100px;
-      margin: 0 auto;
-      max-height: 40vh;
-      overflow: auto;
-      padding: 12px 16px 0;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 12px;
+      max-height: 40vh;
+      overflow: auto;
+      padding: 16px 22px 0;
       font-size: 14px;
     }
     .changes ul {
       margin: 4px 0 0;
       padding-left: 18px;
     }
-    @media (max-width: 700px) {
-      .row {
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        grid-template-areas: "check main main" ". type status";
-        row-gap: 6px;
+
+    /* ---------- phone */
+    @media (max-width: 760px) {
+      .btn-label,
+      .long,
+      .app-icon {
+        display: none;
       }
-      .check {
-        grid-area: check;
+      .short {
+        display: inline;
+      }
+      .tool {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+      }
+      .app-title {
+        font-size: 17px;
+      }
+      .toolbar {
+        padding: 0 8px 0 4px;
+        gap: 4px;
+      }
+      .content {
+        padding: 16px 16px 16px;
+        gap: 14px;
+      }
+      .project h2 {
+        font-size: 22px;
+      }
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .stat {
+        padding: 12px 14px;
+      }
+      .stat-value strong {
+        font-size: 22px;
+      }
+      .room-head {
+        padding: 12px 14px;
+      }
+      .progress {
+        width: 56px;
+      }
+      .row {
+        grid-template-columns: 36px minmax(0, 1fr) auto 48px;
+        grid-template-areas:
+          "tile main main toggle"
+          ". type status status";
+        padding: 12px 14px;
+        gap: 10px 12px;
+      }
+      .tile {
+        grid-area: tile;
+        width: 36px;
+        height: 36px;
       }
       .main {
         grid-area: main;
       }
+      .toggle {
+        grid-area: toggle;
+        justify-self: end;
+      }
       .type {
         grid-area: type;
         flex-direction: row;
+        flex-wrap: wrap;
         align-items: center;
-      }
-      .type select {
-        width: auto;
       }
       .status {
         grid-area: status;
       }
-      .conflict-box,
-      .addr-box {
+      .drawer {
         grid-column: 1 / -1;
       }
       .addr {
@@ -1244,8 +1619,71 @@ class KnxProjectSyncPanel extends LitElement {
       .addr label {
         grid-column: 1 / -1;
       }
+      .addr-note {
+        grid-column: 1 / -1;
+      }
+      .bar-wrap {
+        padding: 0 12px;
+      }
+      .bar-main {
+        padding: 12px;
+      }
+      .counts {
+        gap: 4px 12px;
+        font-size: 13px;
+      }
+      .segmented button {
+        padding: 0 10px;
+      }
     }
   `;
 }
+
+// ---------------------------------------------------------------- icons (24px stroke paths)
+
+const ICONS = {
+  menu: "M4 6h16M4 12h16M4 18h16",
+  home: "M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
+  refresh: "M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5",
+  upload: "M12 16V4M7 9l5-5 5 5M4 20h16",
+  search: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-4.35-4.35",
+  file: "M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M12 18v-6M9 15l3 3 3-3",
+  pencil: "M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z",
+  close: "M6 6l12 12M18 6 6 18",
+  light: "M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z",
+  switch: "M8 7h8a5 5 0 0 1 0 10H8A5 5 0 0 1 8 7zM8 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z",
+  sensor: "M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z",
+  cover: "M4 3h16M5 3v14M19 3v14M5 7h14M5 11h14M5 15h14M12 17v4",
+  binary: "M6 3h9v18H6zM15 5h3v16M12 12h.01",
+  scene: "M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z",
+  climate: "M12 3v18M5.6 6.6l12.8 10.8M18.4 6.6 5.6 17.4M3 12h18",
+  weather: "M12 3v2M5.6 5.6 7 7M3 12h2M17 7l1.4-1.4M16 12a4 4 0 1 0-6.9 2.8M8 19h9a3 3 0 0 0 0-6 4.5 4.5 0 0 0-8.6 1.4A2.4 2.4 0 0 0 8 19z",
+  clock: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2",
+  generic: "M4 4h16v16H4zM9 9h6v6H9z",
+} as const;
+
+const DOMAIN_ICONS: Record<string, string> = {
+  light: ICONS.light,
+  switch: ICONS.switch,
+  sensor: ICONS.sensor,
+  binary_sensor: ICONS.binary,
+  cover: ICONS.cover,
+  scene: ICONS.scene,
+  climate: ICONS.climate,
+  weather: ICONS.weather,
+  time: ICONS.clock,
+  date: ICONS.clock,
+  datetime: ICONS.clock,
+};
+
+const tileClass = (domain: string): string =>
+  domain === "light" || domain === "switch" || domain === "cover"
+    ? domain
+    : domain === "sensor" || domain === "climate" || domain === "weather"
+      ? "sensor"
+      : "other";
+
+const icon = (path: string, size = 22) => html`<svg width=${size} height=${size} viewBox="0 0 24 24" fill="none"
+  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${path}></path></svg>`;
 
 customElements.define("knx-project-sync-panel", KnxProjectSyncPanel);

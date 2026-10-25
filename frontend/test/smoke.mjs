@@ -56,17 +56,18 @@ try {
     await tab.goto(`${base}/${query}`);
     await tab.waitForSelector("knx-project-sync-panel >> .row");
     check((await tab.evaluate(() => document.documentElement.scrollWidth)) <= width, `${name}: horizontal scroll`);
-    check(await tab.locator("knx-project-sync-panel >> .bar >> text=Übernehmen").isVisible(), `${name}: apply bar`);
+    check(await tab.locator("knx-project-sync-panel >> .bar button.primary").isVisible(), `${name}: apply bar`);
 
     if (name === "light") {
-      await tab.click("knx-project-sync-panel >> .chip:has-text('Neu verfügbar')");
+      await tab.click("knx-project-sync-panel >> .stat:has-text('Neu verfügbar')");
       const pending = tab.locator("knx-project-sync-panel >> .row");
       check((await pending.count()) === 3, "pending filter shows 3 rows");
-      await pending.first().locator(".check").check();
-      await tab.click("knx-project-sync-panel >> .chip:has-text('Alle')");
-      const typeSelect = tab.locator("knx-project-sync-panel >> .type select:enabled").first();
-      await typeSelect.selectOption("light");
-      const name = tab.locator("knx-project-sync-panel >> input.name").nth(1);
+      const toggle = pending.first().locator(".toggle");
+      await toggle.click();
+      check((await toggle.getAttribute("aria-checked")) === "true", "toggle switches on");
+      await tab.click("knx-project-sync-panel >> .stat:has-text('Neu verfügbar')");
+      await tab.locator("knx-project-sync-panel >> .type .segmented button:has-text('Licht'):enabled").first().click();
+      const name = tab.locator("knx-project-sync-panel >> .name input").nth(1);
       await name.fill("Stehlampe");
       await name.press("Enter");
       await tab.waitForTimeout(400);

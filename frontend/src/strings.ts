@@ -64,6 +64,21 @@ export interface Strings {
   invalidAddress: string;
   fixAddresses: string;
   fieldLabel: (field: string) => string;
+  eyebrow: string;
+  sources: Record<string, string>;
+  lastImportLine: (time: string, source: string) => string;
+  stagedTitle: string;
+  stagedDetail: (pending: number, changed: number, removed: number) => string;
+  discardVersion: string;
+  stats: Record<"active" | "pending" | "off" | "unmapped", [string, string]>;
+  moreFilters: string;
+  roomCount: (on: number, total: number) => string;
+  allOn: string;
+  allOff: string;
+  barCounts: Record<"add" | "change" | "remove" | "adopt", string>;
+  showDetails: string;
+  hideDetails: string;
+  applyLong: string;
   filters: Record<Filter, string>;
   status: Record<string, string>;
   reasons: Record<string, string>;
@@ -174,7 +189,7 @@ const de: Strings = {
   create: (name) => `${name} anlegen`,
   name: "Name",
   type: "Typ",
-  suggestLight: "💡 Als Licht?",
+  suggestLight: "Klingt nach Licht",
   suggestLightTitle: "Der Name deutet auf eine Lampe hin. Als Licht anlegen.",
   unmappedHint:
     "Für diese Gruppenadressen wurde kein Entity-Typ erkannt. Sie werden nicht angelegt. Lege sie bei Bedarf von Hand in der KNX-YAML oder im KNX-Panel an.",
@@ -220,6 +235,27 @@ const de: Strings = {
   invalidAddress: "Keine gültige Gruppenadresse (z. B. 1/2/3)",
   fixAddresses: "Ungültige Gruppenadresse korrigieren",
   fieldLabel: (f) => FIELDS_DE[f] ?? f,
+  eyebrow: "ETS-Projekt",
+  sources: { upload: "Datei-Upload", knx_project: "KNX-Panel", file: "Datei" },
+  lastImportLine: (time, source) => `Letzter Import ${time} · Quelle: ${source}`,
+  stagedTitle: "Neue Projektversion geladen",
+  stagedDetail: (p, c, r) =>
+    `${p} neue ${p === 1 ? "Entity" : "Entities"} gefunden, ${c} geändert, ${r} nicht mehr im Projekt. Noch nichts übernommen.`,
+  discardVersion: "Version verwerfen",
+  stats: {
+    active: ["Angelegt", "Entities"],
+    pending: ["Neu verfügbar", "zum Hinzufügen"],
+    off: ["Abgewählt", "nicht angelegt"],
+    unmapped: ["Ohne Typ", "Gruppenadressen"],
+  },
+  moreFilters: "Weitere",
+  roomCount: (on, total) => `${on} von ${total} angelegt`,
+  allOn: "Alle anlegen",
+  allOff: "Alle abwählen",
+  barCounts: { add: "hinzufügen", change: "ändern", remove: "entfernen", adopt: "übernehmen" },
+  showDetails: "Details anzeigen",
+  hideDetails: "Details ausblenden",
+  applyLong: "Übernehmen und KNX neu laden",
   filters: {
     all: "Alle",
     active: "Angelegt",
@@ -301,7 +337,7 @@ const en: Strings = {
   create: (name) => `Create ${name}`,
   name: "Name",
   type: "Type",
-  suggestLight: "💡 A light?",
+  suggestLight: "Sounds like a light",
   suggestLightTitle: "The name suggests a lamp. Create it as a light.",
   unmappedHint:
     "No entity type was detected for these group addresses, so they are not created. Add them by hand in the KNX YAML or the KNX panel if needed.",
@@ -345,6 +381,27 @@ const en: Strings = {
   invalidAddress: "Not a valid group address (e.g. 1/2/3)",
   fixAddresses: "Fix the invalid group address",
   fieldLabel: (f) => FIELDS_EN[f] ?? f,
+  eyebrow: "ETS project",
+  sources: { upload: "file upload", knx_project: "KNX panel", file: "file" },
+  lastImportLine: (time, source) => `Last import ${time} · Source: ${source}`,
+  stagedTitle: "New project version loaded",
+  stagedDetail: (p, c, r) =>
+    `${p} new ${p === 1 ? "entity" : "entities"} found, ${c} changed, ${r} no longer in the project. Nothing applied yet.`,
+  discardVersion: "Discard version",
+  stats: {
+    active: ["Created", "entities"],
+    pending: ["Newly available", "to add"],
+    off: ["Deselected", "not created"],
+    unmapped: ["No type", "group addresses"],
+  },
+  moreFilters: "More",
+  roomCount: (on, total) => `${on} of ${total} created`,
+  allOn: "Create all",
+  allOff: "Deselect all",
+  barCounts: { add: "add", change: "change", remove: "remove", adopt: "take over" },
+  showDetails: "Show details",
+  hideDetails: "Hide details",
+  applyLong: "Apply and reload KNX",
   filters: {
     all: "All",
     active: "Created",
