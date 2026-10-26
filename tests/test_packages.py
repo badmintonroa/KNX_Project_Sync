@@ -4,7 +4,17 @@ from __future__ import annotations
 
 import pytest
 
-from custom_components.knx_project_sync.packages import ADD, INCLUDE, MANUAL, MOVE, OK, analyze, apply
+from custom_components.knx_project_sync.packages import (
+    ADD,
+    INCLUDE,
+    MANUAL,
+    MOVE,
+    OK,
+    added_line,
+    analyze,
+    apply,
+    revert,
+)
 
 PACKAGE = "packages/knx_project_sync.yaml"
 
@@ -62,3 +72,32 @@ def test_custom_package_path_goes_into_the_new_folder():
 )
 def test_manual(text):
     assert analyze(text, PACKAGE).status == MANUAL
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "default_config:\n\nknx:\n  switch: []\n",
+        "default_config:\n",
+        "",
+        "homeassistant:\n    name: Zuhause  # Name\n    customize: !include customize.yaml\nknx: {}\n",
+        "homeassistant:\n  packages:\n    eigenes: !include eigenes.yaml\n",
+    ],
+)
+def test_revert_restores_the_file(text):
+    setup = analyze(text, PACKAGE)
+    new = apply(text, setup)
+    block = "homeassistant:" not in text
+    assert revert(new, added_line(setup), block) == text
+
+
+def test_revert_keeps_what_the_user_added_since():
+    text = "default_config:\n"
+    setup = analyze(text, PACKAGE)
+    new = apply(text, setup) + "  name: Zuhause\n"
+    assert revert(new, added_line(setup), True) == "default_config:\n\nhomeassistant:\n  name: Zuhause\n"
+
+
+def test_revert_line_gone():
+    with pytest.raises(ValueError, match="line_not_found"):
+        revert("default_config:\n", "packages: !include_dir_named packages", True)
