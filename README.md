@@ -15,7 +15,7 @@ Creates the KNX entities of Home Assistant from your ETS project file (`.knxproj
 ![The KNX Project Sync panel](https://raw.githubusercontent.com/badmintonroa/Knx-has-auto-importer/main/docs/images/panel-en.png)
 
 > [!NOTE]
-> This is a **beta** (`0.1.0-beta.x`). Back up your configuration before the first import. Changes are listed in the [changelog](CHANGELOG.md).
+> Back up your configuration before the first import. Changes are listed in the [changelog](CHANGELOG.md).
 
 ## Contents
 
@@ -56,8 +56,7 @@ The entity detection is a Python port of [knx2home](https://github.com/badminton
 **With HACS (recommended)**
 
 1. Click *Open in HACS* above, or open HACS → ⋮ → *Custom repositories* and add `https://github.com/badmintonroa/Knx-has-auto-importer` with type *Integration*.
-2. While it is a beta: in HACS open *KNX Project Sync* → ⋮ → *Redownload* and turn on *Show beta versions*.
-3. Download it and restart Home Assistant.
+2. Download it and restart Home Assistant.
 
 **Manually**
 
