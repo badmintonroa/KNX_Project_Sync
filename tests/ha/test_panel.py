@@ -290,3 +290,43 @@ async def test_repair_flow(hass: HomeAssistant, config_dir, knx_reloads, upload)
     result = await flow.async_step_confirm({})
     assert result["type"] == "create_entry"
     assert "packages: !include_dir_named packages" in (config_dir / "configuration.yaml").read_text(encoding="utf-8")
+
+
+async def test_remove_takes_the_line_out(hass: HomeAssistant, config_dir, knx_reloads, upload, hass_ws_client) -> None:
+    """Removing the integration undoes the one-click fix and drops the generated entities."""
+    from homeassistant.helpers import entity_registry as er
+
+    configuration = config_dir / "configuration.yaml"
+    configuration.write_text("default_config:\n", encoding="utf-8")
+    await _first_import(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/fix_packages"})
+    assert (await client.receive_json())["success"]
+
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    applied = next(iter(entry.runtime_data.applied.values()))
+    registry = er.async_get(hass)
+    entity = registry.async_get_or_create(applied["domain"], "knx", applied["unique_id"])
+
+    await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert configuration.read_text(encoding="utf-8") == "default_config:\n"
+    assert not (config_dir / "packages").exists()
+    assert registry.async_get(entity.entity_id) is None
+
+
+async def test_remove_keeps_the_line_for_other_packages(
+    hass: HomeAssistant, config_dir, knx_reloads, upload, hass_ws_client
+) -> None:
+    configuration = config_dir / "configuration.yaml"
+    configuration.write_text("default_config:\n", encoding="utf-8")
+    await _first_import(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/fix_packages"})
+    assert (await client.receive_json())["success"]
+    (config_dir / "packages" / "eigenes.yaml").write_text("input_boolean:\n  test: {}\n", encoding="utf-8")
+
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert "packages: !include_dir_named packages" in configuration.read_text(encoding="utf-8")

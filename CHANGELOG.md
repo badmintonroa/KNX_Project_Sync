@@ -8,6 +8,17 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 
+## 0.1.0-beta.3
+
+### Geändert
+
+- Beim Löschen der Integration wird die Paket-Zeile wieder aus der `configuration.yaml` entfernt, wenn die Integration sie eingetragen hat (mit Sicherung; sie bleibt, wenn andere Pakete sie brauchen). Die Registry-Einträge der erzeugten Entities werden ebenfalls entfernt.
+
+### Doku
+
+- README auf Englisch neu aufgebaut, mit deutscher Fassung `README.de.md`: Installation, angelegte Dateien, unterstützte Entities, Reihenfolge der Erkennung, Deinstallation, Fehlerbehebung, Mithelfen. Screenshots des Panels.
+- `CONTRIBUTING.md` für Entwicklung, Tests und Releases.
+
 ## 0.1.0-beta.2
 
 ### Neu

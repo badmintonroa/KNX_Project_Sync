@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
@@ -117,5 +115,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: KnxProjectSyncConfigEnt
 async def async_remove_entry(hass: HomeAssistant, entry: KnxProjectSyncConfigEntry) -> None:
     importer = Importer(hass)
     await importer.async_load()
-    options: dict[str, Any] = {**default_options(), **entry.options}
-    await importer.async_remove(options)
+    await importer.async_remove(entry)

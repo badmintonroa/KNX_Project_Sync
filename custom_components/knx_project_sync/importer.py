@@ -23,6 +23,7 @@ from .const import (
     CONF_DOMAINS,
     CONF_PACKAGE_PATH,
     CONF_REMOVED,
+    DATA_PACKAGES_ADDED,
     DEFAULT_PACKAGE_PATH,
     DOMAIN,
     EVENT_IMPORTED,
@@ -470,7 +471,7 @@ class Importer:
         if setup.status != packages.MOVE:
             config_file = Path(hass.config.path(YAML_CONFIG_FILE))
 
-            def _edit() -> Path:
+            def _edit() -> tuple[Path, bool]:
                 text = config_file.read_text(encoding="utf-8")
                 new_text = packages.apply(text, setup)
                 if packages.analyze(new_text, setup.package_path).status != packages.OK:
@@ -478,10 +479,10 @@ class Importer:
                 backup = yamledit.backup_path(config_file)
                 backup.write_text(text, encoding="utf-8")
                 config_file.write_text(new_text, encoding="utf-8")
-                return backup
+                return backup, not packages.has_core_key(text)
 
             try:
-                backup = await hass.async_add_executor_job(_edit)
+                backup, block = await hass.async_add_executor_job(_edit)
             except (ValueError, OSError) as err:
                 raise KnxImportError("packages_manual", error=str(err)) from err
             try:
@@ -489,6 +490,9 @@ class Importer:
             except HomeAssistantError as err:
                 await hass.async_add_executor_job(yamledit.restore, {config_file: backup})
                 raise KnxImportError("packages_manual", error=str(err)) from err
+            # taken out again when the integration is removed
+            added = {"line": packages.added_line(setup), "block": block, "status": setup.status}
+            hass.config_entries.async_update_entry(entry, data={**entry.data, DATA_PACKAGES_ADDED: added})
         if setup.package_path != options.get(CONF_PACKAGE_PATH):
             # the package file has to sit in the folder packages are loaded from
             old, new = self.package_path(options), Path(hass.config.path(setup.package_path))
@@ -553,9 +557,53 @@ class Importer:
             count += 1
         return count
 
-    async def async_remove(self, options: dict[str, Any]) -> None:
-        """Integration removed: drop the package file and the generated entities."""
+    async def async_remove(self, entry: Any) -> None:
+        """Integration removed: drop the package file, the line added to
+        configuration.yaml and the generated entities."""
+        hass = self.hass
+        options = {**default_options(), **entry.options}
         package = self.package_path(options)
-        await self.hass.async_add_executor_job(lambda: package.unlink(missing_ok=True))
+        await hass.async_add_executor_job(lambda: package.unlink(missing_ok=True))
+        if added := entry.data.get(DATA_PACKAGES_ADDED):
+            await self._async_remove_packages_line(added, package)
         await self._async_reload_knx()
+        registry = er.async_get(hass)
+        for applied in self.applied.values():
+            if entity_id := registry.async_get_entity_id(applied["domain"], KNX_DOMAIN, applied["unique_id"]):
+                registry.async_remove(entity_id)
         await self._store.async_remove()
+
+    async def _async_remove_packages_line(self, added: dict[str, Any], package: Path) -> None:
+        """Take out the line `async_fix_packages` added, unless other packages need it."""
+        from homeassistant.config import YAML_CONFIG_FILE, async_hass_config_yaml
+
+        hass = self.hass
+        config_file = Path(hass.config.path(YAML_CONFIG_FILE))
+        folder = Path(hass.config.path(packages.DEFAULT_DIR))
+
+        def _edit() -> Path | None:
+            if added.get("status") == packages.ADD and folder.is_dir():
+                others = [p for p in folder.rglob("*") if p.suffix in (".yaml", ".yml")]
+                if others:
+                    return None  # the folder holds packages of the user now
+            text = config_file.read_text(encoding="utf-8")
+            new_text = packages.revert(text, added["line"], bool(added.get("block")))
+            backup = yamledit.backup_path(config_file)
+            backup.write_text(text, encoding="utf-8")
+            config_file.write_text(new_text, encoding="utf-8")
+            if added.get("status") == packages.ADD and folder.is_dir() and not any(folder.iterdir()):
+                folder.rmdir()
+            return backup
+
+        try:
+            backup = await hass.async_add_executor_job(_edit)
+        except (ValueError, OSError) as err:
+            _LOGGER.warning("Could not remove the packages line from %s: %s", config_file, err)
+            return
+        if backup is None:
+            return
+        try:
+            await async_hass_config_yaml(hass)
+        except HomeAssistantError as err:
+            await hass.async_add_executor_job(yamledit.restore, {config_file: backup})
+            _LOGGER.warning("Could not remove the packages line from %s: %s", config_file, err)

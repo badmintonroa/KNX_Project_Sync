@@ -123,4 +123,11 @@ data:
 
 ## Deinstallation
 
-Beim Entfernen der Integration wird die Paket-Datei gelöscht und KNX neu geladen. Die importierten Entities verschwinden, deine eigene KNX-YAML bleibt unberührt.
+Beim Entfernen der Integration:
+
+1. Die Paket-Datei wird gelöscht.
+2. Hat die Integration die Paket-Zeile eingetragen (gemerkt in den Daten des Config-Eintrags), wird sie mit Sicherung wieder entfernt, ebenso ein `homeassistant:`-Block, den sie dafür angelegt hat und unter dem nichts anderes steht. Liegen inzwischen andere YAML-Dateien in `packages/`, bleibt die Zeile. Der leere Ordner `packages/` wird gelöscht.
+3. KNX wird neu geladen, danach werden die Registry-Einträge der erzeugten Entities entfernt (sonst blieben sie als „nicht mehr bereitgestellt“ stehen).
+4. Der Speicher `.storage/knx_project_sync` wird gelöscht.
+
+Deine eigene KNX-YAML bleibt unberührt. Entities, die aus ihr in die App übernommen wurden, verschwinden mit der Paket-Datei; die Sicherung der eigenen Datei bleibt liegen.

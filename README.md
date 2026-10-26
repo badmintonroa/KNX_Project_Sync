@@ -1,78 +1,282 @@
 # KNX Project Sync
 
-Home-Assistant-Integration (HACS), die aus einer ETS-Projektdatei (`.knxproj`) automatisch die KNX-Entities anlegt und sie beim Hochladen einer geänderten Datei aktualisiert. Dabei bleiben entity_ids, Namen, Bereiche und der Verlauf erhalten.
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
+[![Release](https://img.shields.io/github/v/release/badmintonroa/Knx-has-auto-importer?include_prereleases)](https://github.com/badmintonroa/Knx-has-auto-importer/releases)
+[![Tests](https://github.com/badmintonroa/Knx-has-auto-importer/actions/workflows/tests.yaml/badge.svg)](https://github.com/badmintonroa/Knx-has-auto-importer/actions/workflows/tests.yaml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Die Entity-Erkennung stammt aus [knx2home](https://github.com/badmintonroa/knx2home). Die Integration enthält einen Python-Port davon, der per Tests exakt gleiche Ergebnisse liefert. Die ETS-Datei wird mit [xknxproject](https://github.com/XKNX/xknxproject) gelesen, derselben Bibliothek, die die offizielle KNX-Integration verwendet. Passwortgeschützte Projekte werden unterstützt.
+🇩🇪 [Deutsche Version](README.de.md)
 
-## Versionen
+Creates the KNX entities of Home Assistant from your ETS project file (`.knxproj`) and keeps them in sync when the project changes. You choose, rename and correct the entities in a panel before anything is created. Updates keep entity IDs, names, areas and history.
 
-Die Integration ist in der **Beta** (`0.1.0-beta.x`). Jede Version steht mit ihren Änderungen im [CHANGELOG](CHANGELOG.md) und als Release auf GitHub. Beta-Versionen sind Pre-Releases. HACS zeigt sie nur, wenn bei der Integration *Beta-Versionen anzeigen* aktiv ist (HACS → KNX Project Sync → ⋮ → *Erneut herunterladen* → Schalter *Beta-Versionen anzeigen*).
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=badmintonroa&repository=Knx-has-auto-importer&category=integration)
+[![Add integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=knx_project_sync)
+
+![The KNX Project Sync panel](https://raw.githubusercontent.com/badmintonroa/Knx-has-auto-importer/main/docs/images/panel-en.png)
+
+> [!NOTE]
+> This is a **beta** (`0.1.0-beta.x`). Back up your configuration before the first import. Changes are listed in the [changelog](CHANGELOG.md).
+
+## Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [What the integration creates](#what-the-integration-creates)
+- [Supported entities](#supported-entities)
+- [How entities are detected](#how-entities-are-detected)
+- [Updating the project](#updating-the-project)
+- [Automation](#automation)
+- [Removal](#removal)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+
+## Features
+
+- Reads ETS 4, 5 and 6 projects, including password protected ones, with [xknxproject](https://github.com/XKNX/xknxproject), the library the official KNX integration uses. You can also use the project you already uploaded in the KNX panel.
+- Detects lights, switches, covers, climate, weather stations, sensors, texts, scenes and more (see [Supported entities](#supported-entities)).
+- **Panel in the sidebar:** choose which entities to create, rename them, fix wrong group addresses, switch the type (switch ↔ light, text ↔ sensor). Nothing changes until you click *Apply*.
+- **Your own KNX YAML is respected:** entities you already configured by hand are recognised and not created twice. You can take them over into the app.
+- **Updates without losing anything:** entity IDs, names, areas, dashboards and history stay, even when a group address is re-addressed in ETS. New entities are only suggested, never added on their own.
+- ETS rooms become Home Assistant areas.
+- Everything runs locally. The project password is only used to open the file and is not stored.
+
+The entity detection is a Python port of [knx2home](https://github.com/badmintonroa/knx2home). Tests check that both produce exactly the same result.
 
 ## Installation
 
-1. HACS → *Integrationen* → ⋮ → *Benutzerdefinierte Repositories* → `https://github.com/badmintonroa/Knx-has-auto-importer`, Typ *Integration*. Danach „KNX Project Sync“ installieren und HA neu starten.
-2. *Einstellungen → Geräte & Dienste → Integration hinzufügen → KNX Project Sync*. Voraussetzung ist eine eingerichtete KNX-Integration.
+### Requirements
 
-Die erzeugten Entities stehen in einer eigenen Datei, die Home Assistant über `homeassistant: packages:` lädt. Fehlt das in der `configuration.yaml`, trägt das Panel (oder die Reparatur) es mit einem Klick ein, mit Sicherung und ohne Neustart.
+- Home Assistant 2025.4 or newer
+- The [KNX integration](https://www.home-assistant.io/integrations/knx/), set up and connected
+- [HACS](https://hacs.xyz)
+- Your ETS project exported as `.knxproj`
 
-## Benutzung
+### 1. Install
 
-- **Einrichten:** Nur die Quelle wählen, also eine `.knxproj` hochladen oder das schon im KNX-Panel hochgeladene Projekt verwenden. Das Projekt wird eingelesen, **angelegt wird noch nichts**.
-- **Erster Import im Panel:** Alle erkannten Entities sind vorausgewählt. Abwählen, korrigieren und *Übernehmen* klicken. Erst dann werden die Entities in `packages/knx_project_sync.yaml` geschrieben und KNX neu geladen.
-- **Panel „KNX Project Sync“ (Seitenleiste, nur Admins):** Liste aller erkannten Entities, gruppiert nach ETS-Raum oder Typ, mit Suche und Filtern. Pro Entity: anlegen ja/nein, umbenennen, falsche Gruppenadressen korrigieren, Schalter ↔ Licht und Text ↔ Sensor umstellen (bei Schaltern mit „Licht“, „Lampe“ usw. im Namen schlägt das Panel *Als Licht?* vor). Änderungen sind ein Entwurf, bis du auf *Übernehmen* klickst.
-- **Update:** Im Panel eine neue Projektdatei hochladen oder das Projekt aus dem KNX-Panel einlesen (oder bei der Integration *Konfigurieren*, die neue Version wird dann ebenfalls im Panel geprüft und übernommen). Geänderte und entfernte Entities werden nachgezogen. **Neue Entities werden nicht automatisch angelegt**, sondern erscheinen als „Neu verfügbar“, und eine Benachrichtigung weist darauf hin.
-- **Eigene KNX-YAML:** Entities, die du schon von Hand angelegt hast (gleiche Gruppenadresse, auch Schalter ↔ Licht), werden erkannt und nicht doppelt angelegt. Im Panel kannst du sie per *In App übernehmen* in die App verschieben, mit Sicherung deiner Datei, oder beliebige Entities als *Schon vorhanden* markieren.
-- **Automatisierbar:** Service `knx_project_sync.import_project` (mit `dry_run`).
+**With HACS (recommended)**
 
-Details: [docs/import.md](docs/import.md)
+1. Click *Open in HACS* above, or open HACS → ⋮ → *Custom repositories* and add `https://github.com/badmintonroa/Knx-has-auto-importer` with type *Integration*.
+2. While it is a beta: in HACS open *KNX Project Sync* → ⋮ → *Redownload* and turn on *Show beta versions*.
+3. Download it and restart Home Assistant.
 
-## Status
+**Manually**
 
-| Schritt | Inhalt | |
+Copy `custom_components/knx_project_sync` from the [latest release](https://github.com/badmintonroa/Knx-has-auto-importer/releases) into `config/custom_components/` and restart Home Assistant.
+
+### 2. Set up
+
+1. *Settings → Devices & services → Add integration → KNX Project Sync* (or click *Add integration* above).
+2. Choose the source: upload a `.knxproj` file, or use the project already uploaded in the KNX panel.
+3. The project is read and you land in the panel. **Nothing has been created yet.**
+
+### 3. First import
+
+1. In the panel **KNX Project Sync** (sidebar, admins only) all detected entities are selected.
+2. Deselect what you don't want, rename entities, fix group addresses or change types.
+3. Click **Apply**. The entities are written and the KNX integration is reloaded. No restart is needed.
+
+### The packages line
+
+The entities are written to a file of their own, so your `configuration.yaml` and your own KNX configuration stay untouched. Home Assistant only reads such a file through [packages](https://www.home-assistant.io/docs/configuration/packages/):
+
+```yaml
+homeassistant:
+  packages: !include_dir_named packages
+```
+
+If this line is missing, the panel shows a card and Home Assistant shows a repair, both with a button that adds it. `configuration.yaml` is backed up first. The result is checked with Home Assistant's own YAML loader, and the backup is restored if anything is wrong. If you already load packages from another folder, the file is moved there instead and `configuration.yaml` stays as it is.
+
+## What the integration creates
+
+```
+config/
+├── configuration.yaml                                  one line, only on your click
+├── configuration.yaml.knx_project_sync-<time>.bak      backup before that change
+├── packages/
+│   └── knx_project_sync.yaml                           all generated entities
+├── <your KNX YAML>.knx_project_sync-<time>.bak         backup when you take entities over
+└── .storage/
+    └── knx_project_sync                                choices, names, corrections, last import
+```
+
+| File | Content | Edit by hand? |
 |---|---|---|
-| 0 | Machbarkeit xknxproject → [docs/spike-xknxproject.md](docs/spike-xknxproject.md) | ✅ |
-| 1 | Manifest-Vertrag + Golden-Files aus knx2home → [docs/manifest-v1.md](docs/manifest-v1.md) | ✅ |
-| 2 | Integration: HACS, Config-/Options-Flow mit Upload, Passwort, KNX-Panel-Projekt | ✅ |
-| 3 | Python-Port der Erkennung, Parity mit knx2home → [docs/port-notes.md](docs/port-notes.md) | ✅ |
-| 4 | Paket-YAML, Prüfung gegen das KNX-Schema, `knx.reload`, Konflikte mit eigener YAML | ✅ |
-| 5 | Update: Diff-Vorschau, unique_id-Migration, Löschen/Behalten, Service | ✅ |
-| 6 | Diagnose, Sensor „Letzter Import“, ETS-Räume → Bereiche, Repair-Hinweise | ✅ |
-| 7 | CI: pytest, ruff, hassfest, HACS-Validierung, knx2home-Golden-Check | ✅ |
-| 8 | Panel: Auswahl, Umbenennen, Schalter ↔ Licht, neue Entities nur vorschlagen | ✅ |
+| `packages/knx_project_sync.yaml` | The `knx:` configuration of all selected entities. Rewritten on every *Apply*. The path can be changed in the settings. | No. Use the panel, your changes would be overwritten. |
+| `.storage/knx_project_sync` | The project as read, your choices in the panel, what was applied last. | No |
+| `*.knx_project_sync-*.bak` | Backups made before the integration changes one of your files. | Delete them when you no longer need them. |
 
-## Aufbau
+The package file looks like this:
 
-```
-custom_components/knx_project_sync/
-  mapping/          Port der knx2home-Erkennung (reines Python)
-  plan.py           Diff zwischen Projekt und letztem Import
-  importer.py       Parsen, Planen, Anwenden (YAML, Reload, Registry, Bereiche)
-  writer.py         Paket-Datei, unique_ids aus YAML
-  config_flow.py    Einrichtung und erneuter Import
-  websocket.py      API und Registrierung des Panels
-  frontend/         gebündeltes Panel (Quelltext in /frontend)
-  sensor.py, diagnostics.py, services.yaml, strings.json, translations/
-schema/             JSON-Schema des Manifests
-docs/               Spike, Manifest, Port-Notizen, Import
-tests/              pytest (Port, Plan, HA-Integration), Fixtures + Golden-Files
-frontend/           Panel (Lit, TypeScript): npm run build / check / test
-tools/              Fixture-Generator, knx2home-Referenzgenerator, xknxproject-Vergleich
+```yaml
+# Automatisch erzeugt von knx_project_sync – nicht von Hand bearbeiten.
+# Generated by knx_project_sync – do not edit, changes are overwritten on the next import.
+# Projekt / project: Musterhaus
+knx:
+  light:
+    - name: Wohnzimmer Decke
+      address: 1/1/10
+      state_address: 1/5/10
+      brightness_address: 1/3/10
+      brightness_state_address: 1/4/10
+  sensor:
+    - name: Wohnzimmer Temperatur
+      state_address: 3/0/1
+      type: temperature
 ```
 
-## Entwicklung
+Inside Home Assistant the integration adds:
 
-```bash
-python -m venv .venv && . .venv/bin/activate
-pip install -r requirements_test.txt
-pytest
-ruff check custom_components tests tools/spike tools/fixtures
+- the **KNX Project Sync** panel in the sidebar
+- a **Last import** sensor (timestamp; project, source and the counts of the last import as attributes)
+- **areas** named after the ETS rooms, for entities that have no area yet (can be turned off)
+- notifications when a new project version brings new entities
+- [diagnostics](https://www.home-assistant.io/docs/configuration/troubleshooting/#download-diagnostics) for bug reports
+
+The entities themselves belong to the KNX integration. They are normal KNX entities, as if you had written the YAML yourself.
+
+### Settings
+
+*Settings → Devices & services → KNX Project Sync → Configure → Settings*
+
+| Option | Default | Meaning |
+|---|---|---|
+| Entity types | all | Only these types are created. |
+| Entities missing from the project | delete | *Delete* removes them, *Keep* leaves them in place. |
+| Assign areas from ETS rooms | on | Only for entities without an area. Areas you set are never changed. |
+| Package file | `packages/knx_project_sync.yaml` | Where the entities are written. |
+
+## Supported entities
+
+| Type | Detected from | Fields |
+|---|---|---|
+| Light | Dimming actuator channels, ETS 6 functions, address pattern, name pattern (see below) | switch, state, brightness, brightness state |
+| Switch | DPT 1.001 (also 1.002, 2.001) | address, state address |
+| Binary sensor | DPT 1.001 named *status*, 1.005, 1.006, 1.009 | state address |
+| Sensor | DPT 5.001, 7.xxx, 8.xxx, 9.xxx, 12.xxx, 20.102, 20.105, or names like *temperature*, *humidity*, *CO2*, *lux* | state address, type |
+| Text | DPT 16.000, 16.001 | address, state address |
+| Time / Date / Date and time | DPT 10.001 / 11.001 / 19.001 | address |
+| Cover | Blind actuator channels, or DPT 1.007, 1.008, 1.010, 5.001, 5.003 with cover names (*blind*, *shutter*, *Jalousie*, …) | up/down, step, stop, position, slat angle, their states |
+| Climate | Actuator or room controller channel with actual and target temperature (9.001) | setpoint shift, operation mode, controller mode, heating/cooling, valve, humidity |
+| Weather | Weather station device with outdoor temperature and wind or brightness | temperature, brightness N/E/S/W, wind speed and direction, rain/frost/wind alarm, day/night, air pressure, humidity |
+| Scene | DPT 17.001, 18.001, addresses `0/1/x`, names with *scene* | address, scene number |
+
+Not supported yet: `fan`, `number`, `select`, `button`, `expose`, `notify`. Known gaps of the detection:
+
+- DPT 14.xxx (e.g. power 14.056) is not detected.
+- DPT 1.018 (presence) and 1.024 (day/night) on their own are not detected as binary sensors.
+- Scenes without a number in the name cannot be created, Home Assistant needs `scene_number`. The panel shows them as *not possible*.
+- Group addresses are always written in three levels (`1/2/3`), also for projects with two-level or free addressing.
+
+Group addresses that fit no type are listed in the panel under *No type*. If a type is wrong, change it in the panel (see the tip below).
+
+## How entities are detected
+
+Each group address ends up in at most one entity. The steps run in this order, and a group address used by an earlier step is not used again:
+
+1. **Lights**, from five sources:
+   1. channels of dimming actuators (switching, dimming and brightness objects of one channel)
+   2. ETS 6 functions (the group addresses of one function)
+   3. the address pattern `1/<middle>/<n>`: middle group 1 = switch, 2 = dim, 3 = brightness, 4 = brightness state, 5 = state, joined by the same `<n>`
+   4. names starting with `LA<number>`
+   5. names ending in ` s` (switch), ` d` (dim), ` w` (value) or ` status`
+
+   If several sources find the same switch address, they are merged into one light, and the source with the most fields wins.
+2. **Switches**: DPT 1.001 grouped by name. A name with *status* becomes the state address. Switch outputs of dimming actuators are lights, not switches. Addresses `0/1/x` (scenes) and `1/7/x` are skipped.
+3. **Covers**: first from the channels of blind actuators, then from cover names among the remaining group addresses.
+4. **Climate**: per actuator or room controller channel.
+5. **Weather**: per weather station device.
+6. **Everything else, one group address at a time:**
+   1. `0/1/x` is a scene.
+   2. A type in square brackets in the ETS name wins: `[switch]`, `[light]`, `[cover]`, `[sensor]`, `[binary_sensor]`, `[scene]`. This only applies here, to group addresses that no earlier step used.
+   3. Otherwise the DPT decides, and for ambiguous DPTs the name. For example 5.001 is a cover with *blind* in the name, a light with *brightness*, and a sensor otherwise.
+   4. Without a DPT only the name counts (*light*, *lamp*, *temp*, *status*, …).
+   5. Anything left goes to *No type*.
+
+When you click *Apply*, these rules come on top:
+
+1. **Your choices in the panel win over everything**: selected or not, name, type, corrected addresses.
+2. **Your own KNX YAML comes before the project.** An entity with the same unique ID, or one that uses the same group address (for example the temperature of your own climate entity), is marked *Own YAML* and not created twice. You can take it over into the app or mark any entity as *already exists*.
+3. **A light beats a switch** on the same group address.
+4. **DPT 16 becomes a text entity**, unless it was already applied as a sensor.
+5. Everything is checked against the schema of the KNX integration. Invalid entities are shown and skipped.
+
+> [!TIP]
+> If an entity is detected with the wrong type, change it in the panel. Your choice is stored per entity and kept with every new project version.
+
+## Updating the project
+
+Export the project from ETS again and upload it in the panel (*Upload project file*), or upload it in the KNX panel and click *Read from KNX panel*. The panel shows what changes:
+
+- **Changed** entities, for example a new name or an extra status address, are updated.
+- **Removed** entities are deleted, or kept if you set that in the settings.
+- **New** entities are *not* added. They show up as *Newly available*, and a notification tells you about them.
+- **Re-addressed** group addresses keep their entity: the entity is moved to the new unique ID before KNX is reloaded, so entity ID, name, area and history stay.
+
+## Automation
+
+The action `knx_project_sync.import_project` runs an import without the panel:
+
+```yaml
+action: knx_project_sync.import_project
+data:
+  source: file              # or knx_project
+  file: knx/projekt.knxproj # relative to the config folder
+  password: !secret knx_project_password
+  dry_run: true             # only return what would change
 ```
 
-Fixtures neu erzeugen: `python tools/fixtures/build_fixtures.py`. Golden-Files aus knx2home neu erzeugen (knx2home liegt in `../knx2home`):
+It returns the summary. After every import the event `knx_project_sync_imported` is fired.
 
-```bash
-(cd ../knx2home && npm ci)
-cd tools/reference && npm ci && npm run generate
+## Removal
+
+1. *Settings → Devices & services → KNX Project Sync → ⋮ → Delete*.
+2. In HACS: *KNX Project Sync* → ⋮ → *Remove*, then restart Home Assistant.
+
+When the integration is deleted (step 1):
+
+| What | Happens |
+|---|---|
+| `packages/knx_project_sync.yaml` | deleted, KNX is reloaded |
+| Generated entities | removed from Home Assistant, including their entity registry entries. The recorded history stays in the database. |
+| Packages line in `configuration.yaml` | taken out again if the integration added it, with a backup. It stays if other files are in `packages/` now. |
+| `packages/` folder | deleted if the integration created it and it is empty |
+| `.storage/knx_project_sync`, panel, *Last import* sensor | deleted |
+| Areas | stay, they may be used by other entities |
+| Backups `*.knx_project_sync-*.bak` | stay, delete them by hand |
+
+> [!IMPORTANT]
+> Entities you **took over** from your own YAML into the app are deleted with the package file. To keep them, copy them from `packages/knx_project_sync.yaml` into your own configuration before deleting, or restore the backup of your file (`<file>.knx_project_sync-<time>.bak`).
+
+## Troubleshooting
+
+**The entities don't appear.**
+Check that the packages line is in `configuration.yaml`. The panel and *Settings → Repairs* offer to add it. Then look at *Settings → System → Logs* for errors of the KNX integration.
+
+**An entity exists twice.**
+Probably you also have it in your own KNX YAML with different group addresses. Mark it as *already exists* in the panel, or take it over into the app.
+
+**The project cannot be read.**
+Check the password. Projects from very old ETS versions may not be supported by xknxproject.
+
+**Debug log**
+
+```yaml
+logger:
+  logs:
+    custom_components.knx_project_sync: debug
 ```
 
-Die CI erzeugt die Golden-Files bei jedem Lauf und wöchentlich mit dem aktuellen knx2home-`main` neu. Ändert knx2home sein Verhalten, schlägt sie fehl, und der Port muss nachziehen.
+## Contributing
+
+Help is welcome, also without programming:
+
+- **Report wrong detection:** open an [issue](https://github.com/badmintonroa/Knx-has-auto-importer/issues) with the group address names, their DPTs and what you expected. Please don't attach your `.knxproj`, it contains your whole installation.
+- **Report a bug:** add the version, the [diagnostics](https://www.home-assistant.io/docs/configuration/troubleshooting/#download-diagnostics) of the integration and the debug log.
+- **Translations:** the panel texts are in [`frontend/src/strings.ts`](frontend/src/strings.ts), the rest in [`translations/`](custom_components/knx_project_sync/translations/).
+- **Code:** see [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests and the release process.
+
+## License
+
+[MIT](LICENSE). The entity detection is based on [knx2home](https://github.com/badmintonroa/knx2home).
+
+This is not an official project of Home Assistant or the KNX Association. KNX and ETS are trademarks of the KNX Association.

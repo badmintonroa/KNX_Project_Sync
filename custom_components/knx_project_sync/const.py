@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "knx_project_sync"
-VERSION: Final = "0.1.0-beta.2"
+VERSION: Final = "0.1.0-beta.3"
 
 KNX_DOMAIN: Final = "knx"
 # xknxproject output of the project uploaded in the KNX panel
@@ -33,3 +33,6 @@ SERVICE_IMPORT_PROJECT: Final = "import_project"
 
 ISSUE_PACKAGE_NOT_LOADED: Final = "package_not_loaded"
 ISSUE_RELOAD_FAILED: Final = "knx_reload_failed"
+
+# config entry data: the line added to configuration.yaml, taken out on removal
+DATA_PACKAGES_ADDED: Final = "packages_added"

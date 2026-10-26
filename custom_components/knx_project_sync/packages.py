@@ -102,6 +102,20 @@ def _child_indent(lines: list[str], start: int, default: str = "  ") -> str:
     return default
 
 
+def has_core_key(text: str) -> bool:
+    """configuration.yaml has a `homeassistant:` key."""
+    return any(_TOP_KEY.match(line) for line in text.splitlines())
+
+
+def added_line(setup: Setup) -> str:
+    """The line `apply` adds for `setup` (without indentation)."""
+    if setup.status == ADD:
+        return LINE
+    if setup.status == INCLUDE:
+        return f"knx_project_sync: !include {setup.package_path}"
+    raise ValueError(setup.status)
+
+
 def apply(text: str, setup: Setup) -> str:
     """configuration.yaml with the change `setup` asks for (ADD or INCLUDE)."""
     lines = text.splitlines(keepends=True)
@@ -127,7 +141,32 @@ def apply(text: str, setup: Setup) -> str:
                 break  # next top level key
             if (match := _PACKAGES_KEY.match(line)) and not match.group("rest"):
                 indent = _child_indent(lines, i, match.group("indent") * 2)
-                lines.insert(i + 1, f"{indent}knx_project_sync: !include {setup.package_path}{newline}")
+                lines.insert(i + 1, f"{indent}{added_line(setup)}{newline}")
                 return "".join(lines)
         raise ValueError("packages_not_found")
     raise ValueError(setup.status)
+
+
+def revert(text: str, line: str, block: bool) -> str:
+    """configuration.yaml without the `line` that `apply` added.
+
+    With `block`, `apply` had created the `homeassistant:` key as well; it goes
+    too when nothing else was put under it since.
+    """
+    lines = text.splitlines(keepends=True)
+    hits = [i for i, item in enumerate(lines) if item.strip() == line and item[:1].isspace()]
+    if len(hits) != 1:
+        raise ValueError("line_not_found")
+    del lines[hits[0]]
+    if not block:
+        return "".join(lines)
+    top = next((i for i, item in enumerate(lines) if _TOP_KEY.match(item.rstrip("\r\n"))), None)
+    if top is None or _TOP_KEY.match(lines[top].rstrip("\r\n")).group("rest"):
+        return "".join(lines)
+    child = next((item for item in lines[top + 1 :] if item.strip() and not item.lstrip().startswith("#")), None)
+    if child is not None and child[:1].isspace():
+        return "".join(lines)  # the user added something under homeassistant:
+    del lines[top]
+    if top == len(lines) and lines and not lines[-1].strip():
+        lines.pop()  # the blank line before the block
+    return "".join(lines)
