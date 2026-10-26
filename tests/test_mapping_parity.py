@@ -7,8 +7,7 @@ from custom_components.knx_project_sync.mapping import (
     build_manifest,
     catalog_from_xknxproject,
 )
-from helpers import FIXTURES, load_json
-from xknx_digest import parse
+from helpers import FIXTURES, load_json, parse
 
 
 def test_manifest_matches_knx2home(fixture_name, passwords):

@@ -9,6 +9,7 @@ import yaml
 
 from .const import DOMAIN
 from .mapping.manifest import HA_DOMAINS, unique_id_for
+from .model import OwnEntities
 
 HEADER = f"""\
 # Automatisch erzeugt von {DOMAIN} – nicht von Hand bearbeiten.
@@ -70,12 +71,12 @@ def unique_ids_of_knx_config(knx: dict[str, Any]) -> set[tuple[str, str]]:
     return set(entities_of_knx_config(knx))
 
 
-def entities_of_knx_config(knx: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+def entities_of_knx_config(knx: dict[str, Any]) -> OwnEntities:
     """(domain, unique_id) -> {"config", "file", "line"} of a raw `knx:` config.
 
     `file` and `line` come from Home Assistant's YAML loader (None for plain dicts).
     """
-    out: dict[tuple[str, str], dict[str, Any]] = {}
+    out: OwnEntities = {}
     for domain in HA_DOMAINS:
         items = knx.get(domain) or []
         if isinstance(items, dict):

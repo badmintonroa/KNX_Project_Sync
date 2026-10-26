@@ -17,7 +17,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 import voluptuous as vol
 
-from .const import DOMAIN, KNX_DOMAIN, SOURCE_KNX_PROJECT, SOURCE_UPLOAD, VERSION
+from .const import CONF_DOMAINS, DOMAIN, KNX_DOMAIN, SOURCE_KNX_PROJECT, SOURCE_UPLOAD, VERSION
 from .importer import (
     PANEL_URL,
     Importer,
@@ -26,9 +26,10 @@ from .importer import (
     async_has_knx_project,
     async_prepare_knx_project,
     async_prepare_upload,
-    default_options,
+    entry_options,
 )
-from .plan import WRITTEN, ImportPlan, address_fields, domain_choices, is_address_field
+from .model import WRITTEN, Conflict, Selection
+from .plan import ImportPlan, address_fields, domain_choices, is_address_field
 
 STATIC_URL: Final = f"/{DOMAIN}_static"
 FRONTEND_DIR: Final = Path(__file__).parent / "frontend"
@@ -161,23 +162,22 @@ def _serialize(hass: HomeAssistant, prepared: Prepared, plan: ImportPlan, select
     return rows
 
 
-def _conflict(hass: HomeAssistant, info: dict[str, Any] | None) -> dict[str, Any] | None:
-    if not info:
+def _conflict(hass: HomeAssistant, conflict: Conflict | None) -> dict[str, Any] | None:
+    if conflict is None:
         return None
-    file = info.get("file")
+    file = conflict.file
     if file:
         path = Path(file)
         config_dir = Path(hass.config.config_dir)
         file = str(path.relative_to(config_dir)) if path.is_relative_to(config_dir) else str(path)
     return {
-        "domain": info["domain"],
-        "name": info.get("name"),
+        "domain": conflict.domain,
+        "name": conflict.name,
         "file": file,
-        "line": info.get("line"),
-        "adoptable": bool(info.get("file") and info.get("line")),
-        # unique_id: same entity; address: one GA is used by it; app: GA of a taken-over entity
-        "kind": info.get("kind", "unique_id"),
-        "address": info.get("address"),
+        "line": conflict.line,
+        "adoptable": conflict.adoptable,
+        "kind": conflict.kind,
+        "address": conflict.address,
     }
 
 
@@ -187,6 +187,7 @@ async def _async_plan_response(
     importer: Importer = entry.runtime_data
     prepared, source = _current(importer)
     selection = importer.selection if selection is None else _clean(selection)
+    options = entry_options(entry)
     base: dict[str, Any] = {
         "language": hass.config.language,
         "version": VERSION,
@@ -194,11 +195,10 @@ async def _async_plan_response(
         "staged": importer.staged is not None,
         "last_import": importer.data.get("last_import"),
         "stored_selection": importer.selection,
-        "domains": {**default_options(), **entry.options}["domains"],
+        "domains": options[CONF_DOMAINS],
     }
     if prepared is None:
         return {**base, "project": None, "entities": [], "unmapped": [], "summary": {}}, None
-    options = {**default_options(), **entry.options}
     setup = await importer.async_package_setup(options)
     base["packages"] = {"status": setup.status, "package_path": setup.package_path, "detail": setup.detail}
     plan = await importer.async_plan(prepared, options, selection)
@@ -287,7 +287,7 @@ async def ws_apply(hass: HomeAssistant, connection: websocket_api.ActiveConnecti
         connection.send_error(msg["id"], "no_project", "No project imported yet")
         return
     prepared, plan, source = planned
-    options = {**default_options(), **entry.options}
+    options = entry_options(entry)
     try:
         summary = await entry.runtime_data.async_apply(
             prepared, plan, options, source or SOURCE_UPLOAD, selection=selection, notify=False
@@ -314,9 +314,9 @@ async def ws_fix_packages(hass: HomeAssistant, connection: websocket_api.ActiveC
     connection.send_result(msg["id"], {"status": setup.status, "package_path": setup.package_path})
 
 
-def _clean(selection: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+def _clean(selection: Selection) -> Selection:
     """Drop empty values so that only real choices are stored."""
-    out: dict[str, dict[str, Any]] = {}
+    out: Selection = {}
     for key, choice in selection.items():
         # enabled=False is a choice, existing/adopt=False only the absence of one
         item = {

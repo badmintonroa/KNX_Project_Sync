@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from homeassistant.components import persistent_notification
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import area_registry as ar, entity_registry as er, issue_registry as ir
@@ -38,7 +39,8 @@ from .const import (
 from .mapping import build_ha_entities, build_manifest, catalog_from_xknxproject
 from .mapping.catalog import Catalog
 from .mapping.manifest import HA_DOMAINS
-from .plan import PENDING, ImportPlan, build_plan
+from .model import AppliedState, OwnEntities, Selection, Status
+from .plan import ImportPlan, build_plan
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,6 +75,11 @@ def default_options() -> dict[str, Any]:
         CONF_ASSIGN_AREAS: False,
         CONF_PACKAGE_PATH: DEFAULT_PACKAGE_PATH,
     }
+
+
+def entry_options(entry: ConfigEntry) -> dict[str, Any]:
+    """Options of the config entry, completed with the defaults."""
+    return {**default_options(), **entry.options}
 
 
 # ---------------------------------------------------------------- parsing
@@ -183,7 +190,7 @@ def _validator():
     return validate
 
 
-async def _async_foreign_entities(hass: HomeAssistant, package: Path) -> dict[tuple[str, str], dict[str, Any]]:
+async def _async_foreign_entities(hass: HomeAssistant, package: Path) -> OwnEntities:
     """KNX YAML entities that are not ours (e.g. hand written knx: YAML), with file and line."""
     from homeassistant.config import async_hass_config_yaml
 
@@ -215,19 +222,19 @@ class Importer:
         return self.data.get("manifest")
 
     @property
-    def applied(self) -> dict[str, dict[str, Any]]:
+    def applied(self) -> AppliedState:
         return self.data.get("applied", {})
 
     @property
-    def selection(self) -> dict[str, dict[str, Any]]:
-        """Choices made in the panel per entity key: enabled, domain, name."""
+    def selection(self) -> Selection:
+        """Choices made in the panel per entity key."""
         return self.data.get("selection", {})
 
     def package_path(self, options: dict[str, Any]) -> Path:
         return Path(self.hass.config.path(options.get(CONF_PACKAGE_PATH) or DEFAULT_PACKAGE_PATH))
 
     async def async_plan(
-        self, prepared: Prepared, options: dict[str, Any], selection: dict[str, dict[str, Any]] | None = None
+        self, prepared: Prepared, options: dict[str, Any], selection: Selection | None = None
     ) -> ImportPlan:
         """Plan an import; `selection` defaults to the stored choices of the panel."""
         foreign = await _async_foreign_entities(self.hass, self.package_path(options))
@@ -289,7 +296,7 @@ class Importer:
         plan: ImportPlan,
         options: dict[str, Any],
         source: str,
-        selection: dict[str, dict[str, Any]] | None = None,
+        selection: Selection | None = None,
         notify: bool = True,
     ) -> dict:
         hass = self.hass
@@ -363,7 +370,7 @@ class Importer:
         hass.bus.async_fire(EVENT_IMPORTED, {"project": plan.project, **summary})
         return summary
 
-    async def _async_adopt(self, plan: ImportPlan, package: Path, selection: dict[str, dict[str, Any]]) -> dict:
+    async def _async_adopt(self, plan: ImportPlan, package: Path, selection: Selection) -> dict:
         """Remove adopted entities from the user's YAML; returns file -> backup.
 
         Checked with Home Assistant's own YAML loader: exactly the adopted entities
@@ -372,7 +379,7 @@ class Importer:
         entries = plan.adoptions
         if not entries:
             return {}
-        items = [(e.conflict_with["file"], e.conflict_with["line"]) for e in entries]
+        items = [(e.conflict_with.file, e.conflict_with.line) for e in entries]
         before = set(await _async_foreign_entities(self.hass, package))
         try:
             backups = await self.hass.async_add_executor_job(
@@ -381,7 +388,7 @@ class Importer:
         except (yamledit.YamlEditError, OSError) as err:
             reason = err.reason if isinstance(err, yamledit.YamlEditError) else str(err)
             raise KnxImportError("adopt_failed", error=reason) from err
-        gone = {(e.conflict_with["domain"], e.conflict_with["unique_id"]) for e in entries}
+        gone = {(e.conflict_with.domain, e.conflict_with.unique_id) for e in entries}
         after = set(await _async_foreign_entities(self.hass, package))
         if after != before - gone:
             await self.hass.async_add_executor_job(yamledit.restore, backups)
@@ -394,7 +401,7 @@ class Importer:
 
     def _notify_new(self, plan: ImportPlan, known: set[str] | None) -> None:
         """Tell about entities that are new in the project and can be added in the panel."""
-        pending = plan.by_status(PENDING)
+        pending = plan.by_status(Status.PENDING)
         if not pending or known is None:
             persistent_notification.async_dismiss(self.hass, NOTIFICATION_NEW)
             return
@@ -452,7 +459,7 @@ class Importer:
 
         return await self.hass.async_add_executor_job(_work)
 
-    async def async_fix_packages(self, entry: Any) -> packages.Setup:
+    async def async_fix_packages(self, entry: ConfigEntry) -> packages.Setup:
         """Make Home Assistant load the package file, then reload KNX.
 
         configuration.yaml is backed up and the result checked with Home Assistant's
@@ -461,7 +468,7 @@ class Importer:
         from homeassistant.config import YAML_CONFIG_FILE, async_hass_config_yaml
 
         hass = self.hass
-        options = {**default_options(), **entry.options}
+        options = entry_options(entry)
         setup = await self.async_package_setup(options)
         if setup.status == packages.OK:
             return setup
@@ -507,7 +514,7 @@ class Importer:
                 entry, options={**entry.options, CONF_PACKAGE_PATH: setup.package_path}
             )
 
-        options = {**default_options(), **entry.options}
+        options = entry_options(entry)
         package = self.package_path(options)
         if await hass.async_add_executor_job(package.exists):
             await self._async_reload_knx()
@@ -557,11 +564,11 @@ class Importer:
             count += 1
         return count
 
-    async def async_remove(self, entry: Any) -> None:
+    async def async_remove(self, entry: ConfigEntry) -> None:
         """Integration removed: drop the package file, the line added to
         configuration.yaml and the generated entities."""
         hass = self.hass
-        options = {**default_options(), **entry.options}
+        options = entry_options(entry)
         package = self.package_path(options)
         await hass.async_add_executor_job(lambda: package.unlink(missing_ok=True))
         if added := entry.data.get(DATA_PACKAGES_ADDED):

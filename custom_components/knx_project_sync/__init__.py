@@ -23,7 +23,7 @@ from .importer import (
     KnxImportError,
     async_prepare_file,
     async_prepare_knx_project,
-    default_options,
+    entry_options,
 )
 from .websocket import async_register_commands, async_register_panel, async_unregister_panel
 
@@ -62,7 +62,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             raise ServiceValidationError(
                 translation_domain=DOMAIN, translation_key=err.key, translation_placeholders=err.placeholders
             ) from err
-        options = {**default_options(), **entry.options}
+        options = entry_options(entry)
         plan = await importer.async_plan(prepared, options)
         if call.data["dry_run"]:
             return {

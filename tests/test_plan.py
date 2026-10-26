@@ -3,9 +3,15 @@
 from __future__ import annotations
 
 from custom_components.knx_project_sync.mapping.manifest import DOMAINS
+from custom_components.knx_project_sync.model import Conflict
 from custom_components.knx_project_sync.plan import apply_choice, build_plan, domain_choices
 from custom_components.knx_project_sync.writer import render, unique_ids_of_knx_config
 from helpers import FIXTURES, load_json
+
+
+def _own(*unique_ids):
+    """Own YAML entities without file and line (cannot be taken over)."""
+    return {uid: {"config": {}} for uid in unique_ids}
 
 
 def _manifest(name: str) -> dict:
@@ -49,7 +55,7 @@ def test_recreated_ga_is_matched_by_unique_id():
     plan = build_plan(manifest, v1.state(), domains=DOMAINS, keep_removed=False)
     entry = next(e for e in plan.entries if e.key == "sensor:GA-99")
     assert entry.status == "changed"
-    assert entry.previous_key == "sensor:GA-12"
+    assert entry.previous_unique_id == entry.unique_id  # matched with the old GA-12
     assert plan.by_status("removed") == []
 
 
@@ -61,7 +67,7 @@ def test_skips():
         {},
         domains=[d for d in DOMAINS if d != "weather"],
         keep_removed=False,
-        foreign_unique_ids=foreign,
+        foreign_entities=_own(*foreign),
         validate=lambda domain, config: "bad" if config.get("name") == "Zentral 3" else None,
     )
     status = {e.key: (e.status, e.reason) for e in plan.entries}
@@ -105,7 +111,7 @@ def test_entity_now_in_own_yaml_is_not_deleted():
         v1.state(),
         domains=DOMAINS,
         keep_removed=False,
-        foreign_unique_ids={("light", "1/1/1")},
+        foreign_entities=_own(("light", "1/1/1")),
     )
     status = {(e.key, e.status) for e in plan.entries}
     assert ("light:GA-3", "conflict") in status
@@ -124,7 +130,7 @@ def test_new_entities_are_pending_after_first_import():
     assert status["sensor:GA-19"] == "pending"
     assert status["sensor:GA-12"] == "changed"
     assert "sensor:GA-19" not in plan.state()
-    assert plan.has_pending
+    assert plan.by_status("pending")
 
     # added in the panel
     plan = build_plan(
@@ -199,15 +205,14 @@ def test_own_light_on_a_detected_switch_is_a_conflict():
     plan = build_plan(_manifest("musterhaus_v1"), {}, domains=DOMAINS, keep_removed=False, foreign_entities=own)
     entry = next(e for e in plan.entries if e.key == "switch:GA-1")
     assert entry.status == "conflict"
-    assert entry.conflict_with == {
-        "domain": "light",
-        "unique_id": "1/0/1",
-        "name": "Mein Licht",
-        "file": "/c/configuration.yaml",
-        "line": 7,
-        "kind": "unique_id",
-        "address": None,
-    }
+    assert entry.conflict_with == Conflict(
+        domain="light",
+        unique_id="1/0/1",
+        name="Mein Licht",
+        kind="unique_id",
+        file="/c/configuration.yaml",
+        line=7,
+    )
 
     adopted = build_plan(
         _manifest("musterhaus_v1"),
@@ -253,7 +258,7 @@ def test_marked_as_existing():
         previous,
         domains=DOMAINS,
         keep_removed=True,
-        foreign_unique_ids={("light", "1/1/1")},
+        foreign_entities=_own(("light", "1/1/1")),
         selection={"light:GA-3": {"existing": True}},
     )
     assert own.removed_unique_ids == []
@@ -298,8 +303,8 @@ def test_ga_used_by_an_own_climate():
     entries = {e.key: e for e in plan.entries}
     temperature = entries["sensor:GA-12"]
     assert (temperature.status, temperature.reason) == ("conflict", "ga_in_use")
-    assert temperature.conflict_with["domain"] == "climate"
-    assert temperature.conflict_with["address"] == "3/0/1"
+    assert temperature.conflict_with.domain == "climate"
+    assert temperature.conflict_with.address == "3/0/1"
     assert entries["sensor:GA-13"].status == "conflict"
 
     # created anyway on request
@@ -335,7 +340,7 @@ def test_ga_used_by_an_own_climate():
     entries = {e.key: e for e in later.entries}
     assert entries["sensor:GA-12"].status == "unchanged"
     assert (entries["sensor:GA-13"].status, entries["sensor:GA-13"].reason) == ("duplicate", "ga_in_use")
-    assert entries["sensor:GA-13"].conflict_with["kind"] == "app"
+    assert entries["sensor:GA-13"].conflict_with.kind == "app"
 
 
 def _text_manifest() -> dict:

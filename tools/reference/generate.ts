@@ -3,10 +3,8 @@
  * buildHaEntities) on every tests/fixtures/*.knxproj and writes
  *
  *   <name>.manifest.json  golden knx2home-ha-manifest v1 (see docs/manifest-v1.md)
- *   <name>.catalog.json   compact per group address view of the knx2home catalog,
- *                         used to check that xknxproject sees the same project data
  *
- * Both files are deterministic so they can be committed and diffed.
+ * The files are deterministic so they can be committed and diffed.
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -134,47 +132,6 @@ function buildManifest(catalog: KnxCatalog, ent: HaEntities, generator: Dict) {
   };
 }
 
-/** Group address centric digest of the catalog, comparable with the xknxproject output. */
-function buildCatalogDigest(catalog: KnxCatalog) {
-  const iaByDevice = new Map<string, string>();
-  for (const area of catalog.topology.areas)
-    for (const line of area.lines)
-      for (const dev of line.devices) iaByDevice.set(dev.id, `${area.address}.${line.address}.${dev.address}`);
-  const channelNames = new Map<string, string | undefined>();
-  for (const dev of catalog.devices) for (const ch of dev.channels) channelNames.set(ch.id, ch.name);
-
-  const linksByGa = new Map<string, Dict[]>();
-  for (const link of catalog.links ?? []) {
-    const flags = (link.flags ?? {}) as Record<string, boolean>;
-    const list = linksByGa.get(link.gaId) ?? [];
-    list.push({
-      device: link.deviceId ? iaByDevice.get(link.deviceId) ?? null : null,
-      text: link.channelId ? channelNames.get(link.channelId) ?? null : null,
-      function_text: link.comObject ?? null,
-      dpt: canonicalDpt(link.dpt),
-      flags: {
-        read: Boolean(flags.ReadFlag),
-        write: Boolean(flags.WriteFlag),
-        transmit: Boolean(flags.TransmitFlag),
-        update: Boolean(flags.UpdateFlag),
-      },
-    });
-    linksByGa.set(link.gaId, list);
-  }
-
-  const groupAddresses = [...catalog.groupAddresses.flat]
-    .sort((a, b) => addressSortKey(a.address).localeCompare(addressSortKey(b.address)))
-    .map((ga) => ({
-      ga_id: shortId(ga.id),
-      address: ga.address,
-      name: ga.name ?? null,
-      dpt: canonicalDpt(ga.rawDatapointType ?? ga.datapointType),
-      links: (linksByGa.get(ga.id) ?? []).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))),
-    }));
-
-  return { project: { name: catalog.meta?.name ?? null }, group_addresses: groupAddresses };
-}
-
 const write = (file: string, data: unknown) => writeFileSync(file, JSON.stringify(data, null, 2) + "\n");
 
 async function main() {
@@ -190,7 +147,6 @@ async function main() {
     const catalog = await parseKnxproj(new File([data], file), { password: passwords[name] });
     const ent = buildHaEntities(catalog, { dropReserveFromUnknown: true });
     write(path.join(FIXTURES_DIR, `${name}.manifest.json`), buildManifest(catalog, ent, generator));
-    write(path.join(FIXTURES_DIR, `${name}.catalog.json`), buildCatalogDigest(catalog));
     console.log(`${name}: ok`);
   }
 }

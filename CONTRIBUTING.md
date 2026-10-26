@@ -7,6 +7,7 @@ Thanks for helping! Bug reports and wrong detections are just as welcome as code
 ```
 custom_components/knx_project_sync/
   mapping/          port of the knx2home detection (plain Python, no Home Assistant)
+  model.py          data shapes: statuses, panel choices, applied state, own YAML, conflicts
   plan.py           diff between the project, the last import, the panel choices and your own YAML
   importer.py       parse, plan, apply (package file, reload, registry, areas), packages fix, removal
   writer.py         package file, unique IDs from YAML
@@ -19,9 +20,9 @@ custom_components/knx_project_sync/
   sensor.py, diagnostics.py, services.yaml, strings.json, translations/
 frontend/           panel (Lit, TypeScript)
 schema/             JSON schema of the manifest between detection and import
-docs/               design notes (German): spike, manifest, port notes, import
+docs/               design notes (German): feasibility study, manifest, port notes, import
 tests/              pytest: port, plan, packages, Home Assistant integration; fixtures and golden files
-tools/              fixture generator, knx2home reference generator, xknxproject comparison
+tools/              fixture generator, knx2home reference generator
 ```
 
 The detection produces a manifest ([docs/manifest-v1.md](docs/manifest-v1.md)). The import turns it into a plan, the panel edits the plan, and *Apply* writes it ([docs/import.md](docs/import.md)).
@@ -32,7 +33,7 @@ The detection produces a manifest ([docs/manifest-v1.md](docs/manifest-v1.md)). 
 python -m venv .venv && . .venv/bin/activate
 pip install -r requirements_test.txt
 pytest
-ruff check custom_components tests tools/spike tools/fixtures
+ruff check custom_components tests tools/fixtures
 ruff format custom_components tests
 ```
 

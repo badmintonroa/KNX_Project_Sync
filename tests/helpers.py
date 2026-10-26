@@ -5,15 +5,22 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import sys
+from typing import Any
 import uuid
 
 ROOT = Path(__file__).parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
 
-sys.path.insert(0, str(ROOT / "tools" / "spike"))
 sys.path.insert(0, str(ROOT / "tools" / "fixtures"))
 
 FIXTURE_NAMES = sorted(p.stem for p in FIXTURES.glob("*.knxproj"))
+
+
+def parse(path: Path, password: str | None = None) -> dict[str, Any]:
+    """xknxproject output of a project file, as the integration reads it."""
+    from xknxproject import XKNXProj
+
+    return XKNXProj(path, password=password, language="de-DE").parse()
 
 
 def load_json(path: Path):
