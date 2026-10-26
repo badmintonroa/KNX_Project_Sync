@@ -7,6 +7,7 @@ Thanks for helping! Bug reports and wrong detections are just as welcome as code
 ```
 custom_components/knx_project_sync/
   mapping/          port of the knx2home detection (plain Python, no Home Assistant)
+  model.py          data shapes: statuses, panel choices, applied state, own YAML, conflicts
   plan.py           diff between the project, the last import, the panel choices and your own YAML
   importer.py       parse, plan, apply (package file, reload, registry, areas), packages fix, removal
   writer.py         package file, unique IDs from YAML

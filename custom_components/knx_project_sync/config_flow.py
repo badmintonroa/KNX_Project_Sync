@@ -36,6 +36,7 @@ from .importer import (
     async_prepare_knx_project,
     async_prepare_upload,
     default_options,
+    entry_options,
 )
 from .mapping.manifest import HA_DOMAINS
 
@@ -154,7 +155,7 @@ class KnxProjectSyncOptionsFlow(_SourceSteps, OptionsFlow):
         )
 
     async def async_step_settings(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        options = {**default_options(), **self.config_entry.options}
+        options = entry_options(self.config_entry)
         if user_input is not None:
             # applied in the panel, which shows what the new settings change
             return self.async_create_entry(data={**options, **user_input})

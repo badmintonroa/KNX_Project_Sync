@@ -3,14 +3,14 @@
 Pure logic without Home Assistant imports (see docs/import.md):
 
     manifest (new project)  ─┐
-    previous import state   ─┼─> ImportPlan: per entity new / changed / unchanged /
-    own YAML unique_ids     ─┤    removed / kept / skipped (+ reason) and the
-    selection (panel)       ─┤    unique_id migrations for the entity registry
+    previous import state   ─┼─> ImportPlan: a status per entity (model.Status, with
+    own YAML entities       ─┤    a reason for skipped ones), conflicts with the own
+    selection (panel)       ─┤    YAML and the unique_id migrations for the registry
     options + validator     ─┘
 
-The selection maps entity key -> {"enabled": bool, "domain": str, "name": str}.
-Keys without a decision are written when they were part of the previous import (or
-on the first import); otherwise they are only offered (`pending`).
+Entities without a decision in the selection are written when they were part of
+the previous import (or on the first import); otherwise they are only offered
+(`pending`).
 """
 
 from __future__ import annotations
@@ -20,23 +20,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .mapping.manifest import HA_DOMAINS, unique_id_for
-
-NEW = "new"
-CHANGED = "changed"
-UNCHANGED = "unchanged"
-REMOVED = "removed"
-KEPT = "kept"
-# not written to YAML
-EXCLUDED = "excluded"  # domain not selected
-DUPLICATE = "duplicate"  # same GA already used by a preferred entity
-INVALID = "invalid"  # rejected by the KNX YAML schema
-CONFLICT = "conflict"  # unique_id already defined in the user's own KNX YAML
-DESELECTED = "deselected"  # switched off in the panel
-PENDING = "pending"  # new in the project, can be added in the panel
-EXISTING = "existing"  # marked in the panel as already defined elsewhere
-
-WRITTEN = (NEW, CHANGED, UNCHANGED, KEPT)
-SKIPPED = (PENDING, DESELECTED, EXISTING, EXCLUDED, DUPLICATE, INVALID, CONFLICT)
+from .model import SKIPPED, WRITTEN, AppliedState, Choice, Conflict, OwnEntities, Selection, Status
 
 # entity types whose unique_id is the same GA field, so they can collide with each other
 SAME_GA_DOMAINS = {"switch": "light", "light": "switch"}
@@ -59,12 +43,10 @@ class PlanEntry:
     status: str
     reason: str | None = None
     detected_domain: str | None = None  # domain from the project, before a type change
-    previous_key: str | None = None
+    # how the previous import wrote it (matched by key, or by unique_id after a re-import)
     previous_domain: str | None = None
-    previous_config: dict[str, Any] | None = None
     previous_unique_id: str | None = None
-    # own YAML entity this one collides with: {"domain", "unique_id", "name", "file", "line"}
-    conflict_with: dict[str, Any] | None = None
+    conflict_with: Conflict | None = None
     adopt: bool = False  # taken over from the own YAML on apply
 
 
@@ -103,32 +85,31 @@ class ImportPlan:
     @property
     def removed_unique_ids(self) -> list[tuple[str, str]]:
         written = {(e.domain, e.unique_id) for e in self.written} | self.foreign_unique_ids
-        gone = [(e.domain, e.unique_id) for e in self.by_status(REMOVED)]
+        gone = [(e.domain, e.unique_id) for e in self.by_status(Status.REMOVED)]
         # deselected in the panel, or written under another domain now (switch <-> light)
         gone += [
             (e.previous_domain, e.previous_unique_id)
             for e in self.entries
             if e.previous_unique_id
-            and (e.status in (DESELECTED, EXISTING) or (e.status in WRITTEN and e.previous_domain != e.domain))
+            and (
+                e.status in (Status.DESELECTED, Status.EXISTING)
+                or (e.status in WRITTEN and e.previous_domain != e.domain)
+            )
         ]
         return list(dict.fromkeys(uid for uid in gone if uid not in written))
 
     @property
     def has_changes(self) -> bool:
-        return any(e.status in (NEW, CHANGED, REMOVED) for e in self.entries)
-
-    @property
-    def has_pending(self) -> bool:
-        return any(e.status == PENDING for e in self.entries)
+        return any(e.status in (Status.NEW, Status.CHANGED, Status.REMOVED) for e in self.entries)
 
     def summary(self) -> dict[str, int]:
-        counts = {status: 0 for status in (*WRITTEN, REMOVED, *SKIPPED)}
+        counts = {status: 0 for status in (*WRITTEN, Status.REMOVED, *SKIPPED)}
         for e in self.entries:
             counts[e.status] += 1
         counts["unmapped"] = len(self.unmapped)
         return counts
 
-    def state(self) -> dict[str, dict[str, Any]]:
+    def state(self) -> AppliedState:
         """What is stored as `applied` after the plan was applied."""
         return {
             e.key: {"domain": e.domain, "name": e.name, "config": e.config, "unique_id": e.unique_id}
@@ -147,27 +128,24 @@ class ImportPlan:
 
 def build_plan(
     manifest: dict[str, Any],
-    previous: dict[str, dict[str, Any]],
+    previous: AppliedState,
     *,
     domains: list[str],
     keep_removed: bool,
-    foreign_unique_ids: set[tuple[str, str]] = frozenset(),
     validate: Validator | None = None,
-    selection: dict[str, dict[str, Any]] | None = None,
+    selection: Selection | None = None,
     include_new: bool = True,
-    foreign_entities: dict[tuple[str, str], dict[str, Any]] | None = None,
+    foreign_entities: OwnEntities | None = None,
 ) -> ImportPlan:
     """Compare the manifest with the previous import.
 
-    `previous` maps entity key -> {"domain", "name", "config", "unique_id"} of
-    the last applied import. `include_new` writes new entities without a decision
-    in `selection` (first import); otherwise they become `pending`.
-    `foreign_entities` holds config, file and line of the own YAML entities by
-    (domain, unique_id); a conflict with one of them can be adopted (`adopt` choice).
+    `include_new` writes new entities without a decision in `selection` (first
+    import); otherwise they become `pending`. A conflict with one of the
+    `foreign_entities` (the user's own KNX YAML) can be adopted (`adopt` choice).
     """
     selection = selection or {}
     foreign_entities = foreign_entities or {}
-    foreign_unique_ids = set(foreign_unique_ids) | set(foreign_entities)
+    foreign_unique_ids = set(foreign_entities)
     # every GA the own YAML uses, in any field
     foreign_addresses: dict[str, tuple[str, str]] = {}
     for fk, info in foreign_entities.items():
@@ -186,7 +164,7 @@ def build_plan(
     used: set[tuple[str, str]] = set()
     candidates: list[PlanEntry] = []
     for e in entities:
-        choice = selection.get(e["key"], {})
+        choice: Choice = selection.get(e["key"], {})
         if (
             "domain" not in choice
             and not choice.get("config")
@@ -202,7 +180,7 @@ def build_plan(
             name=name,
             config=config,
             unique_id=unique_id_for(domain, config),
-            status=NEW,
+            status=Status.NEW,
             detected_domain=e["domain"],
         )
         clash = _own_yaml_clash(domain, entry.unique_id, foreign_unique_ids)
@@ -211,18 +189,17 @@ def build_plan(
             # one of its GAs is used by another own entity (e.g. the temperature of a climate)
             clash, kind = hit
         if clash:
-            info = foreign_entities.get(clash, {})
-            entry.conflict_with = {
-                "domain": clash[0],
-                "unique_id": clash[1],
-                "name": (info.get("config") or {}).get("name"),
-                "file": info.get("file"),
-                "line": info.get("line"),
-                "kind": "unique_id" if kind == "unique_id" else "address",
-                "address": None if kind == "unique_id" else kind,
-            }
-            adoptable = info.get("file") and info.get("line") and clash not in adopted
-            if choice.get("adopt") and adoptable:
+            info = foreign_entities.get(clash) or {"config": {}}
+            entry.conflict_with = Conflict(
+                domain=clash[0],
+                unique_id=clash[1],
+                name=info["config"].get("name"),
+                kind="unique_id" if kind == "unique_id" else "address",
+                address=None if kind == "unique_id" else kind,
+                file=info.get("file"),
+                line=info.get("line"),
+            )
+            if choice.get("adopt") and entry.conflict_with.adoptable and clash not in adopted:
                 # take the user's own definition over as it is
                 adopted.add(clash)
                 entry.domain, entry.config, entry.adopt = clash[0], dict(info["config"]), True
@@ -232,50 +209,48 @@ def build_plan(
             elif kind != "unique_id" and choice.get("enabled") is True:
                 clash = None  # only a shared GA: created anyway on request
         if domain not in domains:
-            entry.status = EXCLUDED
+            entry.status = Status.EXCLUDED
         elif choice.get("enabled") is False:
-            entry.status = DESELECTED
+            entry.status = Status.DESELECTED
         elif choice.get("existing"):
-            entry.status = EXISTING
+            entry.status = Status.EXISTING
         elif (
             e["domain"] == "switch"
             and domain == "switch"
             and config.get("address") in light_addresses
             and "light" in domains
         ):
-            entry.status, entry.reason = DUPLICATE, "light"
+            entry.status, entry.reason = Status.DUPLICATE, "light"
         elif (domain, entry.unique_id) in used:
-            entry.status, entry.reason = DUPLICATE, "unique_id"
+            entry.status, entry.reason = Status.DUPLICATE, "unique_id"
         elif validate and (error := validate(domain, config)):
-            entry.status, entry.reason = INVALID, error
+            entry.status, entry.reason = Status.INVALID, error
         elif clash:
-            entry.status, entry.reason = CONFLICT, "own_yaml" if kind == "unique_id" else "ga_in_use"
-        if entry.status == NEW:
+            entry.status, entry.reason = Status.CONFLICT, "own_yaml" if kind == "unique_id" else "ga_in_use"
+        if entry.status == Status.NEW:
             used.add((entry.domain, entry.unique_id))
         candidates.append(entry)
 
     # entities with a taken-over definition own their GAs: no detected duplicate next to them
     custom = {}
     for entry in candidates:
-        if entry.status == NEW and (entry.adopt or selection.get(entry.key, {}).get("config")):
+        if entry.status == Status.NEW and (entry.adopt or selection.get(entry.key, {}).get("config")):
             for address in _addresses(entry.config):
                 custom.setdefault(address, entry)
     for entry in candidates:
         owns = any(entry is other for other in custom.values())
-        if entry.status != NEW or owns or selection.get(entry.key, {}).get("enabled") is True:
+        if entry.status != Status.NEW or owns or selection.get(entry.key, {}).get("enabled") is True:
             continue
         owner = next((custom[a] for a in _addresses(entry.config) if a in custom), None)
         if owner is not None:
-            entry.status, entry.reason = DUPLICATE, "ga_in_use"
-            entry.conflict_with = {
-                "domain": owner.domain,
-                "unique_id": owner.unique_id,
-                "name": owner.name,
-                "file": None,
-                "line": None,
-                "kind": "app",
-                "address": next(a for a in _addresses(entry.config) if a in custom),
-            }
+            entry.status, entry.reason = Status.DUPLICATE, "ga_in_use"
+            entry.conflict_with = Conflict(
+                domain=owner.domain,
+                unique_id=owner.unique_id,
+                name=owner.name,
+                kind="app",
+                address=next(a for a in _addresses(entry.config) if a in custom),
+            )
             used.discard((entry.domain, entry.unique_id))
 
     # match with the previous import: by key, then by unique_id (GA recreated in ETS)
@@ -283,7 +258,7 @@ def build_plan(
     by_uid = {(p["domain"], p["unique_id"]): k for k, p in previous.items()}
     for entry in candidates:
         # invalid ones too: a typo must not delete the entity from the registry
-        if entry.status not in (NEW, DESELECTED, EXISTING, INVALID):
+        if entry.status not in (Status.NEW, Status.DESELECTED, Status.EXISTING, Status.INVALID):
             continue
         prev_key = entry.key if entry.key in unmatched else None
         if prev_key is None:
@@ -292,23 +267,21 @@ def build_plan(
         if prev_key is None:
             continue
         prev = unmatched.pop(prev_key)
-        entry.previous_key = prev_key
         entry.previous_domain = prev["domain"]
-        entry.previous_config = prev["config"]
         entry.previous_unique_id = prev["unique_id"]
-        if entry.status == NEW:
+        if entry.status == Status.NEW:
             same = prev["config"] == entry.config and prev_key == entry.key and prev["domain"] == entry.domain
-            entry.status = UNCHANGED if same else CHANGED
+            entry.status = Status.UNCHANGED if same else Status.CHANGED
 
     for entry in candidates:
         decided = "enabled" in selection.get(entry.key, {}) or entry.adopt
-        if entry.status == NEW and not include_new and not decided:
-            entry.status = PENDING
+        if entry.status == Status.NEW and not include_new and not decided:
+            entry.status = Status.PENDING
             used.discard((entry.domain, entry.unique_id))
 
     for prev_key, prev in unmatched.items():
         uid_taken = (prev["domain"], prev["unique_id"]) in used
-        status = KEPT if keep_removed and not uid_taken and prev["domain"] in domains else REMOVED
+        status = Status.KEPT if keep_removed and not uid_taken and prev["domain"] in domains else Status.REMOVED
         candidates.append(
             PlanEntry(
                 key=prev_key,
@@ -317,9 +290,7 @@ def build_plan(
                 config=prev["config"],
                 unique_id=prev["unique_id"],
                 status=status,
-                previous_key=prev_key,
                 previous_domain=prev["domain"],
-                previous_config=prev["config"],
                 previous_unique_id=prev["unique_id"],
             )
         )
@@ -468,7 +439,7 @@ def address_fields(domain: str, config: dict[str, Any]) -> list[str]:
     return present + [f for f in ADDRESS_FIELDS.get(domain, ()) if f not in present]
 
 
-def apply_choice(domain: str, config: dict[str, Any], choice: dict[str, Any]) -> tuple[str, str | None, dict[str, Any]]:
+def apply_choice(domain: str, config: dict[str, Any], choice: Choice) -> tuple[str, str | None, dict[str, Any]]:
     """Domain, name and YAML config of an entity after type change, rename and address edits of the panel."""
     if choice.get("config"):
         # definition taken over from the own YAML: used as it is
