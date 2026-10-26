@@ -1,5 +1,7 @@
 # Schritt 0: Machbarkeit xknxproject
 
+> Historisch: Die Machbarkeitsprüfung ist abgeschlossen. `tools/spike/`, ihr Test und die `*.catalog.json`-Fixtures wurden entfernt; dass xknxproject die richtigen Daten liefert, prüft heute der Vergleich der fertigen Entities mit knx2home (`tests/test_mapping_parity.py`, CI-Job *real ETS projects*).
+
 **Frage:** Liefert `xknxproject`, die Bibliothek, mit der die offizielle HA-KNX-Integration `.knxproj`-Dateien liest, alle Daten, die die Entity-Erkennung von knx2home braucht? Falls ja, wird nur die Mapping-Logik nach Python portiert, nicht der Parser (Option A).
 
 **Ergebnis: Ja, Option A ist machbar.** xknxproject liefert alle benötigten Eingaben. Bei Overrides in der Applikation ist es sogar genauer als knx2home.

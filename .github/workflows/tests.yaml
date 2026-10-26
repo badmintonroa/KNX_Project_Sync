@@ -24,8 +24,8 @@ jobs:
         run: pip install -r requirements_test.txt
       - name: 🔍 Lint
         run: |
-          ruff check custom_components tests tools/spike tools/fixtures
-          ruff format --check custom_components tests tools/spike tools/fixtures
+          ruff check custom_components tests tools/fixtures
+          ruff format --check custom_components tests tools/fixtures
       - name: 🚀 Run tests
         run: pytest -v
 

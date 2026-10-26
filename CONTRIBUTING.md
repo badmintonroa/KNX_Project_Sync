@@ -19,9 +19,9 @@ custom_components/knx_project_sync/
   sensor.py, diagnostics.py, services.yaml, strings.json, translations/
 frontend/           panel (Lit, TypeScript)
 schema/             JSON schema of the manifest between detection and import
-docs/               design notes (German): spike, manifest, port notes, import
+docs/               design notes (German): feasibility study, manifest, port notes, import
 tests/              pytest: port, plan, packages, Home Assistant integration; fixtures and golden files
-tools/              fixture generator, knx2home reference generator, xknxproject comparison
+tools/              fixture generator, knx2home reference generator
 ```
 
 The detection produces a manifest ([docs/manifest-v1.md](docs/manifest-v1.md)). The import turns it into a plan, the panel edits the plan, and *Apply* writes it ([docs/import.md](docs/import.md)).
@@ -32,7 +32,7 @@ The detection produces a manifest ([docs/manifest-v1.md](docs/manifest-v1.md)). 
 python -m venv .venv && . .venv/bin/activate
 pip install -r requirements_test.txt
 pytest
-ruff check custom_components tests tools/spike tools/fixtures
+ruff check custom_components tests tools/fixtures
 ruff format custom_components tests
 ```
 
