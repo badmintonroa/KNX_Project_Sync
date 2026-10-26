@@ -15,7 +15,7 @@ Legt die KNX-Entities in Home Assistant aus deiner ETS-Projektdatei (`.knxproj`)
 ![Das Panel von KNX Project Sync](https://raw.githubusercontent.com/badmintonroa/Knx-has-auto-importer/main/docs/images/panel-de.png)
 
 > [!NOTE]
-> Das ist eine **Beta** (`0.1.0-beta.x`). Sichere deine Konfiguration vor dem ersten Import. Die Änderungen stehen im [Changelog](CHANGELOG.md).
+> Sichere deine Konfiguration vor dem ersten Import. Die Änderungen stehen im [Changelog](CHANGELOG.md).
 
 ## Inhalt
 
@@ -56,8 +56,7 @@ Die Erkennung ist ein Python-Port von [knx2home](https://github.com/badmintonroa
 **Mit HACS (empfohlen)**
 
 1. Oben auf *In HACS öffnen* klicken, oder in HACS → ⋮ → *Benutzerdefinierte Repositories* die Adresse `https://github.com/badmintonroa/Knx-has-auto-importer` mit Typ *Integration* hinzufügen.
-2. Solange es eine Beta ist: in HACS *KNX Project Sync* → ⋮ → *Erneut herunterladen* öffnen und *Beta-Versionen anzeigen* einschalten.
-3. Herunterladen und Home Assistant neu starten.
+2. Herunterladen und Home Assistant neu starten.
 
 **Manuell**
 
