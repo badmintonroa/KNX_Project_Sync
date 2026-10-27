@@ -162,3 +162,40 @@ def test_written_yaml_roundtrips_and_has_unique_ids():
     written = unique_ids_of_knx_config(data["knx"])
     assert written == {(e.domain, e.unique_id) for e in plan.written}
     assert len(written) == len(plan.written)
+
+
+def _tag_nacht_taken_over() -> dict:
+    """Panel choice left over from taking over a hand written weather entity onto the day/night switch."""
+    config = {
+        "name": "Home",
+        "address_temperature": "0/4/16",
+        "address_brightness_south": "0/4/20",
+        "address_brightness_west": "0/4/19",
+        "address_brightness_east": "0/4/21",
+        "address_wind_speed": "0/4/17",
+        "address_day_night": "0/4/22",
+    }
+    return {"switch:GA-235": {"config": config, "domain": "weather"}}
+
+
+def test_undecided_entity_with_taken_over_config_does_not_win():
+    """Offered in the panel only (`pending`): it must not take the unique_id and GAs of the weather station."""
+    manifest = _prepared().manifest
+    first = build_plan(manifest, {}, domains=[d for d in DOMAINS if d != "weather"], keep_removed=False)
+    previous = {key: applied for key, applied in first.state().items() if key != "switch:GA-235"}  # never created
+    selection = _tag_nacht_taken_over()
+    plan = build_plan(manifest, previous, domains=DOMAINS, keep_removed=False, selection=selection, include_new=False)
+    status = {e.key: (e.status, e.reason) for e in plan.entries}
+    assert status["switch:GA-235"] == ("pending", None)
+    assert status["weather:GA-229"] == ("pending", None)
+
+
+def test_weather_rule_keeps_entities_imported_before():
+    """Sensors imported before the weather station is chosen are not removed."""
+    manifest = _prepared().manifest
+    old = build_plan(manifest, {}, domains=[d for d in DOMAINS if d != "weather"], keep_removed=False)
+    plan = build_plan(manifest, old.state(), domains=DOMAINS, keep_removed=False, include_new=False)
+    status = {e.key: e.status for e in plan.entries}
+    assert status["sensor:GA-229"] == "unchanged"
+    assert status["weather:GA-229"] == "pending"
+    assert plan.removed_unique_ids == []

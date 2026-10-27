@@ -12,6 +12,8 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 
 ### Behoben
 
+- Panel: Ein Eintrag, den du nicht angelegt hast (*Neu verfügbar*), nimmt anderen Einträgen nicht mehr die Gruppenadressen oder die unique_id weg. Vorher konnte z. B. ein auf den Schalter „Tag/Nacht“ übernommenes Wetter die echte Wetterstation als *Doppelt* blockieren und deren Sensoren als *GA schon belegt*.
+- Wetterstation: Sensoren und Schalter, die schon importiert sind, bleiben beim Einschalten des Typs *Wetter* erhalten (sie würden sonst entfernt).
 - Szenen werden nur noch über den DPT (17, 18) und *Szene* im Namen erkannt, nicht mehr über die Adresse `0/1/x`. Vorher wurde jede Gruppenadresse in `0/1/x` zur Szene, auch wenn sie z. B. ein Prozentwert der Jalousien war (5.001), und Schalter in `0/1/x` wurden übersprungen. Wer dort eine DPT-lose Szene hatte, findet sie jetzt unter *Nicht zugeordnet* und kann sie im Panel als Szene anlegen.
 
 ## 0.1.1
