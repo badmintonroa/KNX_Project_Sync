@@ -13,7 +13,7 @@ Der Port liegt in [`custom_components/knx_project_sync/mapping/`](../custom_comp
 
 **Parity:** `tests/test_mapping_parity.py` vergleicht für jedes Fixture das Manifest des Ports mit dem Golden-File von knx2home, also Entities, Schlüssel und nicht zugeordnete GAs. Alle Fixtures stimmen exakt überein, auch `heuristics`. Dieses Fixture deckt Licht nach Adress- und Namensmuster, Jalousien nach Namen, Klima, Wetterstation, Taster-Rückmeldung (1.011), Szenen, Einzel-GA-Fallbacks und „Reserve“ ab.
 
-**Echte ETS-Projekte:** Die CI (Job „real ETS projects“) vergleicht den Port zusätzlich auf den 9 Testprojekten von xknxproject mit knx2home: ETS4 (mit und ohne Passwort), ETS5 (inkl. Modulen), ETS6 (Funktionen, Smart Linking, zwei­stufige und freie Adressierung). 8 von 9 Projekten stimmen exakt überein. Beim neunten legt der Port 3 Sensoren zusätzlich an (Punkt 4 unten). Die Projekte stehen unter GPL-2.0 und liegen deshalb nicht im Repo, die CI holt sie von einem festen xknxproject-Commit.
+**Echte ETS-Projekte:** Die CI (Job „real ETS projects“) vergleicht den Port zusätzlich auf den 9 Testprojekten von xknxproject mit knx2home: ETS4 (mit und ohne Passwort), ETS5 (inkl. Modulen), ETS6 (Funktionen, Smart Linking, zwei­stufige und freie Adressierung). 7 von 9 Projekten stimmen exakt überein. Bei `xknx_test_project` legt der Port 3 Sensoren zusätzlich an (Punkt 4 unten), bei `module-definition-test` und `smart_linking` je eine Entity auf einer GA in `0/1/x` (Punkt 8). Die Projekte stehen unter GPL-2.0 und liegen deshalb nicht im Repo, die CI holt sie von einem festen xknxproject-Commit.
 
 ## Bewusste Unterschiede und Grenzen
 
