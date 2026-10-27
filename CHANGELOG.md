@@ -12,6 +12,7 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 
 ### Behoben
 
+- Wetterstation: Ihre Gruppenadressen (Temperatur, Wind, Sonne, Tag/Nacht, Windalarm) werden nicht mehr zusätzlich als einzelne Sensoren und Schalter vorgeschlagen, solange der Typ *Wetter* aktiv ist. Vorher erschien z. B. Tag/Nacht als Schalter oder Licht in einem Raum, und die Wetterstation selbst stand als *Doppelt* da.
 - Namen von Gruppenadressen und Objekttexte mit Leerzeichen am Anfang oder Ende werden wie in knx2home gekürzt. Vorher hatten die Entities solcher Gruppenadressen ein Leerzeichen am Ende des Namens.
 
 ### Intern

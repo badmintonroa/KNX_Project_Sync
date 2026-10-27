@@ -126,11 +126,35 @@ def test_rooms_follow_the_innermost_location_of_the_device():
 def test_first_import_and_unchanged_reimport():
     manifest = _prepared().manifest
     first = build_plan(manifest, {}, domains=DOMAINS, keep_removed=False)
-    assert first.summary()["new"] == 130
-    assert first.summary()["excluded"] == 5  # weather station is not imported by default
+    assert first.summary()["new"] == 123
+    assert first.summary()["duplicate"] == 7  # the GAs of the weather station
+    assert first.summary()["excluded"] == 5
     again = build_plan(manifest, first.state(), domains=DOMAINS, keep_removed=False)
     assert not again.has_changes
-    assert again.summary()["unchanged"] == 130
+    assert again.summary()["unchanged"] == 123
+
+
+def test_weather_station_owns_its_group_addresses():
+    """Temperature, wind, sun, day/night and wind alarm are not offered a second time as sensors and switches."""
+    manifest = _prepared().manifest
+    plan = build_plan(manifest, {}, domains=DOMAINS, keep_removed=False)
+    status = {e.key: e.status for e in plan.entries}
+    assert status["weather:GA-229"] == "new"
+    for key in (
+        "sensor:GA-229",
+        "sensor:GA-230",
+        "sensor:GA-232",
+        "sensor:GA-233",
+        "sensor:GA-234",
+        "switch:GA-235",
+        "switch:GA-241",
+    ):
+        assert status[key] == "duplicate", key
+    entry = next(e for e in plan.entries if e.key == "switch:GA-235")
+    assert (entry.conflict_with.domain, entry.conflict_with.address) == ("weather", "0/4/22")
+
+    without = build_plan(manifest, {}, domains=[d for d in DOMAINS if d != "weather"], keep_removed=False)
+    assert {e.key: e.status for e in without.entries}["sensor:GA-229"] == "new"
 
 
 def test_written_yaml_roundtrips_and_has_unique_ids():

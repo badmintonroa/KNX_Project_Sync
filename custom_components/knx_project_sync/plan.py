@@ -154,6 +154,7 @@ def build_plan(
         light_addresses={e["config"].get("address") for e in manifest["entities"] if e["domain"] == "light"},
     )
     entries = [planner.candidate(e) for e in manifest["entities"]]
+    planner.mark_weather_duplicates(entries)
     planner.mark_app_duplicates(entries)
     unmatched = planner.match_previous(entries)
     planner.mark_pending(entries)
@@ -280,7 +281,31 @@ class _Planner:
             return Status.CONFLICT, "own_yaml" if conflict.kind == "unique_id" else "ga_in_use"
         return Status.NEW, None
 
-    # 2. entities with a taken-over or own definition own their GAs
+    # 2. a weather station owns its GAs
+
+    def mark_weather_duplicates(self, entries: list[PlanEntry]) -> None:
+        """knx2home also emits sensors and switches on the GAs of a weather station, the weather wins."""
+        if "weather" not in self.domains:
+            return
+        owners: dict[str, PlanEntry] = {}
+        for entry in entries:
+            if entry.status == Status.NEW and entry.domain == "weather":
+                for address in _addresses(entry.config):
+                    owners.setdefault(address, entry)
+        for entry in entries:
+            if entry.status != Status.NEW or entry.domain not in SINGLE_GA_DOMAINS:
+                continue
+            addresses = _addresses(entry.config)
+            if not addresses or not all(a in owners for a in addresses):
+                continue
+            owner = owners[addresses[0]]
+            entry.status, entry.reason = Status.DUPLICATE, "ga_in_use"
+            entry.conflict_with = Conflict(
+                domain=owner.domain, unique_id=owner.unique_id, name=owner.name, kind="app", address=addresses[0]
+            )
+            self.used.discard((entry.domain, entry.unique_id))
+
+    # 3. entities with a taken-over or own definition own their GAs
 
     def mark_app_duplicates(self, entries: list[PlanEntry]) -> None:
         """A detected entity on a GA of such an entity is a duplicate (unless switched on)."""
@@ -303,7 +328,7 @@ class _Planner:
             )
             self.used.discard((entry.domain, entry.unique_id))
 
-    # 3. match with the previous import: by key, then by unique_id (GA recreated in ETS)
+    # 4. match with the previous import: by key, then by unique_id (GA recreated in ETS)
 
     def match_previous(self, entries: list[PlanEntry]) -> AppliedState:
         """Set previous_*, NEW -> CHANGED/UNCHANGED; returns the previous entities left over."""
@@ -324,7 +349,7 @@ class _Planner:
                 entry.status = Status.UNCHANGED if same else Status.CHANGED
         return unmatched
 
-    # 4. after the first import, new entities without a decision are only offered
+    # 5. after the first import, new entities without a decision are only offered
 
     def mark_pending(self, entries: list[PlanEntry]) -> None:
         if self.include_new:
@@ -399,6 +424,10 @@ def _retype(domain: str, target: str, config: dict[str, Any]) -> dict[str, Any]:
         }
     # switch <-> light: switch-only options (invert, respond_to_read, ...) do not exist for lights
     return {k: v for k, v in config.items() if k in SIMPLE_ON_OFF_FIELDS}
+
+
+# detected as one entity per GA, which a weather station can already cover
+SINGLE_GA_DOMAINS = ("switch", "binary_sensor", "sensor")
 
 
 def _addresses(config: dict[str, Any]) -> list[str]:
