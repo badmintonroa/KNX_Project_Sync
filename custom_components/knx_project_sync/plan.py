@@ -184,8 +184,10 @@ class _Planner:
     used: set[tuple[str, str]] = field(default_factory=set)
     adopted: set[tuple[str, str]] = field(default_factory=set)  # own entities taken over
     own_addresses: dict[str, tuple[str, str]] = field(init=False)  # GA -> own entity using it
+    previous_uids: set[tuple[str, str]] = field(init=False)  # (domain, unique_id) of the last import
 
     def __post_init__(self) -> None:
+        self.previous_uids = {(p["domain"], p["unique_id"]) for p in self.previous.values()}
         self.own_addresses = {}
         for uid, info in self.own.items():
             for address in _addresses(info.get("config") or {}):
@@ -207,9 +209,22 @@ class _Planner:
         )
         blocking = self._conflict(entry, choice)
         entry.status, entry.reason = self._status(entry, choice, blocking)
-        if entry.status == Status.NEW:
+        if entry.status == Status.NEW and self._decided(entry):
             self.used.add((entry.domain, entry.unique_id))
         return entry
+
+    def _decided(self, entry: PlanEntry) -> bool:
+        """Is the entity written (or kept) anyway, i.e. not just offered in the panel (`pending`)?
+
+        Only such entities keep their unique_id and GAs from other entities.
+        """
+        return (
+            self.include_new
+            or entry.adopt
+            or "enabled" in self.selection.get(entry.key, {})
+            or entry.key in self.previous
+            or (entry.domain, entry.unique_id) in self.previous_uids
+        )
 
     def _choice(self, detected: dict[str, Any]) -> Choice:
         """The panel choice, with texts as text entities unless decided otherwise."""
@@ -289,12 +304,14 @@ class _Planner:
             return
         owners: dict[str, PlanEntry] = {}
         for entry in entries:
-            if entry.status == Status.NEW and entry.domain == "weather":
+            if entry.status == Status.NEW and entry.domain == "weather" and self._decided(entry):
                 for address in _addresses(entry.config):
                     owners.setdefault(address, entry)
         for entry in entries:
             if entry.status != Status.NEW or entry.domain not in SINGLE_GA_DOMAINS:
                 continue
+            if entry.key in self.previous or (entry.domain, entry.unique_id) in self.previous_uids:
+                continue  # imported before: stays, so it keeps its entity_id and history
             addresses = _addresses(entry.config)
             if not addresses or not all(a in owners for a in addresses):
                 continue
@@ -311,7 +328,11 @@ class _Planner:
         """A detected entity on a GA of such an entity is a duplicate (unless switched on)."""
         owners: dict[str, PlanEntry] = {}
         for entry in entries:
-            if entry.status == Status.NEW and (entry.adopt or self.selection.get(entry.key, {}).get("config")):
+            if (
+                entry.status == Status.NEW
+                and (entry.adopt or self.selection.get(entry.key, {}).get("config"))
+                and self._decided(entry)
+            ):
                 for address in _addresses(entry.config):
                     owners.setdefault(address, entry)
         for entry in entries:
