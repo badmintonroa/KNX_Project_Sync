@@ -157,7 +157,7 @@ Die Entities selbst gehören zur KNX-Integration. Es sind normale KNX-Entities, 
 | Jalousie | Kanäle von Jalousieaktoren, oder DPT 1.007, 1.008, 1.010, 5.001, 5.003 mit Jalousie-Namen (*Jalousie*, *Rollo*, *blind*, …) | Auf/Ab, Schritt, Stopp, Position, Lamelle, jeweils mit Status |
 | Klima | Kanal eines Aktors oder Raumreglers mit Ist- und Solltemperatur (9.001) | Sollwertverschiebung, Betriebsart, Reglermodus, Heizen/Kühlen, Stellwert, Feuchte |
 | Wetter | Wetterstation mit Außentemperatur und Wind oder Helligkeit | Temperatur, Helligkeit N/O/S/W, Windgeschwindigkeit und -richtung, Regen-/Frost-/Windalarm, Tag/Nacht, Luftdruck, Feuchte |
-| Szene | DPT 17.001, 18.001, Adressen `0/1/x`, Namen mit *Szene* | Adresse, Szenennummer |
+| Szene | DPT 17.001, 18.001, Namen mit *Szene* | Adresse, Szenennummer |
 
 Noch nicht unterstützt: `fan`, `number`, `select`, `button`, `expose`, `notify`. Bekannte Lücken der Erkennung:
 
@@ -183,7 +183,7 @@ Jede Gruppenadresse landet in höchstens einer Entity. Die Schritte laufen in di
    5. Namen, die auf ` s` (Schalten), ` d` (Dimmen), ` w` (Wert) oder ` status` enden
 
    Finden mehrere Quellen dieselbe Schalt-Adresse, werden sie zu einem Licht zusammengefasst. Es gewinnt die Quelle mit den meisten Feldern.
-2. **Schalter:** DPT 1.001, gruppiert nach Namen. Ein Name mit *Status* wird zur Status-Adresse. Schaltausgänge von Dimmaktoren sind Lichter, keine Schalter. Adressen `0/1/x` (Szenen) und `1/7/x` werden übersprungen.
+2. **Schalter:** DPT 1.001, gruppiert nach Namen. Ein Name mit *Status* wird zur Status-Adresse. Schaltausgänge von Dimmaktoren sind Lichter, keine Schalter. Adressen `1/7/x` werden übersprungen.
 3. **Jalousien:** zuerst über die Kanäle von Jalousieaktoren, danach über Jalousie-Namen bei den übrigen Gruppenadressen.
 4. **Klima:** pro Kanal eines Aktors oder Raumreglers.
 5. **Wetter:** pro Wetterstation.

@@ -28,6 +28,15 @@ EXTRA_IN_PORT = {
     # GAs without DPT whose com object lists several DPT-9 subtypes: knx2home cannot
     # parse the DPT list and drops them, the port uses the first one (2byte_float sensor)
     "xknx_test_project": {"sensor:GA-9", "sensor:GA-10", "sensor:GA-12"},
+    # GAs in 0/1/x: knx2home makes them scenes by address (docs/port-notes.md, point 8), the port
+    # decides by DPT and name. "Temperatur Ist" (9.001) is the temperature of a climate entity
+    # and "Schalten" (1.001) the switch address of a light, so both are a second entity on a GA.
+    "module-definition-test": {"sensor:GA-7"},
+    "smart_linking": {"switch:GA-34"},
+}
+# what knx2home has, but the port does not (the scene of the same GA, see above)
+MISSING_IN_PORT = {
+    "module-definition-test": {"scene:GA-7"},
 }
 
 
@@ -44,12 +53,14 @@ def test_real_project(name: str) -> None:
     catalog = catalog_from_xknxproject(project)
     manifest = build_manifest(catalog, build_ha_entities(catalog), expected["generator"])
 
-    want = {e["key"]: e for e in expected["entities"]}
+    missing = MISSING_IN_PORT.get(name, set())
+    want = {e["key"]: e for e in expected["entities"] if e["key"] not in missing}
+    assert {e["key"] for e in expected["entities"]} - want.keys() == missing
     got = {e["key"]: e for e in manifest["entities"]}
     extra = EXTRA_IN_PORT.get(name, set())
     assert got.keys() - want.keys() == extra
     assert {k: got[k] for k in want} == want
-    extra_addresses = {got[k]["config"]["state_address"] for k in extra}
+    extra_addresses = {got[k]["config"].get("state_address") or got[k]["config"]["address"] for k in extra}
     # `dpt` of unmapped GAs is informational; the port fills it from the com object when the GA has none
     assert [(u["address"], u["name"]) for u in expected["unmapped"] if u["address"] not in extra_addresses] == [
         (u["address"], u["name"]) for u in manifest["unmapped"]

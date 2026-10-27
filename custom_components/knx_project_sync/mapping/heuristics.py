@@ -48,9 +48,6 @@ def guess_entity_type(dpt: str | None, name: str, address: str | None = None) ->
     if hint and hint.group(1).lower() in ("switch", "light", "cover", "sensor", "binary_sensor", "scene"):
         return hint.group(1).lower()
 
-    if address and address.startswith("0/1/"):
-        return "scene"
-
     nd = to_hyphen(dpt)
     dot = to_dot(dpt)
     lower = name.lower()

@@ -94,12 +94,11 @@ def test_detection_result():
     manifest = _prepared().manifest
     assert Counter(e["domain"] for e in manifest["entities"]) == {
         "switch": 49,
-        "sensor": 40,
+        "sensor": 42,
         "cover": 16,
         "climate": 14,
         "binary_sensor": 7,
         "light": 4,
-        "scene": 2,
         "time": 1,
         "date": 1,
         "weather": 1,

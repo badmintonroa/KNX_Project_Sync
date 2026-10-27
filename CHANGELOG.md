@@ -8,6 +8,12 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 
+## Unveröffentlicht
+
+### Behoben
+
+- Szenen werden nur noch über den DPT (17, 18) und *Szene* im Namen erkannt, nicht mehr über die Adresse `0/1/x`. Vorher wurde jede Gruppenadresse in `0/1/x` zur Szene, auch wenn sie z. B. ein Prozentwert der Jalousien war (5.001), und Schalter in `0/1/x` wurden übersprungen. Wer dort eine DPT-lose Szene hatte, findet sie jetzt unter *Nicht zugeordnet* und kann sie im Panel als Szene anlegen.
+
 ## 0.1.1
 
 ### Behoben

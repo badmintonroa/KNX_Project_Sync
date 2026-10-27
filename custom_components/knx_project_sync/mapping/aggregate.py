@@ -305,8 +305,6 @@ def build_switch_aggregates(
 ) -> list[Agg]:
     by_base: dict[str, Agg] = {}
     for ga in gas:
-        if ga.address.startswith("0/1/"):
-            continue
         if to_hyphen(ga.dpt) != "1-1":
             continue
         if is_scene_like_name(ga.name or ""):
@@ -854,8 +852,6 @@ def _unknown(ga: GroupAddress) -> tuple[str, dict]:
 
 
 def map_single_ga_to_entity(ga: GroupAddress) -> tuple[str, dict]:
-    if ga.address.startswith("0/1/"):
-        return _scene(ga)
     t = guess_entity_type(ga.dpt, ga.name or "", ga.address)
     dpt_h = to_hyphen(ga.dpt)
     if t == "switch":
