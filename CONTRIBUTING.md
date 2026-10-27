@@ -9,9 +9,12 @@ custom_components/knx_project_sync/
   mapping/          port of the knx2home detection (plain Python, no Home Assistant)
   model.py          data shapes: statuses, panel choices, applied state, own YAML, conflicts
   plan.py           diff between the project, the last import, the panel choices and your own YAML
-  importer.py       parse, plan, apply (package file, reload, registry, areas), packages fix, removal
+  project.py        read the ETS project (upload, file, KNX panel), ETS rooms
+  importer.py       stored state, plan, apply (package file, reload), removal
+  registry.py       unique_id migration, removed entities, areas
   writer.py         package file, unique IDs from YAML
-  packages.py       find or add `homeassistant: packages:` in configuration.yaml
+  packages.py       find, add or take out `homeassistant: packages:` in configuration.yaml
+  errors.py         KnxImportError with a translation key
   yamledit.py       take entities out of your own YAML (with backup)
   config_flow.py    setup and options: only choose the source
   websocket.py      API of the panel and its registration

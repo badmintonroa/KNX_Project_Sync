@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 
 from .const import DOMAIN, ISSUE_PACKAGE_NOT_LOADED
-from .importer import KnxImportError
+from .errors import KnxImportError
 
 
 class PackagesFix(RepairsFlow):

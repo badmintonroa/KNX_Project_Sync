@@ -8,6 +8,17 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 
+## Unveröffentlicht
+
+### Intern
+
+- `importer.py` aufgeteilt, am Verhalten ändert sich nichts:
+  - `project.py`: Projekt lesen (Upload, Datei, KNX-Panel) und ETS-Räume zuordnen.
+  - `registry.py`: unique_id-Umzug, Entfernen von Entities, Bereiche.
+  - `packages.py`: jetzt auch das Prüfen, Eintragen und Zurücknehmen der Paket-Zeile in der `configuration.yaml`, nicht mehr halb in `importer.py`.
+  - `errors.py`: `KnxImportError`.
+  - `importer.py` behält Speicher, Planen, Übernehmen und Entfernen. `async_apply` liest sich als Folge benannter Schritte.
+
 ## 0.1.0
 
 Erste stabile Version, ohne Beta-Zusatz. HACS zeigt sie auch ohne *Beta-Versionen anzeigen*. Gegenüber 0.1.0-beta.3 ändert sich nichts am Verhalten.
