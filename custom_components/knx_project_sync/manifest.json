@@ -15,11 +15,11 @@
     "knx",
     "websocket_api"
   ],
-  "documentation": "https://github.com/badmintonroa/Knx-has-auto-importer",
+  "documentation": "https://github.com/badmintonroa/KNX_Project_Sync",
   "integration_type": "service",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/badmintonroa/Knx-has-auto-importer/issues",
+  "issue_tracker": "https://github.com/badmintonroa/KNX_Project_Sync/issues",
   "requirements": [],
   "single_config_entry": true,
-  "version": "0.1.2"
+  "version": "0.1.3"
 }

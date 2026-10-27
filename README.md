@@ -1,18 +1,18 @@
 # KNX Project Sync
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
-[![Release](https://img.shields.io/github/v/release/badmintonroa/Knx-has-auto-importer?include_prereleases)](https://github.com/badmintonroa/Knx-has-auto-importer/releases)
-[![Tests](https://github.com/badmintonroa/Knx-has-auto-importer/actions/workflows/tests.yaml/badge.svg)](https://github.com/badmintonroa/Knx-has-auto-importer/actions/workflows/tests.yaml)
+[![Release](https://img.shields.io/github/v/release/badmintonroa/KNX_Project_Sync?include_prereleases)](https://github.com/badmintonroa/KNX_Project_Sync/releases)
+[![Tests](https://github.com/badmintonroa/KNX_Project_Sync/actions/workflows/tests.yaml/badge.svg)](https://github.com/badmintonroa/KNX_Project_Sync/actions/workflows/tests.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 🇩🇪 [Deutsche Version](README.de.md)
 
 Creates the KNX entities of Home Assistant from your ETS project file (`.knxproj`) and keeps them in sync when the project changes. You choose, rename and correct the entities in a panel before anything is created. Updates keep entity IDs, names, areas and history.
 
-[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=badmintonroa&repository=Knx-has-auto-importer&category=integration)
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=badmintonroa&repository=KNX_Project_Sync&category=integration)
 [![Add integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=knx_project_sync)
 
-![The KNX Project Sync panel](https://raw.githubusercontent.com/badmintonroa/Knx-has-auto-importer/main/docs/images/panel-en.png)
+![The KNX Project Sync panel](https://raw.githubusercontent.com/badmintonroa/KNX_Project_Sync/main/docs/images/panel-en.png)
 
 > [!NOTE]
 > Back up your configuration before the first import. Changes are listed in the [changelog](CHANGELOG.md).
@@ -55,12 +55,12 @@ The entity detection is a Python port of [knx2home](https://github.com/badminton
 
 **With HACS (recommended)**
 
-1. Click *Open in HACS* above, or open HACS → ⋮ → *Custom repositories* and add `https://github.com/badmintonroa/Knx-has-auto-importer` with type *Integration*.
+1. Click *Open in HACS* above, or open HACS → ⋮ → *Custom repositories* and add `https://github.com/badmintonroa/KNX_Project_Sync` with type *Integration*.
 2. Download it and restart Home Assistant.
 
 **Manually**
 
-Copy `custom_components/knx_project_sync` from the [latest release](https://github.com/badmintonroa/Knx-has-auto-importer/releases) into `config/custom_components/` and restart Home Assistant.
+Copy `custom_components/knx_project_sync` from the [latest release](https://github.com/badmintonroa/KNX_Project_Sync/releases) into `config/custom_components/` and restart Home Assistant.
 
 ### 2. Set up
 
@@ -268,7 +268,7 @@ logger:
 
 Help is welcome, also without programming:
 
-- **Report wrong detection:** open an [issue](https://github.com/badmintonroa/Knx-has-auto-importer/issues) with the group address names, their DPTs and what you expected. Please don't attach your `.knxproj`, it contains your whole installation.
+- **Report wrong detection:** open an [issue](https://github.com/badmintonroa/KNX_Project_Sync/issues) with the group address names, their DPTs and what you expected. Please don't attach your `.knxproj`, it contains your whole installation.
 - **Report a bug:** add the version, the [diagnostics](https://www.home-assistant.io/docs/configuration/troubleshooting/#download-diagnostics) of the integration and the debug log.
 - **Translations:** the panel texts are in [`frontend/src/strings.ts`](frontend/src/strings.ts), the rest in [`translations/`](custom_components/knx_project_sync/translations/).
 - **Code:** see [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests and the release process.

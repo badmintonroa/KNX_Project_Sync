@@ -1,18 +1,18 @@
 # KNX Project Sync
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
-[![Release](https://img.shields.io/github/v/release/badmintonroa/Knx-has-auto-importer?include_prereleases)](https://github.com/badmintonroa/Knx-has-auto-importer/releases)
-[![Tests](https://github.com/badmintonroa/Knx-has-auto-importer/actions/workflows/tests.yaml/badge.svg)](https://github.com/badmintonroa/Knx-has-auto-importer/actions/workflows/tests.yaml)
+[![Release](https://img.shields.io/github/v/release/badmintonroa/KNX_Project_Sync?include_prereleases)](https://github.com/badmintonroa/KNX_Project_Sync/releases)
+[![Tests](https://github.com/badmintonroa/KNX_Project_Sync/actions/workflows/tests.yaml/badge.svg)](https://github.com/badmintonroa/KNX_Project_Sync/actions/workflows/tests.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 🇬🇧 [English version](README.md)
 
 Legt die KNX-Entities in Home Assistant aus deiner ETS-Projektdatei (`.knxproj`) an und hält sie aktuell, wenn sich das Projekt ändert. In einem Panel wählst du die Entities aus, benennst sie um und korrigierst sie, bevor etwas angelegt wird. Updates behalten entity_ids, Namen, Bereiche und den Verlauf.
 
-[![In HACS öffnen](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=badmintonroa&repository=Knx-has-auto-importer&category=integration)
+[![In HACS öffnen](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=badmintonroa&repository=KNX_Project_Sync&category=integration)
 [![Integration hinzufügen](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=knx_project_sync)
 
-![Das Panel von KNX Project Sync](https://raw.githubusercontent.com/badmintonroa/Knx-has-auto-importer/main/docs/images/panel-de.png)
+![Das Panel von KNX Project Sync](https://raw.githubusercontent.com/badmintonroa/KNX_Project_Sync/main/docs/images/panel-de.png)
 
 > [!NOTE]
 > Sichere deine Konfiguration vor dem ersten Import. Die Änderungen stehen im [Changelog](CHANGELOG.md).
@@ -55,12 +55,12 @@ Die Erkennung ist ein Python-Port von [knx2home](https://github.com/badmintonroa
 
 **Mit HACS (empfohlen)**
 
-1. Oben auf *In HACS öffnen* klicken, oder in HACS → ⋮ → *Benutzerdefinierte Repositories* die Adresse `https://github.com/badmintonroa/Knx-has-auto-importer` mit Typ *Integration* hinzufügen.
+1. Oben auf *In HACS öffnen* klicken, oder in HACS → ⋮ → *Benutzerdefinierte Repositories* die Adresse `https://github.com/badmintonroa/KNX_Project_Sync` mit Typ *Integration* hinzufügen.
 2. Herunterladen und Home Assistant neu starten.
 
 **Manuell**
 
-`custom_components/knx_project_sync` aus dem [aktuellen Release](https://github.com/badmintonroa/Knx-has-auto-importer/releases) nach `config/custom_components/` kopieren und Home Assistant neu starten.
+`custom_components/knx_project_sync` aus dem [aktuellen Release](https://github.com/badmintonroa/KNX_Project_Sync/releases) nach `config/custom_components/` kopieren und Home Assistant neu starten.
 
 ### 2. Einrichten
 
@@ -269,7 +269,7 @@ logger:
 
 Hilfe ist willkommen, auch ohne Programmieren:
 
-- **Falsche Erkennung melden:** Lege ein [Issue](https://github.com/badmintonroa/Knx-has-auto-importer/issues) an, mit den Namen der Gruppenadressen, ihren DPTs und dem, was du erwartet hast. Bitte hänge deine `.knxproj` nicht an, sie enthält deine ganze Installation.
+- **Falsche Erkennung melden:** Lege ein [Issue](https://github.com/badmintonroa/KNX_Project_Sync/issues) an, mit den Namen der Gruppenadressen, ihren DPTs und dem, was du erwartet hast. Bitte hänge deine `.knxproj` nicht an, sie enthält deine ganze Installation.
 - **Fehler melden:** mit Version, den [Diagnosedaten](https://www.home-assistant.io/docs/configuration/troubleshooting/#download-diagnostics) der Integration und dem Debug-Log.
 - **Übersetzungen:** Die Texte des Panels stehen in [`frontend/src/strings.ts`](frontend/src/strings.ts), der Rest in [`translations/`](custom_components/knx_project_sync/translations/).
 - **Code:** Einrichtung, Tests und Release-Ablauf stehen in [CONTRIBUTING.md](CONTRIBUTING.md) (Englisch).
