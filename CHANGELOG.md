@@ -10,8 +10,15 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 
 ## Unveröffentlicht
 
+### Behoben
+
+- Wetterstation: Ihre Gruppenadressen (Temperatur, Wind, Sonne, Tag/Nacht, Windalarm) werden nicht mehr zusätzlich als einzelne Sensoren und Schalter vorgeschlagen, solange der Typ *Wetter* aktiv ist. Vorher erschien z. B. Tag/Nacht als Schalter oder Licht in einem Raum, und die Wetterstation selbst stand als *Doppelt* da.
+- Namen von Gruppenadressen und Objekttexte mit Leerzeichen am Anfang oder Ende werden wie in knx2home gekürzt. Vorher hatten die Entities solcher Gruppenadressen ein Leerzeichen am Ende des Namens.
+
 ### Intern
 
+- Test mit einem anonymisierten echten ETS6-Projekt (`tests/fixtures/einfamilienhaus.knxproj`: Einfamilienhaus mit 264 Gruppenadressen, 36 Geräten von fünf Herstellern, Räumen und Schaltschränken). Geprüft werden Parität mit knx2home, Erkennung, Räume, Import, erneuter Import und das geschriebene YAML sowie, dass keine Namen, Schlüssel oder Seriennummern im Projekt stehen.
+- `tools/fixtures/anonymize_project.py` macht aus einem eigenen Projekt ein solches Fixture: Namen außerhalb von `vocabulary.txt` werden durch erfundene Vornamen ersetzt, Schlüssel, Zertifikate, Benutzernamen und Seriennummern entfallen, die Herstellerprogramme werden auf das gekürzt, was xknxproject liest.
 - `importer.py` aufgeteilt, am Verhalten ändert sich nichts:
   - `project.py`: Projekt lesen (Upload, Datei, KNX-Panel) und ETS-Räume zuordnen.
   - `registry.py`: unique_id-Umzug, Entfernen von Entities, Bereiche.

@@ -1,0 +1,3207 @@
+{
+  "format": "knx2home-ha-manifest",
+  "version": 1,
+  "generator": {
+    "name": "knx2home",
+    "version": "0.1.0",
+    "commit": "d4f06749572db373d4871bd1e554471201063d9e"
+  },
+  "project": {
+    "name": "Beispielhaus"
+  },
+  "options": {
+    "drop_reserve": true
+  },
+  "entities": [
+    {
+      "key": "switch:GA-227",
+      "domain": "switch",
+      "name": "Sommer Winter",
+      "config": {
+        "name": "Sommer Winter",
+        "address": "0/0/36",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/0/36",
+          "ga_id": "GA-227"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-241",
+      "domain": "switch",
+      "name": "Windalarm",
+      "config": {
+        "name": "Windalarm",
+        "address": "0/0/40",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/0/40",
+          "ga_id": "GA-241"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-284",
+      "domain": "switch",
+      "name": "Sommer/Winter Übersteuerung für 7 Tage",
+      "config": {
+        "name": "Sommer/Winter Übersteuerung für 7 Tage",
+        "address": "0/0/45",
+        "state_address": "0/0/43"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/0/45",
+          "ga_id": "GA-284"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/43",
+          "ga_id": "GA-282"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-225",
+      "domain": "switch",
+      "name": "Zentralfunktion Aus",
+      "config": {
+        "name": "Zentralfunktion Aus",
+        "address": "0/2/0",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/0",
+          "ga_id": "GA-225"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-5",
+      "domain": "switch",
+      "name": "Bad unten Schalten EIN/AUS",
+      "config": {
+        "name": "Bad unten Schalten EIN/AUS",
+        "address": "0/2/1",
+        "state_address": "0/0/1"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/1",
+          "ga_id": "GA-5"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/1",
+          "ga_id": "GA-85"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-23",
+      "domain": "switch",
+      "name": "HWR unten Schalten EIN/AUS",
+      "config": {
+        "name": "HWR unten Schalten EIN/AUS",
+        "address": "0/2/2",
+        "state_address": "0/0/2"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/2",
+          "ga_id": "GA-23"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/2",
+          "ga_id": "GA-86"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-24",
+      "domain": "switch",
+      "name": "Flur vorne Schalten EIN/AUS",
+      "config": {
+        "name": "Flur vorne Schalten EIN/AUS",
+        "address": "0/2/3",
+        "state_address": "0/0/3"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/3",
+          "ga_id": "GA-24"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/3",
+          "ga_id": "GA-87"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-25",
+      "domain": "switch",
+      "name": "Flur hinten Schalten EIN/AUS",
+      "config": {
+        "name": "Flur hinten Schalten EIN/AUS",
+        "address": "0/2/4",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/4",
+          "ga_id": "GA-25"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-29",
+      "domain": "switch",
+      "name": "Kochinsel Schalten EIN/AUS",
+      "config": {
+        "name": "Kochinsel Schalten EIN/AUS",
+        "address": "0/2/5",
+        "state_address": "0/0/5"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/5",
+          "ga_id": "GA-29"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/5",
+          "ga_id": "GA-89"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-30",
+      "domain": "switch",
+      "name": "Waschbecken Schalten EIN/AUS",
+      "config": {
+        "name": "Waschbecken Schalten EIN/AUS",
+        "address": "0/2/6",
+        "state_address": "0/0/6"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/6",
+          "ga_id": "GA-30"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/6",
+          "ga_id": "GA-90"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-61",
+      "domain": "switch",
+      "name": "Küchenzeile EIN/AUS",
+      "config": {
+        "name": "Küchenzeile EIN/AUS",
+        "address": "0/2/11",
+        "state_address": "0/0/11"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/11",
+          "ga_id": "GA-61"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/11",
+          "ga_id": "GA-95"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-62",
+      "domain": "switch",
+      "name": "Vorratsraum EIN/AUS",
+      "config": {
+        "name": "Vorratsraum EIN/AUS",
+        "address": "0/2/12",
+        "state_address": "0/0/12"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/12",
+          "ga_id": "GA-62"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/12",
+          "ga_id": "GA-96"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-63",
+      "domain": "switch",
+      "name": "Flur Bodenlicht EIN/AUS",
+      "config": {
+        "name": "Flur Bodenlicht EIN/AUS",
+        "address": "0/2/13",
+        "state_address": "0/0/13"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/13",
+          "ga_id": "GA-63"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/13",
+          "ga_id": "GA-97"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-67",
+      "domain": "switch",
+      "name": "Flur Büro EIN/AUS",
+      "config": {
+        "name": "Flur Büro EIN/AUS",
+        "address": "0/2/14",
+        "state_address": "0/0/14"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/14",
+          "ga_id": "GA-67"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/14",
+          "ga_id": "GA-98"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-83",
+      "domain": "switch",
+      "name": "Flur bodenlicht slave ein",
+      "config": {
+        "name": "Flur bodenlicht slave ein",
+        "address": "0/2/16",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/16",
+          "ga_id": "GA-83"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-189",
+      "domain": "switch",
+      "name": "A Schalten EIN/AUS",
+      "config": {
+        "name": "A Schalten EIN/AUS",
+        "address": "0/2/18",
+        "state_address": "0/0/17"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/18",
+          "ga_id": "GA-189"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/17",
+          "ga_id": "GA-197"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-190",
+      "domain": "switch",
+      "name": "B Schalten EIN/AUS",
+      "config": {
+        "name": "B Schalten EIN/AUS",
+        "address": "0/2/19",
+        "state_address": "0/0/18"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/19",
+          "ga_id": "GA-190"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/18",
+          "ga_id": "GA-198"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-191",
+      "domain": "switch",
+      "name": "C Schalten EIN/AUS",
+      "config": {
+        "name": "C Schalten EIN/AUS",
+        "address": "0/2/20",
+        "state_address": "0/0/19"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/20",
+          "ga_id": "GA-191"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/19",
+          "ga_id": "GA-199"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-192",
+      "domain": "switch",
+      "name": "D Schalten EIN/AUS",
+      "config": {
+        "name": "D Schalten EIN/AUS",
+        "address": "0/2/21",
+        "state_address": "0/0/20"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/21",
+          "ga_id": "GA-192"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/20",
+          "ga_id": "GA-200"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-193",
+      "domain": "switch",
+      "name": "E Schalten EIN/AUS",
+      "config": {
+        "name": "E Schalten EIN/AUS",
+        "address": "0/2/22",
+        "state_address": "0/0/21"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/22",
+          "ga_id": "GA-193"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/21",
+          "ga_id": "GA-201"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-194",
+      "domain": "switch",
+      "name": "F Schalten EIN/AUS",
+      "config": {
+        "name": "F Schalten EIN/AUS",
+        "address": "0/2/23",
+        "state_address": "0/0/22"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/23",
+          "ga_id": "GA-194"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/22",
+          "ga_id": "GA-202"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-195",
+      "domain": "switch",
+      "name": "G Schalten EIN/AUS",
+      "config": {
+        "name": "G Schalten EIN/AUS",
+        "address": "0/2/24",
+        "state_address": "0/0/23"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/24",
+          "ga_id": "GA-195"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/23",
+          "ga_id": "GA-203"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-196",
+      "domain": "switch",
+      "name": "H Schalten EIN/AUS",
+      "config": {
+        "name": "H Schalten EIN/AUS",
+        "address": "0/2/25",
+        "state_address": "0/0/24"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/25",
+          "ga_id": "GA-196"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/24",
+          "ga_id": "GA-204"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-206",
+      "domain": "switch",
+      "name": "K Schalten EIN/AUS",
+      "config": {
+        "name": "K Schalten EIN/AUS",
+        "address": "0/2/26",
+        "state_address": "0/0/25"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/26",
+          "ga_id": "GA-206"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/25",
+          "ga_id": "GA-205"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-207",
+      "domain": "switch",
+      "name": "R Schalten EIN/AUS",
+      "config": {
+        "name": "R Schalten EIN/AUS",
+        "address": "0/2/27",
+        "state_address": "0/0/28"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/27",
+          "ga_id": "GA-207"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/28",
+          "ga_id": "GA-216"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-208",
+      "domain": "switch",
+      "name": "Licht Haustür Schalten EIN/AUS",
+      "config": {
+        "name": "Licht Haustür Schalten EIN/AUS",
+        "address": "0/2/28",
+        "state_address": "0/0/29"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/28",
+          "ga_id": "GA-208"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/29",
+          "ga_id": "GA-217"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-209",
+      "domain": "switch",
+      "name": "T Schalten EIN/AUS",
+      "config": {
+        "name": "T Schalten EIN/AUS",
+        "address": "0/2/29",
+        "state_address": "0/0/30"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/29",
+          "ga_id": "GA-209"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/30",
+          "ga_id": "GA-218"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-210",
+      "domain": "switch",
+      "name": "U Schalten EIN/AUS",
+      "config": {
+        "name": "U Schalten EIN/AUS",
+        "address": "0/2/30",
+        "state_address": "0/0/31"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/30",
+          "ga_id": "GA-210"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/31",
+          "ga_id": "GA-219"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-211",
+      "domain": "switch",
+      "name": "V Schalten EIN/AUS",
+      "config": {
+        "name": "V Schalten EIN/AUS",
+        "address": "0/2/31",
+        "state_address": "0/0/32"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/31",
+          "ga_id": "GA-211"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/32",
+          "ga_id": "GA-220"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-212",
+      "domain": "switch",
+      "name": "W Schalten EIN/AUS",
+      "config": {
+        "name": "W Schalten EIN/AUS",
+        "address": "0/2/32",
+        "state_address": "0/0/33"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/32",
+          "ga_id": "GA-212"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/33",
+          "ga_id": "GA-221"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-213",
+      "domain": "switch",
+      "name": "X Schalten EIN/AUS",
+      "config": {
+        "name": "X Schalten EIN/AUS",
+        "address": "0/2/33",
+        "state_address": "0/0/34"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/33",
+          "ga_id": "GA-213"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/34",
+          "ga_id": "GA-222"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-279",
+      "domain": "switch",
+      "name": "Bewegung Sensor außen Schalten",
+      "config": {
+        "name": "Bewegung Sensor außen Schalten",
+        "address": "0/2/34",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/34",
+          "ga_id": "GA-279"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-272",
+      "domain": "switch",
+      "name": "Beschattung freigeben Esszimmer Bodentiefes Fenster",
+      "config": {
+        "name": "Beschattung freigeben Esszimmer Bodentiefes Fenster",
+        "address": "0/3/12",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/3/12",
+          "ga_id": "GA-272"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-273",
+      "domain": "switch",
+      "name": "Beschattung freigeben Esszimmer Bodentiefe Tür",
+      "config": {
+        "name": "Beschattung freigeben Esszimmer Bodentiefe Tür",
+        "address": "0/3/13",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/3/13",
+          "ga_id": "GA-273"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-274",
+      "domain": "switch",
+      "name": "Beschattung freigeben Küche",
+      "config": {
+        "name": "Beschattung freigeben Küche",
+        "address": "0/3/14",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/3/14",
+          "ga_id": "GA-274"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-235",
+      "domain": "switch",
+      "name": "Tag/Nacht",
+      "config": {
+        "name": "Tag/Nacht",
+        "address": "0/4/22",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/4/22",
+          "ga_id": "GA-235"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-187",
+      "domain": "switch",
+      "name": "Klingel",
+      "config": {
+        "name": "Klingel",
+        "address": "0/7/0",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/7/0",
+          "ga_id": "GA-187"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-31",
+      "domain": "switch",
+      "name": "Clara Licht",
+      "config": {
+        "name": "Clara Licht",
+        "address": "1/0/0",
+        "state_address": "1/3/0"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/0",
+          "ga_id": "GA-31"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/0",
+          "ga_id": "GA-100"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-32",
+      "domain": "switch",
+      "name": "David Licht",
+      "config": {
+        "name": "David Licht",
+        "address": "1/0/1",
+        "state_address": "1/3/1"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/1",
+          "ga_id": "GA-32"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/1",
+          "ga_id": "GA-101"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-33",
+      "domain": "switch",
+      "name": "Bad Duschseite Licht",
+      "config": {
+        "name": "Bad Duschseite Licht",
+        "address": "1/0/2",
+        "state_address": "1/3/2"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/2",
+          "ga_id": "GA-33"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/2",
+          "ga_id": "GA-102"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-34",
+      "domain": "switch",
+      "name": "Bad Waschbeckenseite Licht",
+      "config": {
+        "name": "Bad Waschbeckenseite Licht",
+        "address": "1/0/3",
+        "state_address": "1/3/3"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/3",
+          "ga_id": "GA-34"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/3",
+          "ga_id": "GA-103"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-35",
+      "domain": "switch",
+      "name": "Elternschlafzimmer Licht",
+      "config": {
+        "name": "Elternschlafzimmer Licht",
+        "address": "1/0/4",
+        "state_address": "1/3/4"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/4",
+          "ga_id": "GA-35"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/4",
+          "ga_id": "GA-104"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-36",
+      "domain": "switch",
+      "name": "Büro Emma Licht",
+      "config": {
+        "name": "Büro Emma Licht",
+        "address": "1/0/5",
+        "state_address": "1/3/5"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/5",
+          "ga_id": "GA-36"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/5",
+          "ga_id": "GA-105"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-37",
+      "domain": "switch",
+      "name": "HWR Licht",
+      "config": {
+        "name": "HWR Licht",
+        "address": "1/0/6",
+        "state_address": "1/3/6"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/6",
+          "ga_id": "GA-37"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/6",
+          "ga_id": "GA-106"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-38",
+      "domain": "switch",
+      "name": "Flur Oberlicht",
+      "config": {
+        "name": "Flur Oberlicht",
+        "address": "1/0/7",
+        "state_address": "1/3/7"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/7",
+          "ga_id": "GA-38"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/7",
+          "ga_id": "GA-107"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-39",
+      "domain": "switch",
+      "name": "Flur bodenlicht",
+      "config": {
+        "name": "Flur bodenlicht",
+        "address": "1/0/8",
+        "state_address": "1/3/8"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/8",
+          "ga_id": "GA-39"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/8",
+          "ga_id": "GA-108"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-224",
+      "domain": "switch",
+      "name": "Badheizkörper Schalten EIN/AUS",
+      "config": {
+        "name": "Badheizkörper Schalten EIN/AUS",
+        "address": "1/0/9",
+        "state_address": "1/3/10"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/9",
+          "ga_id": "GA-224"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/10",
+          "ga_id": "GA-223"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-59",
+      "domain": "switch",
+      "name": "Bad Spiegel EIN/AUS",
+      "config": {
+        "name": "Bad Spiegel EIN/AUS",
+        "address": "1/0/12",
+        "respond_to_read": true
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/0/12",
+          "ga_id": "GA-59"
+        }
+      ]
+    },
+    {
+      "key": "switch:GA-242",
+      "domain": "switch",
+      "name": "HWR Oben Steckdose Ein/Aus",
+      "config": {
+        "name": "HWR Oben Steckdose Ein/Aus",
+        "address": "1/3/12",
+        "state_address": "1/3/13"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "1/3/12",
+          "ga_id": "GA-242"
+        },
+        {
+          "field": "state_address",
+          "address": "1/3/13",
+          "ga_id": "GA-243"
+        }
+      ]
+    },
+    {
+      "key": "binary_sensor:GA-214",
+      "domain": "binary_sensor",
+      "name": "P Status",
+      "config": {
+        "name": "P Status",
+        "state_address": "0/0/26"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/0/26",
+          "ga_id": "GA-214"
+        }
+      ]
+    },
+    {
+      "key": "binary_sensor:GA-215",
+      "domain": "binary_sensor",
+      "name": "Q Status",
+      "config": {
+        "name": "Q Status",
+        "state_address": "0/0/27"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/0/27",
+          "ga_id": "GA-215"
+        }
+      ]
+    },
+    {
+      "key": "binary_sensor:GA-278",
+      "domain": "binary_sensor",
+      "name": "Status Beschattung Zustand Küche",
+      "config": {
+        "name": "Status Beschattung Zustand Küche",
+        "state_address": "0/0/41"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/0/41",
+          "ga_id": "GA-278"
+        }
+      ]
+    },
+    {
+      "key": "binary_sensor:GA-280",
+      "domain": "binary_sensor",
+      "name": "Außen Schalten Status",
+      "config": {
+        "name": "Außen Schalten Status",
+        "state_address": "0/0/42"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/0/42",
+          "ga_id": "GA-280"
+        }
+      ]
+    },
+    {
+      "key": "binary_sensor:GA-84",
+      "domain": "binary_sensor",
+      "name": "Störung bei Netzausfall / Kurzschluss / Stellwertfehler",
+      "config": {
+        "name": "Störung bei Netzausfall / Kurzschluss / Stellwertfehler",
+        "state_address": "0/2/17"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/2/17",
+          "ga_id": "GA-84"
+        }
+      ]
+    },
+    {
+      "key": "binary_sensor:GA-119",
+      "domain": "binary_sensor",
+      "name": "bad oben Verschiebung Status",
+      "config": {
+        "name": "bad oben Verschiebung Status",
+        "state_address": "0/5/9"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/5/9",
+          "ga_id": "GA-119"
+        }
+      ]
+    },
+    {
+      "key": "binary_sensor:GA-228",
+      "domain": "binary_sensor",
+      "name": "Heizen Status",
+      "config": {
+        "name": "Heizen Status",
+        "state_address": "1/3/11"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/3/11",
+          "ga_id": "GA-228"
+        }
+      ]
+    },
+    {
+      "key": "light:GA-54",
+      "domain": "light",
+      "name": "Wohnzimmer",
+      "config": {
+        "name": "Wohnzimmer",
+        "address": "0/2/7",
+        "state_address": "0/0/7",
+        "brightness_address": "0/3/5",
+        "brightness_state_address": "0/3/10"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/7",
+          "ga_id": "GA-54"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/7",
+          "ga_id": "GA-91"
+        },
+        {
+          "field": "brightness_address",
+          "address": "0/3/5",
+          "ga_id": "GA-165"
+        },
+        {
+          "field": "brightness_state_address",
+          "address": "0/3/10",
+          "ga_id": "GA-170"
+        }
+      ]
+    },
+    {
+      "key": "light:GA-55",
+      "domain": "light",
+      "name": "Esszimmer",
+      "config": {
+        "name": "Esszimmer",
+        "address": "0/2/8",
+        "state_address": "0/0/8",
+        "brightness_address": "0/3/7",
+        "brightness_state_address": "0/3/8"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/8",
+          "ga_id": "GA-55"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/8",
+          "ga_id": "GA-92"
+        },
+        {
+          "field": "brightness_address",
+          "address": "0/3/7",
+          "ga_id": "GA-167"
+        },
+        {
+          "field": "brightness_state_address",
+          "address": "0/3/8",
+          "ga_id": "GA-168"
+        }
+      ]
+    },
+    {
+      "key": "light:GA-56",
+      "domain": "light",
+      "name": "Küche",
+      "config": {
+        "name": "Küche",
+        "address": "0/2/9",
+        "state_address": "0/0/9",
+        "brightness_address": "0/3/6",
+        "brightness_state_address": "0/3/9"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/9",
+          "ga_id": "GA-56"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/9",
+          "ga_id": "GA-93"
+        },
+        {
+          "field": "brightness_address",
+          "address": "0/3/6",
+          "ga_id": "GA-166"
+        },
+        {
+          "field": "brightness_state_address",
+          "address": "0/3/9",
+          "ga_id": "GA-169"
+        }
+      ]
+    },
+    {
+      "key": "light:GA-60",
+      "domain": "light",
+      "name": "Büro unten",
+      "config": {
+        "name": "Büro unten",
+        "address": "0/2/10",
+        "state_address": "0/0/10",
+        "brightness_address": "0/3/4",
+        "brightness_state_address": "0/3/11"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/2/10",
+          "ga_id": "GA-60"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/10",
+          "ga_id": "GA-94"
+        },
+        {
+          "field": "brightness_address",
+          "address": "0/3/4",
+          "ga_id": "GA-164"
+        },
+        {
+          "field": "brightness_state_address",
+          "address": "0/3/11",
+          "ga_id": "GA-171"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-188",
+      "domain": "sensor",
+      "name": "Diagnose Status",
+      "config": {
+        "name": "Diagnose Status",
+        "state_address": "0/0/16",
+        "type": "latin_1"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/0/16",
+          "ga_id": "GA-188"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-238",
+      "domain": "sensor",
+      "name": "Beschattung Diagnose",
+      "config": {
+        "name": "Beschattung Diagnose",
+        "state_address": "0/0/37",
+        "type": "string"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/0/37",
+          "ga_id": "GA-238"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-68",
+      "domain": "sensor",
+      "name": "Flur unten",
+      "config": {
+        "name": "Flur unten",
+        "state_address": "0/2/15",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/2/15",
+          "ga_id": "GA-68"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-275",
+      "domain": "sensor",
+      "name": "Diagnosetext Küche",
+      "config": {
+        "name": "Diagnosetext Küche",
+        "state_address": "0/3/15",
+        "type": "string"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/3/15",
+          "ga_id": "GA-275"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-276",
+      "domain": "sensor",
+      "name": "Diagnosetext Esszimmer Bodentiefes Fenster",
+      "config": {
+        "name": "Diagnosetext Esszimmer Bodentiefes Fenster",
+        "state_address": "0/3/16",
+        "type": "string"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/3/16",
+          "ga_id": "GA-276"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-277",
+      "domain": "sensor",
+      "name": "Diagnosetext Esszimmer Bodentiefe Tür",
+      "config": {
+        "name": "Diagnosetext Esszimmer Bodentiefe Tür",
+        "state_address": "0/3/17",
+        "type": "string"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/3/17",
+          "ga_id": "GA-277"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-65",
+      "domain": "sensor",
+      "name": "Büro unten Ist",
+      "config": {
+        "name": "Büro unten Ist",
+        "state_address": "0/4/0",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/0",
+          "ga_id": "GA-65"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-70",
+      "domain": "sensor",
+      "name": "Wohnzimmer Ist",
+      "config": {
+        "name": "Wohnzimmer Ist",
+        "state_address": "0/4/2",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/2",
+          "ga_id": "GA-70"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-72",
+      "domain": "sensor",
+      "name": "Esszimmer Ist",
+      "config": {
+        "name": "Esszimmer Ist",
+        "state_address": "0/4/4",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/4",
+          "ga_id": "GA-72"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-73",
+      "domain": "sensor",
+      "name": "Küche Ist",
+      "config": {
+        "name": "Küche Ist",
+        "state_address": "0/4/5",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/5",
+          "ga_id": "GA-73"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-74",
+      "domain": "sensor",
+      "name": "Flur unten Ist",
+      "config": {
+        "name": "Flur unten Ist",
+        "state_address": "0/4/6",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/6",
+          "ga_id": "GA-74"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-75",
+      "domain": "sensor",
+      "name": "Bad unten Ist",
+      "config": {
+        "name": "Bad unten Ist",
+        "state_address": "0/4/7",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/7",
+          "ga_id": "GA-75"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-76",
+      "domain": "sensor",
+      "name": "HWR unten Ist",
+      "config": {
+        "name": "HWR unten Ist",
+        "state_address": "0/4/8",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/8",
+          "ga_id": "GA-76"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-229",
+      "domain": "sensor",
+      "name": "Außentemperatur",
+      "config": {
+        "name": "Außentemperatur",
+        "state_address": "0/4/16",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/16",
+          "ga_id": "GA-229"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-230",
+      "domain": "sensor",
+      "name": "Windgeschwindigkeit",
+      "config": {
+        "name": "Windgeschwindigkeit",
+        "state_address": "0/4/17",
+        "type": "wind_speed_ms"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/17",
+          "ga_id": "GA-230"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-231",
+      "domain": "sensor",
+      "name": "Dämmerung",
+      "config": {
+        "name": "Dämmerung",
+        "state_address": "0/4/18",
+        "type": "illuminance"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/18",
+          "ga_id": "GA-231"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-232",
+      "domain": "sensor",
+      "name": "West Sonneneinstrahlung",
+      "config": {
+        "name": "West Sonneneinstrahlung",
+        "state_address": "0/4/19",
+        "type": "illuminance"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/19",
+          "ga_id": "GA-232"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-233",
+      "domain": "sensor",
+      "name": "Süd Sonneneinstrahlung",
+      "config": {
+        "name": "Süd Sonneneinstrahlung",
+        "state_address": "0/4/20",
+        "type": "illuminance"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/20",
+          "ga_id": "GA-233"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-234",
+      "domain": "sensor",
+      "name": "Ost Sonneneinstrahlung",
+      "config": {
+        "name": "Ost Sonneneinstrahlung",
+        "state_address": "0/4/21",
+        "type": "illuminance"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/4/21",
+          "ga_id": "GA-234"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-172",
+      "domain": "sensor",
+      "name": "Büro unten Feuchtigkeit",
+      "config": {
+        "name": "Büro unten Feuchtigkeit",
+        "state_address": "0/6/0",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/6/0",
+          "ga_id": "GA-172"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-173",
+      "domain": "sensor",
+      "name": "Wohnzimmer Feuchtigkeit",
+      "config": {
+        "name": "Wohnzimmer Feuchtigkeit",
+        "state_address": "0/6/1",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/6/1",
+          "ga_id": "GA-173"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-175",
+      "domain": "sensor",
+      "name": "Esszimmer Feuchtigkeit",
+      "config": {
+        "name": "Esszimmer Feuchtigkeit",
+        "state_address": "0/6/3",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/6/3",
+          "ga_id": "GA-175"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-176",
+      "domain": "sensor",
+      "name": "Küche Feuchtigkeit",
+      "config": {
+        "name": "Küche Feuchtigkeit",
+        "state_address": "0/6/4",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/6/4",
+          "ga_id": "GA-176"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-177",
+      "domain": "sensor",
+      "name": "Flur unten Feuchtigkeit",
+      "config": {
+        "name": "Flur unten Feuchtigkeit",
+        "state_address": "0/6/5",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/6/5",
+          "ga_id": "GA-177"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-178",
+      "domain": "sensor",
+      "name": "Bad unten Feuchtigkeit",
+      "config": {
+        "name": "Bad unten Feuchtigkeit",
+        "state_address": "0/6/6",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/6/6",
+          "ga_id": "GA-178"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-179",
+      "domain": "sensor",
+      "name": "HWR unten Feuchtigkeit",
+      "config": {
+        "name": "HWR unten Feuchtigkeit",
+        "state_address": "0/6/7",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "0/6/7",
+          "ga_id": "GA-179"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-69",
+      "domain": "sensor",
+      "name": "Flur oben Ist",
+      "config": {
+        "name": "Flur oben Ist",
+        "state_address": "1/2/1",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/2/1",
+          "ga_id": "GA-69"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-77",
+      "domain": "sensor",
+      "name": "Felix Zimmer Ist",
+      "config": {
+        "name": "Felix Zimmer Ist",
+        "state_address": "1/2/2",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/2/2",
+          "ga_id": "GA-77"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-78",
+      "domain": "sensor",
+      "name": "Elternschlafzimmer Ist",
+      "config": {
+        "name": "Elternschlafzimmer Ist",
+        "state_address": "1/2/3",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/2/3",
+          "ga_id": "GA-78"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-79",
+      "domain": "sensor",
+      "name": "Büro oben Ist",
+      "config": {
+        "name": "Büro oben Ist",
+        "state_address": "1/2/4",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/2/4",
+          "ga_id": "GA-79"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-80",
+      "domain": "sensor",
+      "name": "HWR oben Ist",
+      "config": {
+        "name": "HWR oben Ist",
+        "state_address": "1/2/5",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/2/5",
+          "ga_id": "GA-80"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-81",
+      "domain": "sensor",
+      "name": "Bad oben Ist",
+      "config": {
+        "name": "Bad oben Ist",
+        "state_address": "1/2/6",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/2/6",
+          "ga_id": "GA-81"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-82",
+      "domain": "sensor",
+      "name": "Clara Zimmer Ist",
+      "config": {
+        "name": "Clara Zimmer Ist",
+        "state_address": "1/2/7",
+        "type": "temperature"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/2/7",
+          "ga_id": "GA-82"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-180",
+      "domain": "sensor",
+      "name": "Flur oben Feuchtigkeit",
+      "config": {
+        "name": "Flur oben Feuchtigkeit",
+        "state_address": "1/5/0",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/5/0",
+          "ga_id": "GA-180"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-181",
+      "domain": "sensor",
+      "name": "Felix Zimmer Feuchtigkeit",
+      "config": {
+        "name": "Felix Zimmer Feuchtigkeit",
+        "state_address": "1/5/1",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/5/1",
+          "ga_id": "GA-181"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-182",
+      "domain": "sensor",
+      "name": "Elternschlafzimmer Feuchtigkeit",
+      "config": {
+        "name": "Elternschlafzimmer Feuchtigkeit",
+        "state_address": "1/5/2",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/5/2",
+          "ga_id": "GA-182"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-183",
+      "domain": "sensor",
+      "name": "Büro oben Feuchtigkeit",
+      "config": {
+        "name": "Büro oben Feuchtigkeit",
+        "state_address": "1/5/3",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/5/3",
+          "ga_id": "GA-183"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-184",
+      "domain": "sensor",
+      "name": "HWR oben Feuchtigkeit",
+      "config": {
+        "name": "HWR oben Feuchtigkeit",
+        "state_address": "1/5/4",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/5/4",
+          "ga_id": "GA-184"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-185",
+      "domain": "sensor",
+      "name": "Bad oben Feuchtigkeit",
+      "config": {
+        "name": "Bad oben Feuchtigkeit",
+        "state_address": "1/5/5",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/5/5",
+          "ga_id": "GA-185"
+        }
+      ]
+    },
+    {
+      "key": "sensor:GA-186",
+      "domain": "sensor",
+      "name": "Clara Zimmer Feuchtigkeit",
+      "config": {
+        "name": "Clara Zimmer Feuchtigkeit",
+        "state_address": "1/5/6",
+        "type": "humidity"
+      },
+      "sources": [
+        {
+          "field": "state_address",
+          "address": "1/5/6",
+          "ga_id": "GA-186"
+        }
+      ]
+    },
+    {
+      "key": "time:GA-239",
+      "domain": "time",
+      "name": "Aktuelle Zeit",
+      "config": {
+        "name": "Aktuelle Zeit",
+        "address": "0/0/38",
+        "state_address": "0/0/38"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/0/38",
+          "ga_id": "GA-239"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/38",
+          "ga_id": "GA-239"
+        }
+      ]
+    },
+    {
+      "key": "date:GA-240",
+      "domain": "date",
+      "name": "Aktuelles Datum",
+      "config": {
+        "name": "Aktuelles Datum",
+        "address": "0/0/39",
+        "state_address": "0/0/39"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/0/39",
+          "ga_id": "GA-240"
+        },
+        {
+          "field": "state_address",
+          "address": "0/0/39",
+          "ga_id": "GA-240"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-3",
+      "domain": "cover",
+      "name": "Büro Links Jalousie",
+      "config": {
+        "name": "Büro Links Jalousie",
+        "move_long_address": "0/1/0",
+        "stop_address": "0/1/1"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "0/1/0",
+          "ga_id": "GA-3"
+        },
+        {
+          "field": "stop_address",
+          "address": "0/1/1",
+          "ga_id": "GA-15"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-4",
+      "domain": "cover",
+      "name": "Büro Rechts Jalousie",
+      "config": {
+        "name": "Büro Rechts Jalousie",
+        "move_long_address": "0/1/2",
+        "stop_address": "0/1/3"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "0/1/2",
+          "ga_id": "GA-4"
+        },
+        {
+          "field": "stop_address",
+          "address": "0/1/3",
+          "ga_id": "GA-16"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-8",
+      "domain": "cover",
+      "name": "Wohnzimmer kleine Fenster Jalousie",
+      "config": {
+        "name": "Wohnzimmer kleine Fenster Jalousie",
+        "move_long_address": "0/1/4",
+        "stop_address": "0/1/5"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "0/1/4",
+          "ga_id": "GA-8"
+        },
+        {
+          "field": "stop_address",
+          "address": "0/1/5",
+          "ga_id": "GA-17"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-10",
+      "domain": "cover",
+      "name": "Wohnzimmer Bodenttiefes Fenster Jalousie",
+      "config": {
+        "name": "Wohnzimmer Bodenttiefes Fenster Jalousie",
+        "move_long_address": "0/1/8",
+        "move_short_address": "0/1/9"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "0/1/8",
+          "ga_id": "GA-10"
+        },
+        {
+          "field": "move_short_address",
+          "address": "0/1/9",
+          "ga_id": "GA-19"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-12",
+      "domain": "cover",
+      "name": "Esszimmer Bodenttiefes Fenster Jalousie",
+      "config": {
+        "name": "Esszimmer Bodenttiefes Fenster Jalousie",
+        "move_long_address": "0/1/10",
+        "move_short_address": "0/1/11"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "0/1/10",
+          "ga_id": "GA-12"
+        },
+        {
+          "field": "move_short_address",
+          "address": "0/1/11",
+          "ga_id": "GA-20"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-13",
+      "domain": "cover",
+      "name": "Esszimmer Bodenttiefes Tür Jalousie",
+      "config": {
+        "name": "Esszimmer Bodenttiefes Tür Jalousie",
+        "move_long_address": "0/1/12",
+        "move_short_address": "0/1/13"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "0/1/12",
+          "ga_id": "GA-13"
+        },
+        {
+          "field": "move_short_address",
+          "address": "0/1/13",
+          "ga_id": "GA-21"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-14",
+      "domain": "cover",
+      "name": "Küche Fenster Jalousie",
+      "config": {
+        "name": "Küche Fenster Jalousie",
+        "move_long_address": "0/1/14",
+        "move_short_address": "0/1/15",
+        "position_state_address": "0/1/51"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "0/1/14",
+          "ga_id": "GA-14"
+        },
+        {
+          "field": "move_short_address",
+          "address": "0/1/15",
+          "ga_id": "GA-22"
+        },
+        {
+          "field": "position_state_address",
+          "address": "0/1/51",
+          "ga_id": "GA-281"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-52",
+      "domain": "cover",
+      "name": "HWR Jalousie",
+      "config": {
+        "name": "HWR Jalousie",
+        "move_long_address": "0/1/16",
+        "stop_address": "0/1/17"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "0/1/16",
+          "ga_id": "GA-52"
+        },
+        {
+          "field": "stop_address",
+          "address": "0/1/17",
+          "ga_id": "GA-53"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-57",
+      "domain": "cover",
+      "name": "Bad Jalousie",
+      "config": {
+        "name": "Bad Jalousie",
+        "move_long_address": "0/1/18",
+        "stop_address": "0/1/19"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "0/1/18",
+          "ga_id": "GA-57"
+        },
+        {
+          "field": "stop_address",
+          "address": "0/1/19",
+          "ga_id": "GA-58"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-41",
+      "domain": "cover",
+      "name": "Clara Jalousie",
+      "config": {
+        "name": "Clara Jalousie",
+        "move_long_address": "1/1/0",
+        "stop_address": "1/1/1"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "1/1/0",
+          "ga_id": "GA-41"
+        },
+        {
+          "field": "stop_address",
+          "address": "1/1/1",
+          "ga_id": "GA-40"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-42",
+      "domain": "cover",
+      "name": "David Jalousie",
+      "config": {
+        "name": "David Jalousie",
+        "move_long_address": "1/1/2",
+        "stop_address": "1/1/3"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "1/1/2",
+          "ga_id": "GA-42"
+        },
+        {
+          "field": "stop_address",
+          "address": "1/1/3",
+          "ga_id": "GA-43"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-44",
+      "domain": "cover",
+      "name": "Bad Jalousie",
+      "config": {
+        "name": "Bad Jalousie",
+        "move_long_address": "1/1/4",
+        "stop_address": "1/1/5"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "1/1/4",
+          "ga_id": "GA-44"
+        },
+        {
+          "field": "stop_address",
+          "address": "1/1/5",
+          "ga_id": "GA-45"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-46",
+      "domain": "cover",
+      "name": "Schlafzimmer Jalousie",
+      "config": {
+        "name": "Schlafzimmer Jalousie",
+        "move_long_address": "1/1/6",
+        "stop_address": "1/1/7"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "1/1/6",
+          "ga_id": "GA-46"
+        },
+        {
+          "field": "stop_address",
+          "address": "1/1/7",
+          "ga_id": "GA-47"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-48",
+      "domain": "cover",
+      "name": "Büro Jalousie",
+      "config": {
+        "name": "Büro Jalousie",
+        "move_long_address": "1/1/8",
+        "stop_address": "1/1/9"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "1/1/8",
+          "ga_id": "GA-48"
+        },
+        {
+          "field": "stop_address",
+          "address": "1/1/9",
+          "ga_id": "GA-49"
+        }
+      ]
+    },
+    {
+      "key": "cover:GA-50",
+      "domain": "cover",
+      "name": "HWR Jalousie",
+      "config": {
+        "name": "HWR Jalousie",
+        "move_long_address": "1/1/10",
+        "stop_address": "1/1/11"
+      },
+      "sources": [
+        {
+          "field": "move_long_address",
+          "address": "1/1/10",
+          "ga_id": "GA-50"
+        },
+        {
+          "field": "stop_address",
+          "address": "1/1/11",
+          "ga_id": "GA-51"
+        }
+      ]
+    },
+    {
+      "key": "scene:GA-236",
+      "domain": "scene",
+      "name": "Südfassade Absolut",
+      "config": {
+        "name": "Südfassade Absolut",
+        "address": "0/1/21"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/1/21",
+          "ga_id": "GA-236"
+        }
+      ]
+    },
+    {
+      "key": "scene:GA-237",
+      "domain": "scene",
+      "name": "Ostfassade Absolut",
+      "config": {
+        "name": "Ostfassade Absolut",
+        "address": "0/1/22"
+      },
+      "sources": [
+        {
+          "field": "address",
+          "address": "0/1/22",
+          "ga_id": "GA-237"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-65",
+      "domain": "climate",
+      "name": "Büro unten",
+      "config": {
+        "name": "Büro unten",
+        "temperature_address": "0/4/0",
+        "target_temperature_state_address": "0/4/3",
+        "setpoint_shift_address": "0/5/0",
+        "setpoint_shift_state_address": "0/5/8",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/33",
+        "active_state_address": "0/1/48",
+        "heat_cool_state_address": "0/0/35"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "0/4/0",
+          "ga_id": "GA-65"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "0/4/3",
+          "ga_id": "GA-163"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "0/5/0",
+          "ga_id": "GA-110"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "0/5/8",
+          "ga_id": "GA-118"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/33",
+          "ga_id": "GA-254"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/48",
+          "ga_id": "GA-269"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "0/0/35",
+          "ga_id": "GA-226"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-70",
+      "domain": "climate",
+      "name": "Esszimmer",
+      "config": {
+        "name": "Esszimmer",
+        "temperature_address": "0/4/2",
+        "target_temperature_state_address": "0/4/11",
+        "setpoint_shift_address": "0/5/3",
+        "setpoint_shift_state_address": "0/5/11",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/30",
+        "active_state_address": "0/1/45",
+        "heat_cool_state_address": "0/0/35"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "0/4/2",
+          "ga_id": "GA-70"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "0/4/11",
+          "ga_id": "GA-129"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "0/5/3",
+          "ga_id": "GA-113"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "0/5/11",
+          "ga_id": "GA-121"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/30",
+          "ga_id": "GA-251"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/45",
+          "ga_id": "GA-266"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "0/0/35",
+          "ga_id": "GA-226"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-70#2",
+      "domain": "climate",
+      "name": "Küche",
+      "config": {
+        "name": "Küche",
+        "temperature_address": "0/4/2",
+        "target_temperature_state_address": "0/4/12",
+        "setpoint_shift_address": "0/5/4",
+        "setpoint_shift_state_address": "0/5/12",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/31",
+        "active_state_address": "0/1/46",
+        "heat_cool_state_address": "0/0/35"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "0/4/2",
+          "ga_id": "GA-70"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "0/4/12",
+          "ga_id": "GA-130"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "0/5/4",
+          "ga_id": "GA-114"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "0/5/12",
+          "ga_id": "GA-122"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/31",
+          "ga_id": "GA-252"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/46",
+          "ga_id": "GA-267"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "0/0/35",
+          "ga_id": "GA-226"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-70#3",
+      "domain": "climate",
+      "name": "Wohnzimmer",
+      "config": {
+        "name": "Wohnzimmer",
+        "temperature_address": "0/4/2",
+        "target_temperature_state_address": "0/4/10",
+        "setpoint_shift_address": "0/5/2",
+        "setpoint_shift_state_address": "0/5/10",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/29",
+        "active_state_address": "0/1/44",
+        "heat_cool_state_address": "0/0/35"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "0/4/2",
+          "ga_id": "GA-70"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "0/4/10",
+          "ga_id": "GA-128"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "0/5/2",
+          "ga_id": "GA-112"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "0/5/10",
+          "ga_id": "GA-120"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/29",
+          "ga_id": "GA-250"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/44",
+          "ga_id": "GA-265"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "0/0/35",
+          "ga_id": "GA-226"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-74",
+      "domain": "climate",
+      "name": "Flur unten",
+      "config": {
+        "name": "Flur unten",
+        "temperature_address": "0/4/6",
+        "target_temperature_state_address": "0/4/13",
+        "setpoint_shift_address": "0/5/5",
+        "setpoint_shift_state_address": "0/5/13",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/32",
+        "active_state_address": "0/1/47",
+        "heat_cool_state_address": "0/0/35"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "0/4/6",
+          "ga_id": "GA-74"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "0/4/13",
+          "ga_id": "GA-131"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "0/5/5",
+          "ga_id": "GA-115"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "0/5/13",
+          "ga_id": "GA-123"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/32",
+          "ga_id": "GA-253"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/47",
+          "ga_id": "GA-268"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "0/0/35",
+          "ga_id": "GA-226"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-75",
+      "domain": "climate",
+      "name": "Bad unten",
+      "config": {
+        "name": "Bad unten",
+        "temperature_address": "0/4/7",
+        "target_temperature_state_address": "0/4/14",
+        "setpoint_shift_address": "0/5/6",
+        "setpoint_shift_state_address": "0/5/14",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/34",
+        "active_state_address": "0/1/49",
+        "heat_cool_state_address": "0/0/35"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "0/4/7",
+          "ga_id": "GA-75"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "0/4/14",
+          "ga_id": "GA-132"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "0/5/6",
+          "ga_id": "GA-116"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "0/5/14",
+          "ga_id": "GA-124"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/34",
+          "ga_id": "GA-255"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/49",
+          "ga_id": "GA-270"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "0/0/35",
+          "ga_id": "GA-226"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-76",
+      "domain": "climate",
+      "name": "HWR unten",
+      "config": {
+        "name": "HWR unten",
+        "temperature_address": "0/4/8",
+        "target_temperature_state_address": "0/4/15",
+        "setpoint_shift_address": "0/5/7",
+        "setpoint_shift_state_address": "0/5/15",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/35",
+        "active_state_address": "0/1/50",
+        "heat_cool_state_address": "0/0/35"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "0/4/8",
+          "ga_id": "GA-76"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "0/4/15",
+          "ga_id": "GA-133"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "0/5/7",
+          "ga_id": "GA-117"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "0/5/15",
+          "ga_id": "GA-125"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/35",
+          "ga_id": "GA-256"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/50",
+          "ga_id": "GA-271"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "0/0/35",
+          "ga_id": "GA-226"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-69",
+      "domain": "climate",
+      "name": "Flur oben",
+      "config": {
+        "name": "Flur oben",
+        "temperature_address": "1/2/1",
+        "target_temperature_state_address": "1/2/8",
+        "setpoint_shift_address": "1/4/1",
+        "setpoint_shift_state_address": "1/4/13",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/28",
+        "active_state_address": "0/1/38",
+        "heat_cool_state_address": "1/3/11"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "1/2/1",
+          "ga_id": "GA-69"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "1/2/8",
+          "ga_id": "GA-155"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "1/4/1",
+          "ga_id": "GA-134"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "1/4/13",
+          "ga_id": "GA-147"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/28",
+          "ga_id": "GA-249"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/38",
+          "ga_id": "GA-259"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "1/3/11",
+          "ga_id": "GA-228"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-77",
+      "domain": "climate",
+      "name": "Felix Zimmer",
+      "config": {
+        "name": "Felix Zimmer",
+        "temperature_address": "1/2/2",
+        "target_temperature_state_address": "1/2/10",
+        "setpoint_shift_address": "1/4/2",
+        "setpoint_shift_state_address": "1/4/12",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/24",
+        "active_state_address": "0/1/42",
+        "heat_cool_state_address": "1/3/11"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "1/2/2",
+          "ga_id": "GA-77"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "1/2/10",
+          "ga_id": "GA-157"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "1/4/2",
+          "ga_id": "GA-135"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "1/4/12",
+          "ga_id": "GA-146"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/24",
+          "ga_id": "GA-245"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/42",
+          "ga_id": "GA-263"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "1/3/11",
+          "ga_id": "GA-228"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-78",
+      "domain": "climate",
+      "name": "Elternschlafzimmer",
+      "config": {
+        "name": "Elternschlafzimmer",
+        "temperature_address": "1/2/3",
+        "target_temperature_state_address": "1/2/11",
+        "setpoint_shift_address": "1/4/3",
+        "setpoint_shift_state_address": "1/4/11",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/25",
+        "active_state_address": "0/1/41",
+        "heat_cool_state_address": "1/3/11"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "1/2/3",
+          "ga_id": "GA-78"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "1/2/11",
+          "ga_id": "GA-158"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "1/4/3",
+          "ga_id": "GA-136"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "1/4/11",
+          "ga_id": "GA-145"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/25",
+          "ga_id": "GA-246"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/41",
+          "ga_id": "GA-262"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "1/3/11",
+          "ga_id": "GA-228"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-79",
+      "domain": "climate",
+      "name": "Büro oben",
+      "config": {
+        "name": "Büro oben",
+        "temperature_address": "1/2/4",
+        "target_temperature_state_address": "1/2/12",
+        "setpoint_shift_address": "1/4/4",
+        "setpoint_shift_state_address": "1/4/10",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/26",
+        "active_state_address": "0/1/40",
+        "heat_cool_state_address": "1/3/11"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "1/2/4",
+          "ga_id": "GA-79"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "1/2/12",
+          "ga_id": "GA-159"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "1/4/4",
+          "ga_id": "GA-137"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "1/4/10",
+          "ga_id": "GA-144"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/26",
+          "ga_id": "GA-247"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/40",
+          "ga_id": "GA-261"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "1/3/11",
+          "ga_id": "GA-228"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-80",
+      "domain": "climate",
+      "name": "HWR oben",
+      "config": {
+        "name": "HWR oben",
+        "temperature_address": "1/2/5",
+        "target_temperature_state_address": "1/2/13",
+        "setpoint_shift_address": "1/4/5",
+        "setpoint_shift_state_address": "1/4/9",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/27",
+        "active_state_address": "0/1/39",
+        "heat_cool_state_address": "1/3/11"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "1/2/5",
+          "ga_id": "GA-80"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "1/2/13",
+          "ga_id": "GA-160"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "1/4/5",
+          "ga_id": "GA-138"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "1/4/9",
+          "ga_id": "GA-143"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/27",
+          "ga_id": "GA-248"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/39",
+          "ga_id": "GA-260"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "1/3/11",
+          "ga_id": "GA-228"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-81",
+      "domain": "climate",
+      "name": "Bad oben",
+      "config": {
+        "name": "Bad oben",
+        "temperature_address": "1/2/6",
+        "target_temperature_state_address": "1/2/14",
+        "setpoint_shift_address": "1/4/6",
+        "setpoint_shift_state_address": "1/4/8",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/36",
+        "active_state_address": "0/1/37",
+        "heat_cool_state_address": "1/3/11"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "1/2/6",
+          "ga_id": "GA-81"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "1/2/14",
+          "ga_id": "GA-161"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "1/4/6",
+          "ga_id": "GA-139"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "1/4/8",
+          "ga_id": "GA-142"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/36",
+          "ga_id": "GA-257"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/37",
+          "ga_id": "GA-258"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "1/3/11",
+          "ga_id": "GA-228"
+        }
+      ]
+    },
+    {
+      "key": "climate:GA-82",
+      "domain": "climate",
+      "name": "Clara Zimmer",
+      "config": {
+        "name": "Clara Zimmer",
+        "temperature_address": "1/2/7",
+        "target_temperature_state_address": "1/2/15",
+        "setpoint_shift_address": "1/4/0",
+        "setpoint_shift_state_address": "1/4/7",
+        "setpoint_shift_mode": "DPT9002",
+        "operation_mode_state_address": "0/1/23",
+        "active_state_address": "0/1/43",
+        "heat_cool_state_address": "1/3/11"
+      },
+      "sources": [
+        {
+          "field": "temperature_address",
+          "address": "1/2/7",
+          "ga_id": "GA-82"
+        },
+        {
+          "field": "target_temperature_state_address",
+          "address": "1/2/15",
+          "ga_id": "GA-162"
+        },
+        {
+          "field": "setpoint_shift_address",
+          "address": "1/4/0",
+          "ga_id": "GA-141"
+        },
+        {
+          "field": "setpoint_shift_state_address",
+          "address": "1/4/7",
+          "ga_id": "GA-140"
+        },
+        {
+          "field": "operation_mode_state_address",
+          "address": "0/1/23",
+          "ga_id": "GA-244"
+        },
+        {
+          "field": "active_state_address",
+          "address": "0/1/43",
+          "ga_id": "GA-264"
+        },
+        {
+          "field": "heat_cool_state_address",
+          "address": "1/3/11",
+          "ga_id": "GA-228"
+        }
+      ]
+    },
+    {
+      "key": "weather:GA-229",
+      "domain": "weather",
+      "name": "Wetterstation",
+      "config": {
+        "name": "Wetterstation",
+        "address_temperature": "0/4/16",
+        "address_brightness_south": "0/4/20",
+        "address_brightness_west": "0/4/19",
+        "address_brightness_east": "0/4/21",
+        "address_wind_speed": "0/4/17",
+        "address_wind_alarm": "0/0/40",
+        "address_day_night": "0/4/22"
+      },
+      "sources": [
+        {
+          "field": "address_temperature",
+          "address": "0/4/16",
+          "ga_id": "GA-229"
+        },
+        {
+          "field": "address_brightness_south",
+          "address": "0/4/20",
+          "ga_id": "GA-233"
+        },
+        {
+          "field": "address_brightness_west",
+          "address": "0/4/19",
+          "ga_id": "GA-232"
+        },
+        {
+          "field": "address_brightness_east",
+          "address": "0/4/21",
+          "ga_id": "GA-234"
+        },
+        {
+          "field": "address_wind_speed",
+          "address": "0/4/17",
+          "ga_id": "GA-230"
+        },
+        {
+          "field": "address_wind_alarm",
+          "address": "0/0/40",
+          "ga_id": "GA-241"
+        },
+        {
+          "field": "address_day_night",
+          "address": "0/4/22",
+          "ga_id": "GA-235"
+        }
+      ]
+    }
+  ],
+  "unmapped": [
+    {
+      "address": "0/0/4",
+      "ga_id": "GA-88",
+      "name": "Flur hinten Licht",
+      "dpt": "1.011"
+    },
+    {
+      "address": "0/0/15",
+      "ga_id": "GA-99",
+      "name": "Flur unten Licht",
+      "dpt": null
+    },
+    {
+      "address": "0/0/35",
+      "ga_id": "GA-226",
+      "name": "Heizen",
+      "dpt": "1.100"
+    },
+    {
+      "address": "0/0/44",
+      "ga_id": "GA-283",
+      "name": "Umschaltung Heizen/Kühlen",
+      "dpt": "1.100"
+    },
+    {
+      "address": "0/5/1",
+      "ga_id": "GA-111",
+      "name": "bad oben Verschiebung",
+      "dpt": null
+    },
+    {
+      "address": "1/3/9",
+      "ga_id": "GA-109",
+      "name": "Bad Spiegel Licht",
+      "dpt": "1.011"
+    }
+  ]
+}

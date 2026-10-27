@@ -112,7 +112,7 @@ def catalog_from_xknxproject(project: dict[str, Any]) -> Catalog:
                     com_object_id=co_id,
                     channel_id=channel_id,
                     device_id=device,
-                    com_object=co.get("function_text") or None,
+                    com_object=(co.get("function_text") or "").strip() or None,
                     dpt=dpt,
                     flags=_flags(co.get("flags")),
                 )
@@ -125,9 +125,9 @@ def catalog_from_xknxproject(project: dict[str, Any]) -> Catalog:
         if not dpt:
             # like knx2home: fall back to the DPT of a linked com object
             dpt = next((co_dpt[c] for c in ga.get("communication_object_ids", []) if c in co_dpt), None)
-        group_addresses.append(
-            GroupAddress(id=ga["identifier"], name=ga.get("name") or address, address=address, dpt=dpt)
-        )
+        # knx2home reads trimmed attributes
+        name = (ga.get("name") or "").strip() or address
+        group_addresses.append(GroupAddress(id=ga["identifier"], name=name, address=address, dpt=dpt))
 
     return Catalog(
         name=project.get("info", {}).get("name") or None,
