@@ -1,0 +1,141 @@
+"""Anonymised real ETS6 project (family house, 264 GAs, 36 devices from five manufacturers).
+
+`tests/fixtures/einfamilienhaus.knxproj` was made from a real installation with
+tools/fixtures/anonymize_project.py: structure, links and application programs are
+kept, names, keys and identifiers of people and installation are not.
+"""
+
+from __future__ import annotations
+
+from collections import Counter
+import re
+import zipfile
+
+import anonymize_project
+import yaml
+
+from custom_components.knx_project_sync.mapping.manifest import DOMAINS
+from custom_components.knx_project_sync.plan import build_plan
+from custom_components.knx_project_sync.project import prepare_project
+from custom_components.knx_project_sync.writer import render, unique_ids_of_knx_config
+from helpers import FIXTURES, parse
+
+PROJECT = FIXTURES / "einfamilienhaus.knxproj"
+WORD = re.compile(r"[^\W\d_]+")
+
+
+def _prepared():
+    return prepare_project(parse(PROJECT))
+
+
+# --- the fixture itself -------------------------------------------------------
+
+
+def test_archive_contains_only_whitelisted_files():
+    names = zipfile.ZipFile(PROJECT).namelist()
+    assert "P-0C2D/project.xml" in names
+    for name in names:
+        assert re.fullmatch(
+            r"knx_master\.xml|P-0C2D\.signature|P-0C2D/(?:project|0)\.xml|M-\w+/(?:Catalog|Hardware|M-\w+_A-[\w-]+)\.xml",
+            name,
+        ), name
+
+
+def test_no_personal_data_in_project_files():
+    archive = zipfile.ZipFile(PROJECT)
+    for name in ("P-0C2D/project.xml", "P-0C2D/0.xml"):
+        text = archive.read(name).decode("utf-8")
+        for secret in ("ProjectTrace", "UserName", "FDSK", "ToolKey", "MACAddress", "BCUKey", "LastModified"):
+            assert secret not in text, (name, secret)
+
+
+def test_project_guid_is_replaced():
+    text = zipfile.ZipFile(PROJECT).read("P-0C2D/project.xml").decode("utf-8")
+    assert 'Guid="00000000-0000-4000-8000-000000000000"' in text
+
+
+def test_all_names_are_generic_or_made_up():
+    """Every word of every free text is in the vocabulary or one of the made-up first names."""
+    allowed = anonymize_project.vocabulary() | set(anonymize_project.PSEUDONYMS) | {anonymize_project.PROJECT_NAME}
+    project = parse(PROJECT)
+    texts = [project["info"]["name"]]
+    texts += [ga["name"] for ga in project["group_addresses"].values()]
+
+    def collect(spaces):
+        for space in spaces.values():
+            texts.append(space["name"])
+            collect(space["spaces"])
+
+    collect(project["locations"])
+
+    def collect_ranges(ranges):
+        for group_range in ranges.values():
+            texts.append(group_range["name"])
+            collect_ranges(group_range["group_ranges"])
+
+    collect_ranges(project["group_ranges"])
+    unknown = {word for text in texts for word in WORD.findall(text)} - allowed
+    assert not unknown
+
+
+# --- structure of a real project -----------------------------------------------
+
+
+def test_shape():
+    project = parse(PROJECT)
+    assert project["info"]["name"] == "Beispielhaus"
+    assert len(project["group_addresses"]) == 264
+    assert len(project["devices"]) == 36
+    assert len(project["communication_objects"]) == 424
+    assert {d["manufacturer_name"] for d in project["devices"].values()} >= {"Lingg & Janke", "MDT technologies"}
+
+
+def test_detection_result():
+    manifest = _prepared().manifest
+    assert Counter(e["domain"] for e in manifest["entities"]) == {
+        "switch": 49,
+        "sensor": 40,
+        "cover": 16,
+        "climate": 14,
+        "binary_sensor": 7,
+        "light": 4,
+        "scene": 2,
+        "time": 1,
+        "date": 1,
+        "weather": 1,
+    }
+    assert len(manifest["unmapped"]) == 6
+
+
+def test_rooms_follow_the_innermost_location_of_the_device():
+    """Devices sit in rooms, some of them in a distribution board inside a room."""
+    rooms = _prepared().rooms
+    assert len(rooms) == 126
+    counts = Counter(rooms.values())
+    assert counts["Esszimmer"] == 6
+    assert counts["Wohnzimmer"] == 1
+    # entities of the actuators in the distribution boards get the board, not the room around it
+    assert counts["Schaltschrank"] == 57
+    assert counts["Schlatschrank HWR oben"] == 17
+    assert "HWR" in counts
+
+
+# --- import of a real project ----------------------------------------------------
+
+
+def test_first_import_and_unchanged_reimport():
+    manifest = _prepared().manifest
+    first = build_plan(manifest, {}, domains=DOMAINS, keep_removed=False)
+    assert first.summary()["new"] == 130
+    assert first.summary()["excluded"] == 5  # weather station is not imported by default
+    again = build_plan(manifest, first.state(), domains=DOMAINS, keep_removed=False)
+    assert not again.has_changes
+    assert again.summary()["unchanged"] == 130
+
+
+def test_written_yaml_roundtrips_and_has_unique_ids():
+    plan = build_plan(_prepared().manifest, {}, domains=DOMAINS, keep_removed=False)
+    data = yaml.safe_load(render(plan.yaml_data(), plan.project))
+    written = unique_ids_of_knx_config(data["knx"])
+    assert written == {(e.domain, e.unique_id) for e in plan.written}
+    assert len(written) == len(plan.written)

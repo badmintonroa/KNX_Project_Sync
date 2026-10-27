@@ -25,6 +25,8 @@ Der Port liegt in [`custom_components/knx_project_sync/mapping/`](../custom_comp
 6. **Regex-Semantik:** knx2home nutzt JavaScript-Regexe ohne `u`-Flag. `\b`, `\w` und `\d` kennen dort nur ASCII. `mapping/jsre.py` bildet das nach (`re.ASCII`), und `replace` ohne `g` ersetzt nur den ersten Treffer.
 7. **Sortierung bei Gleichstand:** Haben zwei Entities derselben Domain dieselbe Primäradresse, sortiert knx2home per `localeCompare`, der Port nach Codepoints. Das betrifft nur die Reihenfolge der `#2`-Schlüssel solcher Dubletten.
 
+Das anonymisierte Familienhaus (`einfamilienhaus`) zeigt Punkt 3 an einer Jalousie: Das Modulobjekt „Kurzzeitbetrieb/Stopp“ ist am `ComObject` 1.007 und nur durch die `ComObjectRef` 1.008. knx2home liest 1.007 und nimmt die GA als `move_short_address`. Der Port liest 1.008, die GA wird deshalb nicht Teil der Jalousie und legt als 1.008-Befehl noch eine zweite Jalousie an (`cover:GA-19`). `KNOWN_DIFFERENCES` in `tests/test_mapping_parity.py` hält das fest. Das ist eine Schwäche des Ports und nicht gewollt: Eine Stopp-GA mit 1.008 sollte `stop_address` werden.
+
 ## Gefundene Schwächen von knx2home
 
 Sie bleiben im Manifest erhalten, damit die Parity bestehen bleibt. Die Integration behandelt sie beim Import (siehe [import.md](import.md)):

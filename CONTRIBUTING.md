@@ -70,6 +70,14 @@ python tools/fixtures/build_fixtures.py
 cd tools/reference && npm ci && npm run generate
 ```
 
+To turn your own project into an anonymous fixture (names that are not in `tools/fixtures/vocabulary.txt` become made-up first names, keys, certificates and serial numbers are dropped), then write its golden file as above:
+
+```bash
+python tools/fixtures/anonymize_project.py meins.knxproj tests/fixtures/<name>.knxproj
+```
+
+Compare the output of xknxproject for both files before you commit: only names may differ. Never commit the original.
+
 The CI regenerates the golden files on every run and weekly with the current knx2home `main`. If knx2home changes its behaviour, the job fails and the port has to follow.
 
 A fix for a wrong detection should go to knx2home as well, or be listed as an intended difference in the port notes.
