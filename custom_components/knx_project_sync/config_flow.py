@@ -27,18 +27,10 @@ from .const import (
     SOURCE_KNX_PROJECT,
     SOURCE_UPLOAD,
 )
-from .importer import (
-    PANEL_URL,
-    Importer,
-    KnxImportError,
-    Prepared,
-    async_has_knx_project,
-    async_prepare_knx_project,
-    async_prepare_upload,
-    default_options,
-    entry_options,
-)
+from .errors import KnxImportError
+from .importer import PANEL_URL, Importer, default_options, entry_options
 from .mapping.manifest import HA_DOMAINS
+from .project import Prepared, async_has_knx_project, async_prepare_knx_project, async_prepare_upload
 
 
 def _options_schema(options: dict[str, Any]) -> vol.Schema:

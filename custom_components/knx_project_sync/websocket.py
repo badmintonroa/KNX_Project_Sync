@@ -18,18 +18,11 @@ from homeassistant.helpers import entity_registry as er
 import voluptuous as vol
 
 from .const import CONF_DOMAINS, DOMAIN, KNX_DOMAIN, SOURCE_KNX_PROJECT, SOURCE_UPLOAD, VERSION
-from .importer import (
-    PANEL_URL,
-    Importer,
-    KnxImportError,
-    Prepared,
-    async_has_knx_project,
-    async_prepare_knx_project,
-    async_prepare_upload,
-    entry_options,
-)
+from .errors import KnxImportError
+from .importer import PANEL_URL, Importer, entry_options
 from .model import WRITTEN, Conflict, Selection
 from .plan import ImportPlan, address_fields, domain_choices, is_address_field
+from .project import Prepared, async_has_knx_project, async_prepare_knx_project, async_prepare_upload
 
 STATIC_URL: Final = f"/{DOMAIN}_static"
 FRONTEND_DIR: Final = Path(__file__).parent / "frontend"

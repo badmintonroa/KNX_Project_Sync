@@ -1,9 +1,11 @@
-"""Run an import: parse project -> manifest -> plan -> package YAML -> knx.reload."""
+"""Import state of the config entry: store, plan, apply, remove.
+
+Reading the project is in `project.py`, the registry changes in `registry.py` and
+everything about configuration.yaml in `packages.py`. This module ties them together.
+"""
 
 from __future__ import annotations
 
-from collections import Counter
-from dataclasses import dataclass
 import logging
 from pathlib import Path
 from typing import Any
@@ -12,13 +14,13 @@ from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import area_registry as ar, entity_registry as er, issue_registry as ir
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 import voluptuous as vol
 
-from . import packages, writer, yamledit
+from . import packages, registry, writer, yamledit
 from .const import (
     CONF_ASSIGN_AREAS,
     CONF_DOMAINS,
@@ -31,16 +33,14 @@ from .const import (
     ISSUE_PACKAGE_NOT_LOADED,
     ISSUE_RELOAD_FAILED,
     KNX_DOMAIN,
-    KNX_PROJECT_STORAGE_KEY,
     REMOVED_KEEP,
     SIGNAL_IMPORTED,
-    VERSION,
 )
-from .mapping import build_ha_entities, build_manifest, catalog_from_xknxproject
-from .mapping.catalog import Catalog
+from .errors import KnxImportError
 from .mapping.manifest import HA_DOMAINS
 from .model import AppliedState, OwnEntities, Selection, Status
 from .plan import ImportPlan, build_plan
+from .project import Prepared
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,24 +48,6 @@ STORAGE_VERSION = 1
 NOTIFICATION_NEW = f"{DOMAIN}_new_entities"
 NOTIFICATION_LOADED = f"{DOMAIN}_project_loaded"
 PANEL_URL = "/knx-project-sync"
-GENERATOR = {"name": DOMAIN, "version": VERSION}
-
-
-class KnxImportError(HomeAssistantError):
-    """Import failed; `translation_key` explains why."""
-
-    def __init__(self, key: str, **placeholders: str) -> None:
-        super().__init__(key)
-        self.key = key
-        self.placeholders = placeholders
-
-
-@dataclass
-class Prepared:
-    """Parsed project, ready to be planned with different options."""
-
-    manifest: dict[str, Any]
-    rooms: dict[str, str]  # entity key -> ETS room name
 
 
 def default_options() -> dict[str, Any]:
@@ -80,82 +62,6 @@ def default_options() -> dict[str, Any]:
 def entry_options(entry: ConfigEntry) -> dict[str, Any]:
     """Options of the config entry, completed with the defaults."""
     return {**default_options(), **entry.options}
-
-
-# ---------------------------------------------------------------- parsing
-
-
-def _rooms_for_entities(catalog: Catalog, manifest: dict[str, Any]) -> dict[str, str]:
-    """Room of the first linked device (actuators first) of each entity's GAs."""
-    devices_by_ga: dict[str, list[tuple[bool, str]]] = {}
-    for link in catalog.links:
-        sends = bool(link.flags and link.flags.get("TransmitFlag") and not link.flags.get("WriteFlag"))
-        devices_by_ga.setdefault(link.ga_id, []).append((sends, link.device_id))
-    rooms: dict[str, str] = {}
-    for entity in manifest["entities"]:
-        candidates = Counter()
-        for source in entity["sources"]:
-            for _, device in sorted(devices_by_ga.get(source["ga_id"] or "", [])):
-                if room := catalog.device_rooms.get(device):
-                    candidates[room] += 1
-        if candidates:
-            rooms[entity["key"]] = candidates.most_common(1)[0][0]
-    return rooms
-
-
-def prepare_project(project: dict[str, Any]) -> Prepared:
-    catalog = catalog_from_xknxproject(project)
-    manifest = build_manifest(catalog, build_ha_entities(catalog), GENERATOR)
-    return Prepared(manifest=manifest, rooms=_rooms_for_entities(catalog, manifest))
-
-
-def parse_project_file(path: Path, password: str | None) -> dict[str, Any]:
-    """Parse a .knxproj (runs in the executor)."""
-    from xknxproject import XKNXProj
-    from xknxproject.exceptions import InvalidPasswordException, XknxProjectException
-
-    try:
-        return XKNXProj(path, password=password or None, language="de-DE").parse()
-    except InvalidPasswordException as err:
-        raise KnxImportError("invalid_password") from err
-    except (XknxProjectException, KeyError, ValueError, OSError) as err:
-        _LOGGER.exception("Could not parse %s", path)
-        raise KnxImportError("invalid_project", error=str(err)) from err
-
-
-async def async_prepare_upload(hass: HomeAssistant, file_id: str, password: str | None) -> Prepared:
-    from homeassistant.components.file_upload import process_uploaded_file
-
-    def _work() -> Prepared:
-        with process_uploaded_file(hass, file_id) as path:
-            return prepare_project(parse_project_file(path, password))
-
-    return await hass.async_add_executor_job(_work)
-
-
-async def async_prepare_file(hass: HomeAssistant, path: str, password: str | None) -> Prepared:
-    """Project file inside the config folder (or an allowlisted external dir)."""
-
-    def _work() -> Prepared:
-        file = Path(hass.config.path(path)).resolve()
-        inside_config = file.is_relative_to(Path(hass.config.config_dir).resolve())
-        if not (inside_config or hass.config.is_allowed_path(str(file))) or not file.is_file():
-            raise KnxImportError("file_not_found", path=str(file))
-        return prepare_project(parse_project_file(file, password))
-
-    return await hass.async_add_executor_job(_work)
-
-
-async def async_prepare_knx_project(hass: HomeAssistant) -> Prepared:
-    """Use the project already uploaded in the KNX panel."""
-    project = await Store[dict](hass, 1, KNX_PROJECT_STORAGE_KEY).async_load()
-    if not project or not project.get("communication_objects"):
-        raise KnxImportError("no_knx_project")
-    return await hass.async_add_executor_job(prepare_project, project)
-
-
-async def async_has_knx_project(hass: HomeAssistant) -> bool:
-    return bool(await Store[dict](hass, 1, KNX_PROJECT_STORAGE_KEY).async_load())
 
 
 # ---------------------------------------------------------------- planning
@@ -302,44 +208,15 @@ class Importer:
         hass = self.hass
         known = {e["key"] for e in (self.manifest or {}).get("entities", [])}
         selection = dict(self.selection if selection is None else selection)
-
-        # 0. definitions taken over from the own YAML: remove them there first
-        registry = er.async_get(hass)
         package = self.package_path(options)
+
         adopted = await self._async_adopt(plan, package, selection)
-
-        # 1. keep entity_id, name, area and history when a unique_id changes (e.g. GA re-addressed)
-        migrated = 0
-        for domain, old_uid, new_uid in plan.migrations:
-            entity_id = registry.async_get_entity_id(domain, KNX_DOMAIN, old_uid)
-            if not entity_id or registry.async_get_entity_id(domain, KNX_DOMAIN, new_uid):
-                continue
-            registry.async_update_entity(entity_id, new_unique_id=new_uid)
-            migrated += 1
-
-        # 2. package file + reload of the KNX integration
-        content = writer.render(plan.yaml_data(), plan.project)
-        try:
-            await hass.async_add_executor_job(writer.write, package, content)
-        except Exception:
-            # never lose an entity that was just removed from the own YAML
-            await hass.async_add_executor_job(yamledit.restore, adopted)
-            raise
+        migrated = registry.migrate_unique_ids(hass, plan.migrations)
+        await self._async_write_package(plan, package, adopted)
         await self._async_reload_knx()
-
-        # 3. entities that are gone from the project
-        removed = 0
-        for domain, uid in plan.removed_unique_ids:
-            if entity_id := registry.async_get_entity_id(domain, KNX_DOMAIN, uid):
-                registry.async_remove(entity_id)
-                removed += 1
-
-        # 4. ETS rooms -> HA areas (only for entities without an area)
-        areas = 0
-        if options.get(CONF_ASSIGN_AREAS):
-            areas = self._assign_areas(plan, prepared.rooms)
-
-        await self._async_check_package_loaded(plan, package)
+        removed = registry.remove_entities(hass, plan.removed_unique_ids)
+        areas = registry.assign_areas(hass, plan.written, prepared.rooms) if options.get(CONF_ASSIGN_AREAS) else 0
+        await packages.async_check_loaded(hass, plan.written, package)
 
         summary = {
             **plan.summary(),
@@ -349,6 +226,28 @@ class Importer:
             "adopted": len(adopted),
             "backups": sorted(str(b) for b in adopted.values()),
         }
+        await self._async_save_applied(prepared, plan, selection, source, package, summary)
+        self._announce(plan, summary, known if notify else None)
+        return summary
+
+    async def _async_write_package(self, plan: ImportPlan, package: Path, adopted: dict) -> None:
+        content = writer.render(plan.yaml_data(), plan.project)
+        try:
+            await self.hass.async_add_executor_job(writer.write, package, content)
+        except Exception:
+            # never lose an entity that was just removed from the own YAML
+            await self.hass.async_add_executor_job(yamledit.restore, adopted)
+            raise
+
+    async def _async_save_applied(
+        self,
+        prepared: Prepared,
+        plan: ImportPlan,
+        selection: Selection,
+        source: str,
+        package: Path,
+        summary: dict[str, Any],
+    ) -> None:
         self.data = {
             "manifest": prepared.manifest,
             "rooms": prepared.rooms,
@@ -364,11 +263,13 @@ class Importer:
         }
         await self._store.async_save(self.data)
         self.staged = None
-        persistent_notification.async_dismiss(hass, NOTIFICATION_LOADED)
-        self._notify_new(plan, known if notify else None)
-        async_dispatcher_send(hass, SIGNAL_IMPORTED)
-        hass.bus.async_fire(EVENT_IMPORTED, {"project": plan.project, **summary})
-        return summary
+
+    def _announce(self, plan: ImportPlan, summary: dict[str, Any], known: set[str] | None) -> None:
+        """Notifications, the sensor and the event after an import."""
+        persistent_notification.async_dismiss(self.hass, NOTIFICATION_LOADED)
+        self._notify_new(plan, known)
+        async_dispatcher_send(self.hass, SIGNAL_IMPORTED)
+        self.hass.bus.async_fire(EVENT_IMPORTED, {"project": plan.project, **summary})
 
     async def _async_adopt(self, plan: ImportPlan, package: Path, selection: Selection) -> dict:
         """Remove adopted entities from the user's YAML; returns file -> backup.
@@ -445,19 +346,7 @@ class Importer:
 
     async def async_package_setup(self, options: dict[str, Any]) -> packages.Setup:
         """Is the package file loaded by configuration.yaml, and what would fix it."""
-        from homeassistant.config import YAML_CONFIG_FILE
-
-        config_file = Path(self.hass.config.path(YAML_CONFIG_FILE))
-        package = options.get(CONF_PACKAGE_PATH) or DEFAULT_PACKAGE_PATH
-
-        def _work() -> packages.Setup:
-            try:
-                text = config_file.read_text(encoding="utf-8")
-            except OSError as err:
-                return packages.Setup(packages.MANUAL, package, str(err))
-            return packages.analyze(text, package)
-
-        return await self.hass.async_add_executor_job(_work)
+        return await packages.async_analyze(self.hass, options.get(CONF_PACKAGE_PATH) or DEFAULT_PACKAGE_PATH)
 
     async def async_fix_packages(self, entry: ConfigEntry) -> packages.Setup:
         """Make Home Assistant load the package file, then reload KNX.
@@ -465,8 +354,6 @@ class Importer:
         configuration.yaml is backed up and the result checked with Home Assistant's
         loader; on any problem the backup is restored.
         """
-        from homeassistant.config import YAML_CONFIG_FILE, async_hass_config_yaml
-
         hass = self.hass
         options = entry_options(entry)
         setup = await self.async_package_setup(options)
@@ -476,40 +363,13 @@ class Importer:
             raise KnxImportError("packages_manual", error=setup.detail or "")
 
         if setup.status != packages.MOVE:
-            config_file = Path(hass.config.path(YAML_CONFIG_FILE))
-
-            def _edit() -> tuple[Path, bool]:
-                text = config_file.read_text(encoding="utf-8")
-                new_text = packages.apply(text, setup)
-                if packages.analyze(new_text, setup.package_path).status != packages.OK:
-                    raise ValueError("not_loaded_after_edit")
-                backup = yamledit.backup_path(config_file)
-                backup.write_text(text, encoding="utf-8")
-                config_file.write_text(new_text, encoding="utf-8")
-                return backup, not packages.has_core_key(text)
-
-            try:
-                backup, block = await hass.async_add_executor_job(_edit)
-            except (ValueError, OSError) as err:
-                raise KnxImportError("packages_manual", error=str(err)) from err
-            try:
-                await async_hass_config_yaml(hass)
-            except HomeAssistantError as err:
-                await hass.async_add_executor_job(yamledit.restore, {config_file: backup})
-                raise KnxImportError("packages_manual", error=str(err)) from err
+            added = await packages.async_add_line(hass, setup)
             # taken out again when the integration is removed
-            added = {"line": packages.added_line(setup), "block": block, "status": setup.status}
             hass.config_entries.async_update_entry(entry, data={**entry.data, DATA_PACKAGES_ADDED: added})
         if setup.package_path != options.get(CONF_PACKAGE_PATH):
             # the package file has to sit in the folder packages are loaded from
-            old, new = self.package_path(options), Path(hass.config.path(setup.package_path))
-
-            def _move() -> None:
-                if old.exists() and not new.exists():
-                    new.parent.mkdir(parents=True, exist_ok=True)
-                    old.replace(new)
-
-            await hass.async_add_executor_job(_move)
+            new = Path(hass.config.path(setup.package_path))
+            await packages.async_move_file(hass, self.package_path(options), new)
             hass.config_entries.async_update_entry(
                 entry, options={**entry.options, CONF_PACKAGE_PATH: setup.package_path}
             )
@@ -521,96 +381,16 @@ class Importer:
         ir.async_delete_issue(hass, DOMAIN, ISSUE_PACKAGE_NOT_LOADED)
         return await self.async_package_setup(options)
 
-    async def _async_check_package_loaded(self, plan: ImportPlan, package: Path) -> None:
-        """Repair issue if Home Assistant does not load the package file."""
-        from homeassistant.config import async_hass_config_yaml
-
-        written = plan.written
-        if not written:
-            ir.async_delete_issue(self.hass, DOMAIN, ISSUE_PACKAGE_NOT_LOADED)
-            return
-        try:
-            config = await async_hass_config_yaml(self.hass)
-        except HomeAssistantError:
-            return
-        loaded = writer.unique_ids_of_knx_config(config.get(KNX_DOMAIN) or {})
-        if any((e.domain, e.unique_id) in loaded for e in written):
-            ir.async_delete_issue(self.hass, DOMAIN, ISSUE_PACKAGE_NOT_LOADED)
-            return
-        ir.async_create_issue(
-            self.hass,
-            DOMAIN,
-            ISSUE_PACKAGE_NOT_LOADED,
-            is_fixable=True,
-            severity=ir.IssueSeverity.WARNING,
-            translation_key=ISSUE_PACKAGE_NOT_LOADED,
-            translation_placeholders={"path": str(package)},
-        )
-
-    def _assign_areas(self, plan: ImportPlan, rooms: dict[str, str]) -> int:
-        registry = er.async_get(self.hass)
-        areas = ar.async_get(self.hass)
-        count = 0
-        for entry in plan.written:
-            room = rooms.get(entry.key)
-            entity_id = registry.async_get_entity_id(entry.domain, KNX_DOMAIN, entry.unique_id)
-            if not room or not entity_id:
-                continue
-            reg_entry = registry.async_get(entity_id)
-            if reg_entry is None or reg_entry.area_id:
-                continue
-            area = areas.async_get_area_by_name(room) or areas.async_create(room)
-            registry.async_update_entity(entity_id, area_id=area.id)
-            count += 1
-        return count
+    # ------------------------------------------------------------ removal
 
     async def async_remove(self, entry: ConfigEntry) -> None:
         """Integration removed: drop the package file, the line added to
         configuration.yaml and the generated entities."""
         hass = self.hass
-        options = entry_options(entry)
-        package = self.package_path(options)
+        package = self.package_path(entry_options(entry))
         await hass.async_add_executor_job(lambda: package.unlink(missing_ok=True))
         if added := entry.data.get(DATA_PACKAGES_ADDED):
-            await self._async_remove_packages_line(added, package)
+            await packages.async_remove_line(hass, added)
         await self._async_reload_knx()
-        registry = er.async_get(hass)
-        for applied in self.applied.values():
-            if entity_id := registry.async_get_entity_id(applied["domain"], KNX_DOMAIN, applied["unique_id"]):
-                registry.async_remove(entity_id)
+        registry.remove_entities(hass, ((a["domain"], a["unique_id"]) for a in self.applied.values()))
         await self._store.async_remove()
-
-    async def _async_remove_packages_line(self, added: dict[str, Any], package: Path) -> None:
-        """Take out the line `async_fix_packages` added, unless other packages need it."""
-        from homeassistant.config import YAML_CONFIG_FILE, async_hass_config_yaml
-
-        hass = self.hass
-        config_file = Path(hass.config.path(YAML_CONFIG_FILE))
-        folder = Path(hass.config.path(packages.DEFAULT_DIR))
-
-        def _edit() -> Path | None:
-            if added.get("status") == packages.ADD and folder.is_dir():
-                others = [p for p in folder.rglob("*") if p.suffix in (".yaml", ".yml")]
-                if others:
-                    return None  # the folder holds packages of the user now
-            text = config_file.read_text(encoding="utf-8")
-            new_text = packages.revert(text, added["line"], bool(added.get("block")))
-            backup = yamledit.backup_path(config_file)
-            backup.write_text(text, encoding="utf-8")
-            config_file.write_text(new_text, encoding="utf-8")
-            if added.get("status") == packages.ADD and folder.is_dir() and not any(folder.iterdir()):
-                folder.rmdir()
-            return backup
-
-        try:
-            backup = await hass.async_add_executor_job(_edit)
-        except (ValueError, OSError) as err:
-            _LOGGER.warning("Could not remove the packages line from %s: %s", config_file, err)
-            return
-        if backup is None:
-            return
-        try:
-            await async_hass_config_yaml(hass)
-        except HomeAssistantError as err:
-            await hass.async_add_executor_job(yamledit.restore, {config_file: backup})
-            _LOGGER.warning("Could not remove the packages line from %s: %s", config_file, err)

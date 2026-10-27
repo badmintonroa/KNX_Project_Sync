@@ -18,13 +18,9 @@ from .const import (
     SERVICE_IMPORT_PROJECT,
     SOURCE_KNX_PROJECT,
 )
-from .importer import (
-    Importer,
-    KnxImportError,
-    async_prepare_file,
-    async_prepare_knx_project,
-    entry_options,
-)
+from .errors import KnxImportError
+from .importer import Importer, entry_options
+from .project import async_prepare_file, async_prepare_knx_project
 from .websocket import async_register_commands, async_register_panel, async_unregister_panel
 
 PLATFORMS = [Platform.SENSOR]
