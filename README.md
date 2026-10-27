@@ -157,7 +157,7 @@ The entities themselves belong to the KNX integration. They are normal KNX entit
 | Cover | Blind actuator channels, or DPT 1.007, 1.008, 1.010, 5.001, 5.003 with cover names (*blind*, *shutter*, *Jalousie*, …) | up/down, step, stop, position, slat angle, their states |
 | Climate | Actuator or room controller channel with actual and target temperature (9.001) | setpoint shift, operation mode, controller mode, heating/cooling, valve, humidity |
 | Weather | Weather station device with outdoor temperature and wind or brightness | temperature, brightness N/E/S/W, wind speed and direction, rain/frost/wind alarm, day/night, air pressure, humidity |
-| Scene | DPT 17.001, 18.001, addresses `0/1/x`, names with *scene* | address, scene number |
+| Scene | DPT 17.001, 18.001, names with *scene* | address, scene number |
 
 Not supported yet: `fan`, `number`, `select`, `button`, `expose`, `notify`. Known gaps of the detection:
 
@@ -180,16 +180,15 @@ Each group address ends up in at most one entity. The steps run in this order, a
    5. names ending in ` s` (switch), ` d` (dim), ` w` (value) or ` status`
 
    If several sources find the same switch address, they are merged into one light, and the source with the most fields wins.
-2. **Switches**: DPT 1.001 grouped by name. A name with *status* becomes the state address. Switch outputs of dimming actuators are lights, not switches. Addresses `0/1/x` (scenes) and `1/7/x` are skipped.
+2. **Switches**: DPT 1.001 grouped by name. A name with *status* becomes the state address. Switch outputs of dimming actuators are lights, not switches. Addresses `1/7/x` are skipped.
 3. **Covers**: first from the channels of blind actuators, then from cover names among the remaining group addresses.
 4. **Climate**: per actuator or room controller channel.
 5. **Weather**: per weather station device.
 6. **Everything else, one group address at a time:**
-   1. `0/1/x` is a scene.
-   2. A type in square brackets in the ETS name wins: `[switch]`, `[light]`, `[cover]`, `[sensor]`, `[binary_sensor]`, `[scene]`. This only applies here, to group addresses that no earlier step used.
-   3. Otherwise the DPT decides, and for ambiguous DPTs the name. For example 5.001 is a cover with *blind* in the name, a light with *brightness*, and a sensor otherwise.
-   4. Without a DPT only the name counts (*light*, *lamp*, *temp*, *status*, …).
-   5. Anything left goes to *No type*.
+   1. A type in square brackets in the ETS name wins: `[switch]`, `[light]`, `[cover]`, `[sensor]`, `[binary_sensor]`, `[scene]`. This only applies here, to group addresses that no earlier step used.
+   2. Otherwise the DPT decides, and for ambiguous DPTs the name. For example 5.001 is a cover with *blind* in the name, a light with *brightness*, and a sensor otherwise.
+   3. Without a DPT only the name counts (*light*, *lamp*, *temp*, *status*, …).
+   4. Anything left goes to *No type*.
 
 When you click *Apply*, these rules come on top:
 
