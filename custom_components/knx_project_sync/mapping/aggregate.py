@@ -810,8 +810,9 @@ DPT_TO_HA = {
 _FALLBACK_PATTERNS = [
     (js(r"temp|temperatuur", True), "temperature"),
     (js(r"hum|humidity|rv", True), "humidity"),
-    (js(r"lux|illuminance|lichtsterkte", True), "illuminance"),
-    (js(r"\bppm\b|co2", True), "ppm"),
+    (js(r"lux|illuminance|lichtsterkte|helligkeit", True), "illuminance"),
+    (js(r"\bppm\b|co2|\bco\b", True), "ppm"),
+    (js(r"co₂", True), "ppm"),
     (js(r"volt|spanning|voltage", True), "voltage"),
     (js(r"(^|\W)(amp|stroom|current|ma|a)($|\W)", True), "curr"),
     (js(r"power|vermogen|watt|kw\b", True), "power_2byte"),

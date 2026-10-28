@@ -8,6 +8,12 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 
+## 0.1.4
+
+### Behoben
+
+- Gruppenadressen ohne Datenpunkttyp werden jetzt auch an deutschen Namen erkannt: „Helligkeit“ wird ein Sensor `illuminance`, „CO“ und „CO₂“ werden Sensoren `ppm`. „Niederschlag“ und „Regen“ ohne Datenpunkttyp werden ein Binärsensor (in der Praxis ein 1-Bit-Alarm). Vorher landeten sie unter *Nicht zugeordnet*. Mit Datenpunkttyp ändert sich nichts. Gleiche Änderung wie in knx2home.
+
 ## 0.1.3
 
 ### Geändert
