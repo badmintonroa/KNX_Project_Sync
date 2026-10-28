@@ -8,7 +8,7 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 
-## Unveröffentlicht
+## 0.1.7
 
 ### Hinzugefügt
 
