@@ -355,19 +355,29 @@ class _Planner:
         """Set previous_*, NEW -> CHANGED/UNCHANGED; returns the previous entities left over."""
         unmatched = dict(self.previous)
         by_uid = {(p["domain"], p["unique_id"]): k for k, p in self.previous.items()}
-        for entry in entries:
+        candidates = [
+            e
+            for e in entries
             # invalid ones too: a typo must not delete the entity from the registry
-            if entry.status not in (Status.NEW, Status.DESELECTED, Status.EXISTING, Status.INVALID):
-                continue
-            key = entry.key if entry.key in unmatched else by_uid.get((entry.domain, entry.unique_id))
-            if key not in unmatched:
-                continue
-            prev = unmatched.pop(key)
-            entry.previous_domain = prev["domain"]
-            entry.previous_unique_id = prev["unique_id"]
-            if entry.status == Status.NEW:
-                same = prev["config"] == entry.config and key == entry.key and prev["domain"] == entry.domain
-                entry.status = Status.UNCHANGED if same else Status.CHANGED
+            if e.status in (Status.NEW, Status.DESELECTED, Status.EXISTING, Status.INVALID)
+        ]
+        # same key first: an entry must not take the previous entity of another one by unique_id
+        for by_key in (True, False):
+            for entry in candidates:
+                if entry.previous_unique_id:
+                    continue
+                if by_key:
+                    key = entry.key if entry.key in unmatched else None
+                else:
+                    key = by_uid.get((entry.domain, entry.unique_id))
+                if key not in unmatched:
+                    continue
+                prev = unmatched.pop(key)
+                entry.previous_domain = prev["domain"]
+                entry.previous_unique_id = prev["unique_id"]
+                if entry.status == Status.NEW:
+                    same = prev["config"] == entry.config and key == entry.key and prev["domain"] == entry.domain
+                    entry.status = Status.UNCHANGED if same else Status.CHANGED
         return unmatched
 
     # 5. after the first import, new entities without a decision are only offered
