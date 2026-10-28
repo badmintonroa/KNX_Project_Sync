@@ -91,6 +91,6 @@ A fix for a wrong detection should go to knx2home as well, or be listed as an in
 
 Versions follow [SemVer](https://semver.org). While the version starts with `0.`, anything can still change. `-beta.N` versions are GitHub pre-releases.
 
-1. Raise the version in `custom_components/knx_project_sync/manifest.json`, `const.py` and `frontend/package.json`. A test checks that all three match.
+1. Raise the version in `custom_components/knx_project_sync/manifest.json` only. `const.py` reads it from there and `frontend/package.json` carries no version.
 2. Add a section `## <version>` to [CHANGELOG.md](CHANGELOG.md).
 3. After the merge to `main` the *Release* workflow creates the tag `v<version>` and the release, with the changelog section as text.
