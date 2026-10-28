@@ -8,6 +8,12 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 
+## 0.1.3
+
+### Geändert
+
+- Das Repository heißt jetzt `KNX_Project_Sync` (vorher `Knx-has-auto-importer`). Verweise in `manifest.json`, README und Schema zeigen auf die neue Adresse. Wer die Integration in HACS als benutzerdefiniertes Repository eingetragen hat, muss nichts tun: GitHub leitet die alte Adresse weiter. Für einen frischen Eintrag gilt `https://github.com/badmintonroa/KNX_Project_Sync`.
+
 ## 0.1.2
 
 ### Behoben

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/badmintonroa/Knx-has-auto-importer/schema/manifest-v1.schema.json",
+  "$id": "https://github.com/badmintonroa/KNX_Project_Sync/schema/manifest-v1.schema.json",
   "title": "knx2home-ha-manifest v1",
   "description": "Home Assistant KNX entities derived from one ETS project, with stable keys for updates. See docs/manifest-v1.md.",
   "type": "object",
