@@ -13,6 +13,7 @@ from .aggregate import (
     build_cover_aggregates,
     build_la_light_aggregates,
     build_linked_light_aggregates,
+    build_name_based_climate_aggregates,
     build_name_based_light_aggregates,
     build_switch_aggregates,
     build_weather_aggregates,
@@ -123,9 +124,18 @@ def build_ha_entities(catalog: Catalog, drop_reserve: bool = True) -> HaEntities
             entry["respond_to_read"] = True
         push(ent.switches, entry)
 
+    climate_aggs = build_climate_aggregates(gas, links)
+    climate_aggs += build_name_based_climate_aggregates(gas, {c["temperature_address"] for c in climate_aggs})
+    climate_ids = {i for c in climate_aggs for i in c["consumed"]}
+
     channel_covers = build_channel_cover_aggregates(gas, links)
     channel_cover_ids = {i for c in channel_covers for i in c["consumed"]}
-    cover_aggs = [*channel_covers, *build_cover_aggregates([g for g in gas if g.id not in channel_cover_ids], contexts)]
+    cover_aggs = [
+        *channel_covers,
+        *build_cover_aggregates(
+            [g for g in gas if g.id not in channel_cover_ids and g.id not in climate_ids], contexts
+        ),
+    ]
     for c in cover_aggs:
         entry = {"name": c["name"]}
         for key in (
@@ -145,7 +155,6 @@ def build_ha_entities(catalog: Catalog, drop_reserve: bool = True) -> HaEntities
             entry["invert_angle"] = True
         push(ent.covers, entry)
 
-    climate_aggs = build_climate_aggregates(gas, links)
     for c in climate_aggs:
         push(ent.climates, {k: v for k, v in c.items() if k != "consumed"})
 

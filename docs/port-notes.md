@@ -28,6 +28,8 @@ Der Port liegt in [`custom_components/knx_project_sync/mapping/`](../custom_comp
 
 Das anonymisierte Familienhaus (`einfamilienhaus`) zeigt Punkt 3 an einer Jalousie: Das Modulobjekt „Kurzzeitbetrieb/Stopp“ ist am `ComObject` 1.007 und nur durch die `ComObjectRef` 1.008. knx2home liest 1.007 und nimmt die GA als `move_short_address`. Der Port liest 1.008, die GA wird deshalb nicht Teil der Jalousie und legt als 1.008-Befehl noch eine zweite Jalousie an (`cover:GA-19`). `KNOWN_DIFFERENCES` in `tests/test_mapping_parity.py` hält das fest. Das ist eine Schwäche des Ports und nicht gewollt: Eine Stopp-GA mit 1.008 sollte `stop_address` werden.
 
+9. **Klima nach Namen.** Räume, deren Gruppenadressen in der ETS an kein Gerät verknüpft sind, bekamen kein Klima. Der Port gruppiert sie zusätzlich nach dem Namen (`<Raum>_<Rolle>`, Rollen: Ist-Temperatur, Basis-Soll, Sollwertverschiebung), wenn keine Verknüpfung dieselbe Ist-Temperatur nutzt (`build_name_based_climate_aggregates`). Jede GA muss ohne DPT sein oder den DPT ihrer Rolle haben. Eine Verschiebung ohne DPT gilt als 9.002, eine 1-Bit-Verschiebung (1.007) wird nicht verwendet und auch nicht als Jalousie angeboten. Der Platzhalterraum „Zimmername“ wird übersprungen. Außerdem kürzt `_climate_name` angehängte Trenner, „Basis“ und ein „_H“ vom Raumnamen (`Raum_H_BASIS-Soll` wird `Raum`). Die gleiche Änderung gehört in knx2home.
+
 ## Gefundene Schwächen von knx2home
 
 Sie bleiben im Manifest erhalten, damit die Parity bestehen bleibt. Die Integration behandelt sie beim Import (siehe [import.md](import.md)):
