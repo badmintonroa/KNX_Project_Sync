@@ -23,7 +23,9 @@ _USER_HINT = js(r"\[(\w+)\]")
 _SCENE_LIKE = js(r"(\bscene\b|\bscène\b|\bszene\b|\bscena\b)")
 _BRIGHTNESS = js(r"(brightness|helderheid)", True)
 _LIGHT_NAME = js(r"(licht|light|lamp|dim)")
-_SENSOR_NAME = js(r"(temp|temperatuur|temperature|hum|co2|lux|druk|pressure|wind|rain|flow)")
+_SENSOR_NAME = js(r"(temp|temperatuur|temperature|hum|co2|co₂|\bco\b|lux|helligkeit|druk|pressure|wind|rain|flow)")
+# without a datapoint type, precipitation is a 1-bit alarm in practice, not an amount
+_PRECIPITATION = js(r"\b(niederschlag|regenalarm|regen)\b")
 _ADDRESS3 = js(r"^(\d+)/(\d+)/(\d+)$")
 
 
@@ -114,6 +116,8 @@ def guess_entity_type(dpt: str | None, name: str, address: str | None = None) ->
         return "cover"
     if is_scene_like_name(lower):
         return "scene"
+    if not nd and test(_PRECIPITATION, lower):
+        return "binary_sensor"
     if test(_SENSOR_NAME, lower):
         return "sensor"
     if is_status_name(name):
