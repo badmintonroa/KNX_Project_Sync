@@ -519,6 +519,41 @@ _NAME_SETPOINT = js(r"[\s_-]*(basis[\s_-]?soll(wert)?|soll[\s_-]?temp(eratur)?|b
 _PLACEHOLDER_ROOM = js(r"^(zimmername|raumname|room[\s_-]?name)$", True)
 
 
+_NAME_OPERATION_MODE = js(
+    r"^(.*?)[\s_-]*(?:(rm|status|state|r[uü]ckmeldung)[\s_-]+)?"
+    r"(?:betriebs[\s_-]?(?:vorwahl|art|modus)|operation[\s_-]?mode|hvac[\s_-]?mode)"
+    r"(?:[\s_-]+(status|state))?$",
+    True,
+)
+
+
+def add_name_based_operation_modes(gas: list[GroupAddress], aggs: list[Agg]) -> None:
+    """Fill `operation_mode[_state]_address` of climates from the names `<room>_Betriebsvorwahl` and
+    `<room>_RM_Betriebsvorwahl` when ETS has no datapoint type for them (or 20.102). The room is the
+    name of the temperature GA without its role (`<room>_IST-Temp`)."""
+    by_address = {g.address: g for g in gas}
+    modes: dict[str, dict[str, GroupAddress]] = {}
+    for ga in gas:
+        m = _NAME_OPERATION_MODE.match(ga.name or "")
+        if not m or to_hyphen(ga.dpt) not in (None, "20-102"):
+            continue
+        room = _tidy_climate_name(m.group(1)).lower()
+        if room:
+            modes.setdefault(room, {}).setdefault("state" if m.group(2) or m.group(3) else "command", ga)
+    for agg in aggs:
+        actual = by_address.get(agg["temperature_address"])
+        match = _NAME_ACTUAL.search(actual.name or "") if actual else None
+        if not actual or not match:
+            continue
+        found = modes.get(_tidy_climate_name(actual.name[: match.start()]).lower(), {})
+        command = found.get("command")
+        for role, key in (("command", "operation_mode_address"), ("state", "operation_mode_state_address")):
+            # a state address that is just the command GA is replaced by the real status GA
+            if role in found and agg.get(key) in (None, command.address if command else None):
+                agg[key] = found[role].address
+                agg["consumed"].add(found[role].id)
+
+
 def build_name_based_climate_aggregates(gas: list[GroupAddress], taken: set[str]) -> list[Agg]:
     """Climate for rooms whose GAs are not linked to a device in ETS.
 

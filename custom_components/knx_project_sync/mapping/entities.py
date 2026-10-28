@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .aggregate import (
+    add_name_based_operation_modes,
     build_address_light_aggregates,
     build_channel_cover_aggregates,
     build_channel_light_aggregates,
@@ -126,6 +127,7 @@ def build_ha_entities(catalog: Catalog, drop_reserve: bool = True) -> HaEntities
 
     climate_aggs = build_climate_aggregates(gas, links)
     climate_aggs += build_name_based_climate_aggregates(gas, {c["temperature_address"] for c in climate_aggs})
+    add_name_based_operation_modes(gas, climate_aggs)
     climate_ids = {i for c in climate_aggs for i in c["consumed"]}
 
     channel_covers = build_channel_cover_aggregates(gas, links)
