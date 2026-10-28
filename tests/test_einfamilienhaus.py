@@ -199,3 +199,24 @@ def test_weather_rule_keeps_entities_imported_before():
     assert status["sensor:GA-229"] == "unchanged"
     assert status["weather:GA-229"] == "pending"
     assert plan.removed_unique_ids == []
+
+
+def test_deselected_entry_does_not_take_the_previous_entity_of_the_weather_station():
+    """A deselected entry with the weather uid must not leave the weather station "new" forever."""
+    manifest = _prepared().manifest
+    weather = next(e for e in manifest["entities"] if e["domain"] == "weather")
+    home = {**weather["config"], "name": "Home"}
+    selection = {
+        weather["key"]: {"enabled": True},
+        "switch:GA-235": {"enabled": False, "domain": "weather", "config": home},
+    }
+    previous: dict = {}
+    for _ in range(2):
+        plan = build_plan(
+            manifest, previous, domains=DOMAINS, keep_removed=False, selection=selection, include_new=False
+        )
+        previous = plan.state()
+    status = {e.key: e.status for e in plan.entries}
+    assert status[weather["key"]] == "unchanged"
+    assert status["switch:GA-235"] == "deselected"
+    assert not plan.has_changes

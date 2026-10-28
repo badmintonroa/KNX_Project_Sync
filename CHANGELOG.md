@@ -8,6 +8,12 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 
+## 0.1.5
+
+### Behoben
+
+- Die Änderungsleiste verschwindet nach „Übernehmen“ jetzt auch, wenn ein abgewählter Eintrag (z. B. „Tag/Nacht“ mit übernommener Wetter-Konfiguration „Home“) dieselbe `unique_id` hat wie die Wetterstation. Vorher nahm der abgewählte Eintrag der Wetterstation ihren früheren Stand weg: die Wetterstation blieb „Wird hinzugefügt“, „Home“ blieb „Wird entfernt“. Jetzt wird zuerst über den Schlüssel zugeordnet und erst danach über die `unique_id`.
+
 ## 0.1.4
 
 ### Behoben
