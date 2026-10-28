@@ -8,6 +8,12 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 
+## 0.1.7
+
+### Hinzugefügt
+
+- Klima: Fehlen `operation_mode_address` und `operation_mode_state_address`, werden sie aus den Namen `<Raum>_Betriebsvorwahl` und `<Raum>_RM_Betriebsvorwahl` (auch `Betriebsart`, `Betriebsmodus`, `Operation mode`, `HVAC mode`) ergänzt, wenn die Gruppenadressen keinen oder den Datenpunkttyp 20.102 haben. Eine als Status eingetragene Befehlsadresse wird dabei durch die echte Rückmeldung ersetzt.
+
 ## 0.1.6
 
 ### Behoben

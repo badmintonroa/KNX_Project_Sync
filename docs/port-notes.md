@@ -30,6 +30,8 @@ Das anonymisierte Familienhaus (`einfamilienhaus`) zeigt Punkt 3 an einer Jalous
 
 9. **Klima nach Namen.** Räume, deren Gruppenadressen in der ETS an kein Gerät verknüpft sind, bekamen kein Klima. Der Port gruppiert sie zusätzlich nach dem Namen (`<Raum>_<Rolle>`, Rollen: Ist-Temperatur, Basis-Soll, Sollwertverschiebung), wenn keine Verknüpfung dieselbe Ist-Temperatur nutzt (`build_name_based_climate_aggregates`). Jede GA muss ohne DPT sein oder den DPT ihrer Rolle haben. Eine Verschiebung ohne DPT gilt als 9.002, eine 1-Bit-Verschiebung (1.007) wird nicht verwendet und auch nicht als Jalousie angeboten. Der Platzhalterraum „Zimmername“ wird übersprungen. Außerdem kürzt `_climate_name` angehängte Trenner, „Basis“ und ein „_H“ vom Raumnamen (`Raum_H_BASIS-Soll` wird `Raum`). Die gleiche Änderung gehört in knx2home.
 
+10. **Betriebsart nach Namen.** Fehlt einem Klima die Betriebsart, ergänzt `add_name_based_operation_modes` sie aus `<Raum>_Betriebsvorwahl` (Befehl) und `<Raum>_RM_Betriebsvorwahl` (Status), wenn die GA keinen oder den DPT 20.102 hat. Der Raum ist der Name der Ist-Temperatur ohne Rolle. HA nimmt für `operation_mode` immer 20.102 an. Die Annahme passt zu den MDT-Reglern, bei denen ETS den Typ nicht mitliefert. Eine Befehlsadresse, die schon als Status eingetragen ist, wird durch die echte Rückmeldung ersetzt.
+
 ## Gefundene Schwächen von knx2home
 
 Sie bleiben im Manifest erhalten, damit die Parity bestehen bleibt. Die Integration behandelt sie beim Import (siehe [import.md](import.md)):

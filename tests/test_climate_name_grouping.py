@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from custom_components.knx_project_sync.mapping import Catalog, build_ha_entities
+from custom_components.knx_project_sync.mapping.aggregate import add_name_based_operation_modes
 from custom_components.knx_project_sync.mapping.catalog import GroupAddress, Link
 
 
@@ -17,6 +18,7 @@ def _room(prefix: str, base: int, shift_dpt: str | None, temp_dpt: str | None = 
         ("BASIS-Soll", temp_dpt),
         ("RM_Aktueller_Soll", temp_dpt),
         ("Betriebsvorwahl", None),
+        ("RM_Betriebsvorwahl", None),
     ]
     return [
         GroupAddress(id=f"GA-{base + i}", name=f"{prefix}_H_{name}", address=f"4/0/{base + i}", dpt=dpt)
@@ -34,6 +36,8 @@ def test_unlinked_room_becomes_a_climate():
             "setpoint_shift_address": "4/0/0",
             "setpoint_shift_state_address": "4/0/0",
             "setpoint_shift_mode": "DPT9002",
+            "operation_mode_address": "4/0/4",
+            "operation_mode_state_address": "4/0/5",
         }
     ]
     # the GAs the climate uses are not offered again
@@ -85,3 +89,24 @@ def test_climate_name_drops_the_setpoint_word_and_dangling_separators():
     assert name("Bad_H_BASIS-Soll") == "Bad"
     assert name("Kinderzimmer_H_BASIS-Soll") == "Kinderzimmer"
     assert name("Wohnzimmer Sollwert") == "Wohnzimmer"
+
+
+def test_operation_mode_by_name_needs_no_or_the_matching_datapoint_type():
+    def ga(i, name, dpt):
+        return GroupAddress(id=f"GA-{i}", name=name, address=f"6/0/{i}", dpt=dpt)
+
+    gas = [
+        ga(1, "Office Actual temperature", "9.001"),
+        ga(2, "Office Operation mode", "20.102"),
+        ga(3, "Office Operation mode status", "20.102"),
+        ga(4, "Hall Actual temperature", "9.001"),
+        ga(5, "Hall HVAC mode", "1.001"),
+    ]
+    aggs = [
+        {"name": "Office", "temperature_address": "6/0/1", "consumed": set()},
+        {"name": "Hall", "temperature_address": "6/0/4", "consumed": set()},
+    ]
+    add_name_based_operation_modes(gas, aggs)
+    assert aggs[0]["operation_mode_address"] == "6/0/2"
+    assert aggs[0]["operation_mode_state_address"] == "6/0/3"
+    assert "operation_mode_address" not in aggs[1]
