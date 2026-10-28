@@ -409,10 +409,20 @@ _CLIMATE_NAME_STRIP = js(
 _STATUS_WORD = js(r"\bstatus\b", True)
 
 
+_CLIMATE_NAME_BASIS = js(r"[\s_-]*basis[\s_-]*$", True)
+_CLIMATE_NAME_TAIL = js(r"([\s_-]+(h|heizung))?[\s_-]*$", True)
+
+
+def _tidy_climate_name(name: str) -> str:
+    """Drops dangling separators and a trailing room-heating marker (`Arbeitszimmer_H_` -> `Arbeitszimmer`)."""
+    return _CLIMATE_NAME_TAIL.sub("", name, count=1) or name
+
+
 def _climate_name(ga: GroupAddress | None) -> str | None:
     if not ga or not ga.name:
         return None
     stripped = collapse_ws(replace_all(_CLIMATE_NAME_STRIP, ga.name))
+    stripped = _tidy_climate_name(_CLIMATE_NAME_BASIS.sub("", stripped, count=1))
     return stripped or ga.name
 
 
@@ -501,6 +511,60 @@ def build_climate_aggregates(gas: list[GroupAddress], links: list[Link]) -> list
 
 def _dpt(ga: GroupAddress | None) -> str | None:
     return ga.dpt if ga else None
+
+
+_NAME_SHIFT = js(r"[\s_-]*(sollwert[\s_-]?verschiebung|soll[\s_-]?verschiebung|setpoint[\s_-]?shift)$", True)
+_NAME_ACTUAL = js(r"[\s_-]*(ist[\s_-]?temp(eratur)?|ist[\s_-]?wert|actual[\s_-]?temp(erature)?)$", True)
+_NAME_SETPOINT = js(r"[\s_-]*(basis[\s_-]?soll(wert)?|soll[\s_-]?temp(eratur)?|basis[\s_-]?setpoint)$", True)
+_PLACEHOLDER_ROOM = js(r"^(zimmername|raumname|room[\s_-]?name)$", True)
+
+
+def build_name_based_climate_aggregates(gas: list[GroupAddress], taken: set[str]) -> list[Agg]:
+    """Climate for rooms whose GAs are not linked to a device in ETS.
+
+    Groups GAs named `<room>_<role>` (role: actual temperature, base setpoint, setpoint shift) that
+    no link-driven climate uses. Each of them must be untyped or have the datapoint type of its role.
+    `taken` holds the temperature addresses of the link-driven climates.
+    """
+    room_names: dict[str, str] = {}
+    roles: dict[str, dict[str, GroupAddress]] = {}
+    for ga in gas:
+        name = ga.name or ""
+        dpt = to_hyphen(ga.dpt)
+        for role, rx, dpts in (
+            ("actual", _NAME_ACTUAL, (None, "9-1")),
+            ("setpoint", _NAME_SETPOINT, (None, "9-1")),
+            ("shift", _NAME_SHIFT, (None, "9-2", "6-10", "1-7")),
+        ):
+            m = rx.search(name)
+            if not m:
+                continue
+            room = _tidy_climate_name(name[: m.start()])
+            if dpt in dpts and room and not test(_PLACEHOLDER_ROOM, room):
+                room_names.setdefault(room.lower(), room)
+                roles.setdefault(room.lower(), {}).setdefault(role, ga)
+            break
+    out = []
+    for key, found in roles.items():
+        actual, setpoint, shift = found.get("actual"), found.get("setpoint"), found.get("shift")
+        if not actual or not setpoint or actual.address in taken:
+            continue
+        agg: Agg = {
+            "name": room_names[key],
+            "temperature_address": actual.address,
+            "target_temperature_state_address": setpoint.address,
+            "consumed": {setpoint.id},
+        }
+        if shift:
+            # a 1-bit step (1.007) cannot be a setpoint shift in Home Assistant; keep it out of the covers
+            agg["consumed"].add(shift.id)
+            shift_dpt = to_hyphen(shift.dpt)
+            if shift_dpt != "1-7":
+                agg["setpoint_shift_address"] = shift.address
+                agg["setpoint_shift_state_address"] = shift.address
+                agg["setpoint_shift_mode"] = "DPT6010" if shift_dpt == "6-10" else "DPT9002"
+        out.append(agg)
+    return out
 
 
 # ====================== WEATHER ======================
