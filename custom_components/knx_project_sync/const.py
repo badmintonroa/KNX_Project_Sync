@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "knx_project_sync"
-VERSION: Final = "0.1.5"
+VERSION: Final = "0.1.6"
 
 KNX_DOMAIN: Final = "knx"
 # xknxproject output of the project uploaded in the KNX panel
