@@ -1,8 +1,7 @@
-"""One version everywhere, with a changelog entry."""
+"""The version is set in manifest.json only, with a changelog entry."""
 
 from __future__ import annotations
 
-import json
 import re
 
 from awesomeversion import AwesomeVersion
@@ -11,10 +10,9 @@ from custom_components.knx_project_sync.const import VERSION
 from helpers import ROOT, load_json
 
 
-def test_versions_match():
+def test_version_comes_from_manifest():
     manifest = load_json(ROOT / "custom_components/knx_project_sync/manifest.json")
-    package = json.loads((ROOT / "frontend/package.json").read_text(encoding="utf-8"))
-    assert manifest["version"] == VERSION == package["version"]
+    assert manifest["version"] == VERSION
 
 
 def test_version_is_semver():

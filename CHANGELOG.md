@@ -4,7 +4,7 @@ Versionen nach [Semantic Versioning](https://semver.org/lang/de/). Solange die V
 
 Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine neue Version entsteht so:
 
-1. Version in `custom_components/knx_project_sync/manifest.json`, `const.py` und `frontend/package.json` erhöhen (ein Test prüft, dass alle gleich sind).
+1. Version nur in `custom_components/knx_project_sync/manifest.json` erhöhen. `const.py` liest sie von dort, `frontend/package.json` trägt keine Version mehr.
 2. Hier einen Abschnitt `## <version>` mit den Änderungen ergänzen.
 3. Nach dem Merge auf `main` legt der Workflow *Release* Tag und Release an.
 

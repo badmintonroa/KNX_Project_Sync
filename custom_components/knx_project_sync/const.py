@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Final
 
 DOMAIN: Final = "knx_project_sync"
-VERSION: Final = "0.1.6"
+# manifest.json is the one place the version is set
+VERSION: Final[str] = json.loads(Path(__file__).with_name("manifest.json").read_text(encoding="utf-8"))["version"]
 
 KNX_DOMAIN: Final = "knx"
 # xknxproject output of the project uploaded in the KNX panel
