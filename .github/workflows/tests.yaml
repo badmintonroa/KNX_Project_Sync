@@ -52,7 +52,8 @@ jobs:
   frontend:
     # The panel is committed as one bundled file (HACS installs custom_components only).
     name: panel
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.56 does not support ubuntu-latest (Ubuntu 26.04) yet.
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: frontend
