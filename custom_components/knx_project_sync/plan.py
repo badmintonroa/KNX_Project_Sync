@@ -305,10 +305,15 @@ class _Planner:
         owners: dict[str, PlanEntry] = {}
         for entry in entries:
             if entry.status == Status.NEW and entry.domain == "weather" and self._decided(entry):
-                for address in _addresses(entry.config):
-                    owners.setdefault(address, entry)
+                for field, value in entry.config.items():
+                    if field in WEATHER_VALUE_FIELDS:
+                        continue  # the weather entity does not expose these values, keep them as sensors
+                    for address in _addresses({field: value}):
+                        owners.setdefault(address, entry)
         for entry in entries:
             if entry.status != Status.NEW or entry.domain not in SINGLE_GA_DOMAINS:
+                continue
+            if self.selection.get(entry.key, {}).get("enabled") is True:
                 continue
             if entry.key in self.previous or (entry.domain, entry.unique_id) in self.previous_uids:
                 continue  # imported before: stays, so it keeps its entity_id and history
@@ -459,6 +464,15 @@ def _retype(domain: str, target: str, config: dict[str, Any]) -> dict[str, Any]:
 
 # detected as one entity per GA, which a weather station can already cover
 SINGLE_GA_DOMAINS = ("switch", "binary_sensor", "sensor")
+
+# weather station GAs that stay readable only as sensors of their own: the HA weather entity
+# uses the brightness values for its condition but does not expose them
+WEATHER_VALUE_FIELDS = (
+    "address_brightness_south",
+    "address_brightness_east",
+    "address_brightness_west",
+    "address_brightness_north",
+)
 
 
 def _addresses(config: dict[str, Any]) -> list[str]:

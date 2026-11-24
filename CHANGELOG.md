@@ -21,6 +21,12 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 - Klima: Räume, deren Gruppenadressen in der ETS an kein Gerät verknüpft sind, werden jetzt nach dem Namen (`<Raum>_IST-Temp`, `_BASIS-Soll`, `_Sollwertverschiebung`) zu einem Klima zusammengefasst, wenn die Gruppenadressen keinen oder den passenden Datenpunkttyp haben. Eine 1-Bit-Sollwertverschiebung (1.007) wird nicht mehr als Jalousie angeboten.
 - Klima: Der Name enthält keinen Rest wie `_BASIS-` mehr (`Arbeitszimmer_H_BASIS-Soll` wird `Arbeitszimmer`).
 
+## Unveröffentlicht
+
+### Behoben
+
+- Wetterstation: Die Helligkeitswerte (Sonneneinstrahlung Süd, West, Ost, Nord) sind wieder als einzelne Sensoren verfügbar. Die HA-Wetter-Entität nutzt sie nur für den Zustand („Klare Nacht“) und zeigt sie nicht an; seit 0.1.1 wurden sie aber als „Doppelt“ ausgeblendet. Temperatur, Wind, Tag/Nacht und Alarme bleiben bei der Wetterstation. Ein als „Doppelt“ markierter Eintrag lässt sich im Panel außerdem einschalten.
+
 ## 0.1.5
 
 ### Behoben

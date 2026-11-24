@@ -125,16 +125,16 @@ def test_rooms_follow_the_innermost_location_of_the_device():
 def test_first_import_and_unchanged_reimport():
     manifest = _prepared().manifest
     first = build_plan(manifest, {}, domains=DOMAINS, keep_removed=False)
-    assert first.summary()["new"] == 123
-    assert first.summary()["duplicate"] == 7  # the GAs of the weather station
+    assert first.summary()["new"] == 126
+    assert first.summary()["duplicate"] == 4  # the GAs of the weather station, not its brightness values
     assert first.summary()["excluded"] == 5
     again = build_plan(manifest, first.state(), domains=DOMAINS, keep_removed=False)
     assert not again.has_changes
-    assert again.summary()["unchanged"] == 123
+    assert again.summary()["unchanged"] == 126
 
 
 def test_weather_station_owns_its_group_addresses():
-    """Temperature, wind, sun, day/night and wind alarm are not offered a second time as sensors and switches."""
+    """Temperature, wind, day/night and wind alarm are not offered a second time as sensors and switches, brightness is."""
     manifest = _prepared().manifest
     plan = build_plan(manifest, {}, domains=DOMAINS, keep_removed=False)
     status = {e.key: e.status for e in plan.entries}
@@ -142,13 +142,12 @@ def test_weather_station_owns_its_group_addresses():
     for key in (
         "sensor:GA-229",
         "sensor:GA-230",
-        "sensor:GA-232",
-        "sensor:GA-233",
-        "sensor:GA-234",
         "switch:GA-235",
         "switch:GA-241",
     ):
         assert status[key] == "duplicate", key
+    for key in ("sensor:GA-232", "sensor:GA-233", "sensor:GA-234"):  # brightness: no weather attribute, stays a sensor
+        assert status[key] == "new", key
     entry = next(e for e in plan.entries if e.key == "switch:GA-235")
     assert (entry.conflict_with.domain, entry.conflict_with.address) == ("weather", "0/4/22")
 
