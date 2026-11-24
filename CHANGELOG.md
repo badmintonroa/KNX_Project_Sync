@@ -21,7 +21,7 @@ Beim Release wird der Abschnitt der Version zum Text des GitHub-Release. Eine ne
 - Klima: Räume, deren Gruppenadressen in der ETS an kein Gerät verknüpft sind, werden jetzt nach dem Namen (`<Raum>_IST-Temp`, `_BASIS-Soll`, `_Sollwertverschiebung`) zu einem Klima zusammengefasst, wenn die Gruppenadressen keinen oder den passenden Datenpunkttyp haben. Eine 1-Bit-Sollwertverschiebung (1.007) wird nicht mehr als Jalousie angeboten.
 - Klima: Der Name enthält keinen Rest wie `_BASIS-` mehr (`Arbeitszimmer_H_BASIS-Soll` wird `Arbeitszimmer`).
 
-## Unveröffentlicht
+## 0.1.8
 
 ### Behoben
 
